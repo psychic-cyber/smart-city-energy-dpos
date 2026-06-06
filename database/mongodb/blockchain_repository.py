@@ -9,9 +9,30 @@ def save_block(block):
         get_blocks_collection()
     )
 
+    existing_block = (
+        collection.find_one(
+            {
+                "hash": block.hash
+            }
+        )
+    )
+
+    if existing_block:
+
+        return
+
     collection.insert_one(
         block.to_dict()
     )
+
+
+def save_chain(chain):
+
+    for block in chain:
+
+        save_block(
+            block
+        )
 
 
 def count_blocks():
