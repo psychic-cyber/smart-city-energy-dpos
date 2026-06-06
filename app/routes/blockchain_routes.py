@@ -9,7 +9,8 @@ from database.mongodb.transaction_repository import (
 )
 
 from database.mongodb.blockchain_repository import (
-    count_blocks
+    count_blocks,
+    get_blocks
 )
 
 from blockchain.core.blockchain import (
@@ -53,4 +54,14 @@ def transactions():
 
     return jsonify(
         get_transactions()
+    )
+
+@blockchain_bp.route(
+    "/api/blocks",
+    methods=["GET"]
+)
+def blocks():
+
+    return jsonify(
+        get_blocks()
     )

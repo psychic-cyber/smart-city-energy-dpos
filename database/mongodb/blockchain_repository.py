@@ -44,3 +44,18 @@ def count_blocks():
     return collection.count_documents(
         {}
     )
+
+def get_blocks(limit=20):
+
+    collection = (
+        get_blocks_collection()
+    )
+
+    blocks = list(
+        collection.find(
+            {},
+            {"_id": 0}
+        ).limit(limit)
+    )
+
+    return blocks
