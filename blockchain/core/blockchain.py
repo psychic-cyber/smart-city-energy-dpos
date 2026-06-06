@@ -21,15 +21,24 @@ class Blockchain:
 
         return self.chain[-1]
 
-    def add_block(self, data):
+    def add_block(
+        self,
+        transaction,
+        validator=None
+    ):
 
         previous_block = (
             self.get_latest_block()
         )
 
+        block_data = {
+            "validator": validator,
+            "transaction": transaction
+        }
+
         new_block = Block(
             len(self.chain),
-            data,
+            block_data,
             previous_block.hash
         )
 
