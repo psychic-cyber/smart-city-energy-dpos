@@ -5,7 +5,8 @@ from flask import (
 
 from database.mongodb.transaction_repository import (
     count_transactions,
-    get_transactions
+    get_transactions,
+    get_analytics
 )
 
 from database.mongodb.blockchain_repository import (
@@ -64,4 +65,15 @@ def blocks():
 
     return jsonify(
         get_blocks()
+    )
+
+
+@blockchain_bp.route(
+    "/api/analytics",
+    methods=["GET"]
+)
+def analytics():
+
+    return jsonify(
+        get_analytics()
     )
