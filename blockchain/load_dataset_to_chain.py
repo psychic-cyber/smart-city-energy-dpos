@@ -5,6 +5,8 @@ from blockchain.core.blockchain import Blockchain
 from blockchain.dpos.delegate import Delegate
 from blockchain.dpos.consensus import DPoSConsensus
 
+from blockchain.storage.storage_manager import save_blockchain
+
 from database.models.energy_transaction import EnergyTransaction
 
 
@@ -82,6 +84,14 @@ def load_dataset():
     print(
         f"\nTotal Blocks: {len(blockchain.chain)}"
     )
+
+    save_blockchain(
+        blockchain.chain
+        )
+    
+    print(
+        "\nBlockchain saved successfully."
+        )
 
     blockchain.display_chain()
 
