@@ -1,5 +1,7 @@
 import json
 
+from blockchain.core.block import Block
+
 
 BLOCKCHAIN_FILE = (
     "blockchain/storage/blockchain_data.json"
@@ -35,4 +37,18 @@ def load_blockchain():
         "r"
     ) as file:
 
-        return json.load(file)
+        blockchain_data = json.load(
+            file
+        )
+
+    chain = []
+
+    for block_data in blockchain_data:
+
+        chain.append(
+            Block.from_dict(
+                block_data
+            )
+        )
+
+    return chain

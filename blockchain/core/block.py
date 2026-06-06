@@ -9,20 +9,28 @@ class Block:
         self,
         index,
         data,
-        previous_hash
+        previous_hash,
+        timestamp=None,
+        block_hash=None
     ):
 
         self.index = index
 
-        self.timestamp = str(
-            datetime.now()
+        self.timestamp = (
+            timestamp
+            if timestamp
+            else str(datetime.now())
         )
 
         self.data = data
 
         self.previous_hash = previous_hash
 
-        self.hash = self.generate_hash()
+        self.hash = (
+            block_hash
+            if block_hash
+            else self.generate_hash()
+        )
 
     def generate_hash(self):
 
@@ -46,3 +54,17 @@ class Block:
             "previous_hash": self.previous_hash,
             "hash": self.hash
         }
+
+    @classmethod
+    def from_dict(
+        cls,
+        block_data
+    ):
+
+        return cls(
+            index=block_data["index"],
+            data=block_data["data"],
+            previous_hash=block_data["previous_hash"],
+            timestamp=block_data["timestamp"],
+            block_hash=block_data["hash"]
+        )
