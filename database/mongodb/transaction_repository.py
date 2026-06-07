@@ -113,3 +113,29 @@ def get_analytics():
         "anomalies_detected":
             anomalies_detected
     }
+
+def get_district_analytics():
+
+    collection = (
+        get_transactions_collection()
+    )
+
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$district",
+                "energy": {
+                    "$sum": {
+                        "$toDouble":
+                        "$energy_consumed"
+                    }
+                }
+            }
+        }
+    ]
+
+    return list(
+        collection.aggregate(
+            pipeline
+        )
+    )
