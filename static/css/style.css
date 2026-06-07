@@ -142,6 +142,10 @@ body {
   font-size: 0.95rem;
 }
 
+.logo-section i {
+  color: #e9aa2d;
+}
+
 /* =========================
    HERO SECTION
 ========================= */
