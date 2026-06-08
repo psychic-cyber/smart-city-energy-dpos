@@ -55,7 +55,9 @@ def get_blocks(limit=20):
         collection.find(
             {},
             {"_id": 0}
-        ).limit(limit)
+        )
+        .sort("index", 1)
+        .limit(limit)
     )
 
     return blocks
