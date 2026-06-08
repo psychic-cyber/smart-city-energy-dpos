@@ -1,52 +1,57 @@
+let predictionChart = null;
+let anomalyChart = null;
+
 async function loadAI() {
-  const response = await fetch("/api/analytics");
+  const analytics = await (await fetch("/api/analytics")).json();
 
-  const analytics = await response.json();
+  const totalTransactions = analytics.total_transactions;
+  const anomalies = analytics.anomalies_detected;
 
-  const anomalies = Number(analytics.anomalies_detected);
+  const anomalyRate = analytics.anomaly_percentage;
+  const healthScore = analytics.health_score;
+  const efficiency = analytics.energy_efficiency;
 
-  const totalRecords = 10001;
+  document.getElementById("anomalies").innerText = anomalies.toLocaleString();
 
-  const anomalyRate = (anomalies / totalRecords) * 100;
+  document.getElementById("aiAccuracy").innerText =
+    healthScore.toFixed(2) + "%";
 
-  const accuracy = 100 - anomalyRate;
-
-  const confidence = accuracy - 2;
-
-  document.getElementById("anomalies").innerText = anomalies;
-
-  document.getElementById("aiAccuracy").innerText = accuracy.toFixed(2) + "%";
-
-  document.getElementById("confidence").innerText = confidence.toFixed(2) + "%";
+  document.getElementById("confidence").innerText = efficiency.toFixed(2) + "%";
 
   document.getElementById("systemStatus").innerText =
-    accuracy > 90 ? "ACTIVE" : "WARNING";
+    healthScore >= 90 ? "ACTIVE" : "WARNING";
 
-  new Chart(document.getElementById("predictionChart"), {
+  if (predictionChart) predictionChart.destroy();
+
+  predictionChart = new Chart(document.getElementById("predictionChart"), {
     type: "bar",
 
     data: {
-      labels: ["Accuracy", "Confidence"],
+      labels: ["Health Score", "Energy Efficiency", "Anomaly Rate"],
 
       datasets: [
         {
-          label: "AI Performance",
+          label: "AI Metrics",
 
-          data: [accuracy, confidence],
+          data: [healthScore, efficiency, anomalyRate],
+
+          backgroundColor: ["#22c55e", "#3b82f6", "#ef4444"],
         },
       ],
     },
   });
 
-  new Chart(document.getElementById("anomalyChart"), {
+  if (anomalyChart) anomalyChart.destroy();
+
+  anomalyChart = new Chart(document.getElementById("anomalyChart"), {
     type: "doughnut",
 
     data: {
-      labels: ["Anomalies", "Normal Records"],
+      labels: ["Normal Records", "Anomalies"],
 
       datasets: [
         {
-          data: [anomalies, totalRecords - anomalies],
+          data: [totalTransactions - anomalies, anomalies],
         },
       ],
     },

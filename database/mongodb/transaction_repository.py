@@ -2,6 +2,8 @@ from database.mongodb.mongo_manager import (
     get_transactions_collection
 )
 
+from database.mongodb.blockchain_repository import count_blocks
+
 
 def save_transaction(
     transaction
@@ -248,6 +250,8 @@ def get_analytics():
                 total_energy_consumed,
                 2
             ),
+
+        "total_blocks": count_blocks(),
 
         "total_energy_generated":
             round(

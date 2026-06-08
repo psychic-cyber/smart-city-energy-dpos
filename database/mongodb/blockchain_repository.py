@@ -59,3 +59,13 @@ def get_blocks(limit=20):
     )
 
     return blocks
+
+def count_blocks():
+
+    collection = (
+        get_blocks_collection()
+    )
+
+    return collection.count_documents(
+        {}
+    )

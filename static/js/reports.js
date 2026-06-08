@@ -1,52 +1,63 @@
+let revenueChart = null;
+let energyChart = null;
+
 async function loadReports() {
-  const response = await fetch("/api/analytics");
-  const analytics = await response.json();
-
-  const consumed = Number(analytics.total_energy_consumed);
-
-  const generated = Number(analytics.total_energy_generated);
-
-  const revenue = Number(analytics.total_bill_amount);
+  const analytics = await (await fetch("/api/analytics")).json();
 
   document.getElementById("revenue").innerText =
-    "Rs " + revenue.toLocaleString();
+    "Rs " + Math.round(analytics.total_bill_amount).toLocaleString();
 
   document.getElementById("consumed").innerText =
-    consumed.toLocaleString() + " kWh";
+    Math.round(analytics.total_energy_consumed).toLocaleString() + " kWh";
 
   document.getElementById("generated").innerText =
-    generated.toLocaleString() + " kWh";
-
-  const performance = consumed > 0 ? (generated / consumed) * 100 : 0;
+    Math.round(analytics.total_energy_generated).toLocaleString() + " kWh";
 
   document.getElementById("performance").innerText =
-    performance.toFixed(1) + "%";
+    analytics.energy_efficiency.toFixed(2) + "%";
 
-  new Chart(document.getElementById("energyChart"), {
+  if (energyChart) energyChart.destroy();
+
+  energyChart = new Chart(document.getElementById("energyChart"), {
     type: "bar",
 
     data: {
-      labels: ["Consumed", "Generated"],
+      labels: ["House", "School", "Office"],
 
       datasets: [
         {
-          label: "Energy (kWh)",
+          label: "Energy Consumption",
 
-          data: [consumed, generated],
+          data: [
+            analytics.house_consumption,
+            analytics.school_consumption,
+            analytics.office_consumption,
+          ],
+
+          backgroundColor: ["#3b82f6", "#22c55e", "#f59e0b"],
         },
       ],
     },
   });
 
-  new Chart(document.getElementById("revenueChart"), {
-    type: "doughnut",
+  if (revenueChart) revenueChart.destroy();
+
+  revenueChart = new Chart(document.getElementById("revenueChart"), {
+    type: "radar",
 
     data: {
-      labels: ["Revenue"],
+      labels: ["Revenue", "Efficiency", "Health Score", "Carbon Saved"],
 
       datasets: [
         {
-          data: [revenue],
+          label: "System Performance",
+
+          data: [
+            analytics.total_bill_amount / 10000,
+            analytics.energy_efficiency,
+            analytics.health_score,
+            analytics.carbon_saved / 10000,
+          ],
         },
       ],
     },

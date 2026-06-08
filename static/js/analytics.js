@@ -1,45 +1,56 @@
-let districtChart;
-let entityChart;
+let districtChart = null;
+let entityChart = null;
 
 async function loadAnalytics() {
+  const analytics = await (await fetch("/api/analytics")).json();
+
   const districts = await (await fetch("/api/districts")).json();
 
-  const transactions = await (await fetch("/api/transactions")).json();
+  const districtLabels = districts.map((d) => d._id);
 
-  const labels = districts.map((d) => d._id);
-  const energy = districts.map((d) => Math.round(d.energy));
+  const districtEnergy = districts.map((d) => Math.round(d.energy));
 
   if (districtChart) districtChart.destroy();
 
   districtChart = new Chart(document.getElementById("districtChart"), {
     type: "bar",
+
     data: {
-      labels,
+      labels: districtLabels,
+
       datasets: [
         {
-          label: "Energy Usage",
-          data: energy,
-          backgroundColor: "#38bdf8",
+          label: "Energy Consumption (kWh)",
+
+          data: districtEnergy,
+
+          backgroundColor: [
+            "#3b82f6",
+            "#22c55e",
+            "#f59e0b",
+            "#ef4444",
+            "#8b5cf6",
+          ],
         },
       ],
     },
   });
 
-  const counts = {};
+  const entityLabels = Object.keys(analytics.entity_distribution);
 
-  transactions.forEach((t) => {
-    counts[t.entity_type] = (counts[t.entity_type] || 0) + 1;
-  });
+  const entityValues = Object.values(analytics.entity_distribution);
 
   if (entityChart) entityChart.destroy();
 
   entityChart = new Chart(document.getElementById("entityChart"), {
-    type: "pie",
+    type: "doughnut",
+
     data: {
-      labels: Object.keys(counts),
+      labels: entityLabels,
+
       datasets: [
         {
-          data: Object.values(counts),
+          data: entityValues,
         },
       ],
     },

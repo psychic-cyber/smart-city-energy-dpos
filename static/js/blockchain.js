@@ -1,11 +1,10 @@
+let growthChart = null;
+let distributionChart = null;
+
 async function loadBlockchain() {
-  const statsResponse = await fetch("/api/stats");
+  const stats = await (await fetch("/api/stats")).json();
 
-  const blocksResponse = await fetch("/api/blocks");
-
-  const stats = await statsResponse.json();
-
-  const blocks = await blocksResponse.json();
+  const blocks = await (await fetch("/api/blocks")).json();
 
   document.getElementById("totalBlocks").innerText = stats.total_blocks;
 
@@ -22,62 +21,50 @@ async function loadBlockchain() {
 
   blocks.forEach((block) => {
     table.innerHTML += `
-            <tr>
-                <td>${block.index}</td>
-                <td>${block.hash.substring(0, 12)}...</td>
-            </tr>
-        `;
+      <tr>
+        <td>${block.index}</td>
+        <td>${block.hash.substring(0, 15)}...</td>
+      </tr>
+    `;
   });
 
-  const growthData = Array.from({ length: blocks.length }, (_, i) => i + 1);
+  const blockIndexes = blocks.map((block) => block.index);
 
-  new Chart(document.getElementById("blockChart"), {
+  if (growthChart) growthChart.destroy();
+
+  growthChart = new Chart(document.getElementById("blockChart"), {
     type: "line",
 
     data: {
-      labels: growthData,
+      labels: blockIndexes,
 
       datasets: [
         {
-          label: "Blockchain Growth",
+          label: "Block Index",
 
-          data: growthData,
+          data: blockIndexes,
 
-          borderWidth: 3,
+          borderColor: "#22c55e",
 
           tension: 0.4,
-
-          fill: false,
         },
       ],
-    },
-
-    options: {
-      responsive: true,
-
-      plugins: {
-        legend: {
-          display: true,
-        },
-      },
     },
   });
 
-  new Chart(document.getElementById("blockDistribution"), {
-    type: "doughnut",
+  if (distributionChart) distributionChart.destroy();
+
+  distributionChart = new Chart(document.getElementById("blockDistribution"), {
+    type: "pie",
 
     data: {
-      labels: ["Validated Blocks", "Reserved Capacity"],
+      labels: ["Blocks", "Transactions"],
 
       datasets: [
         {
-          data: [blocks.length, Math.max(100 - blocks.length, 0)],
+          data: [stats.total_blocks, stats.total_transactions],
         },
       ],
-    },
-
-    options: {
-      responsive: true,
     },
   });
 }
