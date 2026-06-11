@@ -19,7 +19,27 @@ async function loadUserDashboard() {
   }
 }
 
-loadUserDashboard();
+async function loadTransactions() {
+  const response = await fetch("/api/user/transactions");
+
+  const data = await response.json();
+
+  const table = document.getElementById("transactionsTable");
+
+  table.innerHTML = "";
+
+  data.forEach((t) => {
+    table.innerHTML += `
+      <tr>
+        <td>${t.buyer}</td>
+        <td>${t.energy_sold} kWh</td>
+        <td>Rs ${t.revenue}</td>
+        <td>${t.status}</td>
+        <td>${t.timestamp}</td>
+      </tr>
+    `;
+  });
+}
 
 async function sellEnergy() {
   try {
@@ -33,6 +53,8 @@ async function sellEnergy() {
       alert(`Energy Sold!\nRevenue: Rs ${result.earned}`);
 
       loadUserDashboard();
+
+      loadTransactions();
     } else {
       alert(result.message);
     }
@@ -40,3 +62,7 @@ async function sellEnergy() {
     console.error(error);
   }
 }
+
+loadUserDashboard();
+
+loadTransactions();

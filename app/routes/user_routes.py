@@ -18,10 +18,24 @@ from database.mongodb.user_repository import (
     update_revenue
 )
 
+from database.mongodb.user_transaction_repository import (
+    save_user_transaction,
+    get_user_transactions
+)
+
+from blockchain.core.blockchain import (
+    Blockchain
+)
+
+from database.mongodb.blockchain_repository import (
+    save_block
+)
+
 user_bp = Blueprint(
     "users",
     __name__
 )
+
 
 @user_bp.route("/")
 def home():
@@ -90,11 +104,9 @@ def login():
                     "/admin-dashboard"
                 )
 
-            else:
-
-                return redirect(
-                    "/user-dashboard"
-                )
+            return redirect(
+                "/user-dashboard"
+            )
 
     return render_template(
         "login.html"
@@ -134,6 +146,7 @@ def user_dashboard():
         )
     )
 
+
 @user_bp.route(
     "/api/sell-energy",
     methods=["POST"]
@@ -147,6 +160,15 @@ def sell_energy():
     user = get_user_by_username(
         username
     )
+
+    if not user:
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "User not found"
+            }
+        )
 
     sell_amount = 50
 
@@ -178,7 +200,16 @@ def sell_energy():
         )
     )
 
-    earned = sell_amount * 10
+    earned = (
+        sell_amount * 10
+    )
+
+    save_user_transaction(
+        username,
+        "Smart Grid",
+        sell_amount,
+        earned
+    )
 
     update_energy_balance(
         username,
@@ -188,6 +219,22 @@ def sell_energy():
     update_revenue(
         username,
         current_revenue + earned
+    )
+
+    blockchain = Blockchain()
+
+    blockchain.add_block(
+        {
+            "type": "ENERGY_SALE",
+            "user": username,
+            "buyer": "Smart Grid",
+            "energy": sell_amount,
+            "revenue": earned
+        }
+    )
+
+    save_block(
+        blockchain.get_latest_block()
     )
 
     return jsonify(
@@ -252,4 +299,20 @@ def user_dashboard_data():
                     0
                 )
         }
+    )
+
+
+@user_bp.route(
+    "/api/user/transactions"
+)
+def user_transactions():
+
+    username = session.get(
+        "username"
+    )
+
+    return jsonify(
+        get_user_transactions(
+            username
+        )
     )
