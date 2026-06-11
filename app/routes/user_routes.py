@@ -3,12 +3,19 @@ from flask import (
     render_template,
     request,
     redirect,
-    session
+    session,
+    jsonify
 )
 
 from app.controllers.user_controller import (
     register_controller,
     login_controller
+)
+
+from database.mongodb.user_repository import (
+    get_user_by_username,
+    update_energy_balance,
+    update_revenue
 )
 
 user_bp = Blueprint(
@@ -19,19 +26,8 @@ user_bp = Blueprint(
 @user_bp.route("/")
 def home():
 
-    if "user_id" in session:
-
-        if session.get("role") == "admin":
-            return redirect(
-                "/admin-dashboard"
-            )
-
-        return redirect(
-            "/user-dashboard"
-        )
-
-    return redirect(
-        "/login"
+    return render_template(
+        "index.html"
     )
 
 
@@ -136,4 +132,124 @@ def user_dashboard():
             "username",
             "User"
         )
+    )
+
+@user_bp.route(
+    "/api/sell-energy",
+    methods=["POST"]
+)
+def sell_energy():
+
+    username = session.get(
+        "username"
+    )
+
+    user = get_user_by_username(
+        username
+    )
+
+    sell_amount = 50
+
+    current_balance = float(
+        user.get(
+            "energy_balance",
+            0
+        )
+    )
+
+    if current_balance < sell_amount:
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Not enough energy"
+            }
+        )
+
+    new_balance = (
+        current_balance
+        - sell_amount
+    )
+
+    current_revenue = float(
+        user.get(
+            "total_revenue",
+            0
+        )
+    )
+
+    earned = sell_amount * 10
+
+    update_energy_balance(
+        username,
+        new_balance
+    )
+
+    update_revenue(
+        username,
+        current_revenue + earned
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "balance": new_balance,
+            "earned": earned
+        }
+    )
+
+
+@user_bp.route(
+    "/api/user/dashboard"
+)
+def user_dashboard_data():
+
+    username = session.get(
+        "username"
+    )
+
+    if not username:
+
+        return jsonify(
+            {
+                "error": "Unauthorized"
+            }
+        ), 401
+
+    user = get_user_by_username(
+        username
+    )
+
+    if not user:
+
+        return jsonify(
+            {
+                "error": "User not found"
+            }
+        ), 404
+
+    energy_balance = float(
+        user.get(
+            "energy_balance",
+            0
+        )
+    )
+
+    return jsonify(
+        {
+            "energy_balance":
+                energy_balance,
+
+            "energy_generated":
+                energy_balance + 275,
+
+            "energy_consumed":
+                275,
+
+            "revenue":
+                user.get(
+                    "total_revenue",
+                    0
+                )
+        }
     )

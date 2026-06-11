@@ -1,6 +1,7 @@
 from flask import (
     Blueprint,
-    jsonify
+    jsonify,
+    session
 )
 
 from database.mongodb.transaction_repository import (
@@ -17,6 +18,15 @@ from database.mongodb.blockchain_repository import (
 
 from blockchain.core.blockchain import (
     Blockchain
+)
+
+from database.mongodb.user_repository import (
+    get_all_users,
+    count_users,
+    count_admins,
+    count_regular_users,
+    get_latest_users,
+    get_user_by_username
 )
 
 
@@ -88,3 +98,114 @@ def districts():
     return jsonify(
         get_district_analytics()
     )
+
+@blockchain_bp.route(
+    "/api/users",
+    methods=["GET"]
+)
+def users():
+
+    return jsonify(
+        get_all_users()
+    )
+
+
+@blockchain_bp.route(
+    "/api/users/stats",
+    methods=["GET"]
+)
+def users_stats():
+
+    return jsonify(
+        {
+            "total_users":
+                count_users(),
+
+            "total_admins":
+                count_admins(),
+
+            "total_regular_users":
+                count_regular_users(),
+
+            "latest_users":
+                len(
+                    get_latest_users()
+                )
+        }
+    )
+
+
+@blockchain_bp.route(
+    "/api/users/latest",
+    methods=["GET"]
+)
+def latest_users():
+
+    return jsonify(
+        get_latest_users()
+    )
+
+# @blockchain_bp.route(
+#     "/api/user/dashboard",
+#     methods=["GET"]
+# )
+# def user_dashboard_data():
+
+#     username = session.get(
+#         "username"
+#     )
+
+#     user = (
+#         get_user_by_username(
+#             username
+#         )
+#     )
+
+#     if not user:
+
+#         return jsonify(
+#             {
+#                 "error":
+#                     "User not found"
+#             }
+#         )
+
+#     generated = (
+#         len(username)
+#         * 75
+#     )
+
+#     consumed = (
+#         len(username)
+#         * 55
+#     )
+
+#     balance = (
+#         generated
+#         -
+#         consumed
+#     )
+
+#     revenue = (
+#         balance
+#         * 25
+#     )
+
+#     return jsonify(
+#         {
+#             "username":
+#                 username,
+
+#             "energy_generated":
+#                 generated,
+
+#             "energy_consumed":
+#                 consumed,
+
+#             "energy_balance":
+#                 balance,
+
+#             "revenue":
+#                 revenue
+#         }
+#     )

@@ -44,28 +44,28 @@
             <div class="col-lg-3">
               <div class="metric-card">
                 <h6>Energy Balance</h6>
-                <h2>0 kWh</h2>
+                <h2 id="energyBalance">0</h2>
               </div>
             </div>
 
             <div class="col-lg-3">
               <div class="metric-card">
                 <h6>Energy Generated</h6>
-                <h2>0 kWh</h2>
+                <h2 id="energyGenerated">0</h2>
               </div>
             </div>
 
             <div class="col-lg-3">
               <div class="metric-card">
                 <h6>Energy Consumed</h6>
-                <h2>0 kWh</h2>
+                <h2 id="energyConsumed">0</h2>
               </div>
             </div>
 
             <div class="col-lg-3">
               <div class="metric-card">
                 <h6>Revenue Earned</h6>
-                <h2>Rs 0</h2>
+                <h2 id="revenue">0</h2>
               </div>
             </div>
           </div>
@@ -77,12 +77,16 @@
 
                 <p>Sell your extra energy to the Smart City Grid.</p>
 
-                <button class="btn btn-success">Sell Energy</button>
+                <button class="btn btn-success" onclick="sellEnergy()">
+                  Sell 50 kWh
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <script src="/static/js/user_dashboard.js"></script>
   </body>
 </html>

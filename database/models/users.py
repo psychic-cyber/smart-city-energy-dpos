@@ -40,5 +40,8 @@ class User:
                 self.energy_balance,
 
             "created_at":
-                self.created_at
+                self.created_at,
+            
+            "total_revenue":
+                0
         }

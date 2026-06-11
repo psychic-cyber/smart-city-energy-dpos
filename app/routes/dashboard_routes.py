@@ -82,3 +82,16 @@ def reports_page():
     return render_template(
         "reports.html"
     )
+
+@dashboard_bp.route("/users")
+def users_page():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    if session.get("role") != "admin":
+        return redirect("/user-dashboard")
+
+    return render_template(
+        "users.html"
+    )
