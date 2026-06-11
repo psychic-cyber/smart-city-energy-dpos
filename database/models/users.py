@@ -43,5 +43,11 @@ class User:
                 self.created_at,
             
             "total_revenue":
+                0,
+
+            "energy_generated":
+                0,
+
+            "energy_consumed":
                 0
         }

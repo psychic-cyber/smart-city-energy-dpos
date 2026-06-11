@@ -6,3 +6,4 @@ __pycache__/
 .vscode/
 backup/
 mongodb-backup.zip
+blockchain/storage/blockchain_data.json

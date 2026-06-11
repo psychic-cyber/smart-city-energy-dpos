@@ -73,17 +73,80 @@
           <div class="row mt-4">
             <div class="col-lg-12">
               <div class="data-panel">
+                <h4>Submit Energy Reading</h4>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <input
+                      type="number"
+                      id="generatedEnergy"
+                      class="form-control"
+                      placeholder="Energy Generated"
+                    />
+                  </div>
+
+                  <div class="col-md-4">
+                    <input
+                      type="number"
+                      id="consumedEnergy"
+                      class="form-control"
+                      placeholder="Energy Consumed"
+                    />
+                  </div>
+
+                  <div class="col-md-4">
+                    <button
+                      class="btn btn-primary"
+                      onclick="submitEnergyReading()"
+                    >
+                      Submit Reading
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-lg-12">
+              <div class="data-panel">
                 <h4>Energy Marketplace</h4>
 
                 <p>Create energy listings and trade energy with other users.</p>
 
-                <button class="btn btn-success" onclick="createListing()">
-                  Create Listing (50 kWh)
-                </button>
+                <div class="row mt-3">
+                  <div class="col-md-4">
+                    <input
+                      type="number"
+                      id="listingEnergy"
+                      class="form-control"
+                      placeholder="Energy (kWh)"
+                    />
+                  </div>
 
-                <a href="/marketplace" class="btn btn-primary ms-2">
+                  <div class="col-md-4">
+                    <input
+                      type="number"
+                      id="listingPrice"
+                      class="form-control"
+                      placeholder="Price Per kWh"
+                    />
+                  </div>
+
+                  <div class="col-md-4">
+                    <button class="btn btn-success" onclick="createListing()">
+                      Create Listing
+                    </button>
+                  </div>
+                </div>
+
+                <a href="/marketplace" class="btn btn-primary mt-3">
                   Open Marketplace
                 </a>
+
+                <!-- <a href="/marketplace" class="btn btn-primary ms-2">
+                  Open Marketplace
+                </a> -->
               </div>
             </div>
           </div>

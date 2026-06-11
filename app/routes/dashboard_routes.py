@@ -2,7 +2,32 @@ from flask import (
     Blueprint,
     render_template,
     session,
-    redirect
+    redirect,
+    jsonify,
+    request
+)
+
+from database.mongodb.energy_record_repository import (
+    get_pending_records,
+    approve_record,
+    get_pending_record_by_username
+)
+
+from database.mongodb.user_repository import (
+    get_user_by_username,
+    update_energy_stats
+)
+
+from blockchain.core.blockchain import (
+    Blockchain
+)
+
+from database.mongodb.blockchain_repository import (
+    save_block
+)
+
+from blockchain.storage.storage_manager import (
+    save_blockchain
 )
 
 dashboard_bp = Blueprint(
@@ -94,4 +119,144 @@ def users_page():
 
     return render_template(
         "users.html"
+    )
+
+@dashboard_bp.route(
+    "/api/pending-readings"
+)
+def pending_readings():
+
+    if session.get("role") != "admin":
+
+        return jsonify(
+            []
+        )
+
+    return jsonify(
+        get_pending_records()
+    )
+
+@dashboard_bp.route(
+    "/api/approve-reading",
+    methods=["POST"]
+)
+def approve_reading():
+
+    if session.get("role") != "admin":
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Unauthorized"
+            }
+        )
+
+    data = request.get_json()
+
+    username = data[
+        "username"
+    ]
+
+    record = (
+        get_pending_record_by_username(
+            username
+        )
+    )
+
+    if not record:
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Reading Not Found"
+            }
+        )
+
+    user = get_user_by_username(
+        username
+    )
+
+    generated = float(
+        record[
+            "energy_generated"
+        ]
+    )
+
+    consumed = float(
+        record[
+            "energy_consumed"
+        ]
+    )
+
+    current_generated = float(
+        user.get(
+            "energy_generated",
+            0
+        )
+    )
+
+    current_consumed = float(
+        user.get(
+            "energy_consumed",
+            0
+        )
+    )
+
+    new_generated = (
+        current_generated
+        + generated
+    )
+
+    new_consumed = (
+        current_consumed
+        + consumed
+    )
+
+    new_balance = (
+        new_generated
+        - new_consumed
+    )
+
+    update_energy_stats(
+        username,
+        new_generated,
+        new_consumed,
+        new_balance
+    )
+
+    approve_record(
+        username
+    )
+
+    blockchain = Blockchain()
+
+    blockchain.add_block(
+        {
+            "type":
+                "ENERGY_READING_APPROVED",
+
+            "username":
+                username,
+
+            "generated":
+                generated,
+
+            "consumed":
+                consumed
+        }
+    )
+
+    save_block(
+        blockchain.get_latest_block()
+    )
+
+    save_blockchain(
+        blockchain.chain
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "Reading Approved Successfully"
+        }
     )

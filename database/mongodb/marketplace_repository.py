@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from database.mongodb.mongo_manager import (
-    db
+    db,
 )
 
 
@@ -103,4 +103,15 @@ def has_active_listing(
                 "status": "Available"
             }
         ) > 0
+    )
+
+def get_listing_by_seller(
+    seller
+):
+
+    return get_marketplace_collection().find_one(
+        {
+            "seller": seller,
+            "status": "Available"
+        }
     )

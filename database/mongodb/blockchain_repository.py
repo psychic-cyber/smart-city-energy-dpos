@@ -71,3 +71,12 @@ def count_blocks():
     return collection.count_documents(
         {}
     )
+
+def get_latest_block():
+
+    collection = get_blocks_collection()
+
+    return collection.find_one(
+        {},
+        sort=[("index", -1)]
+    )

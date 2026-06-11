@@ -12,6 +12,8 @@ async function loadDashboard() {
 
   const districts = await (await fetch("/api/districts")).json();
 
+  const pendingReadings = await (await fetch("/api/pending-readings")).json();
+
   document.getElementById("transactions").innerText =
     stats.total_transactions.toLocaleString();
 
@@ -149,6 +151,31 @@ async function loadDashboard() {
 
   const districtLabels = districts.map((d) => d._id);
 
+  const pendingTable = document.getElementById("pendingReadingsTable");
+
+  if (pendingTable) {
+    pendingTable.innerHTML = "";
+
+    pendingReadings.forEach((record) => {
+      pendingTable.innerHTML += `
+      <tr>
+        <td>${record.username}</td>
+        <td>${record.energy_generated}</td>
+        <td>${record.energy_consumed}</td>
+        <td>${record.status}</td>
+        <td>
+          <button
+            class="btn btn-success btn-sm"
+            onclick="approveReading('${record.username}')"
+          >
+            Approve
+          </button>
+        </td>
+      </tr>
+      `;
+    });
+  }
+
   const districtEnergy = districts.map((d) => Math.round(d.energy));
 
   if (districtChart) {
@@ -187,3 +214,21 @@ async function loadDashboard() {
 loadDashboard();
 
 setInterval(loadDashboard, 30000);
+
+async function approveReading(username) {
+  const response = await fetch("/api/approve-reading", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,
+    }),
+  });
+
+  const result = await response.json();
+
+  alert(result.message);
+
+  loadDashboard();
+}

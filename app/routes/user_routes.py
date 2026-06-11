@@ -35,7 +35,12 @@ from database.mongodb.marketplace_repository import (
     create_listing,
     get_available_listings,
     complete_listing,
-    has_active_listing
+    has_active_listing,
+    get_listing_by_seller
+)
+
+from database.mongodb.energy_record_repository import (
+    save_energy_record
 )
 
 user_bp = Blueprint(
@@ -295,10 +300,16 @@ def user_dashboard_data():
                 energy_balance,
 
             "energy_generated":
-                energy_balance + 275,
+                user.get(
+                    "energy_generated",
+                    0
+                ),
 
             "energy_consumed":
-                275,
+                user.get(
+                    "energy_consumed",
+                    0
+                ),
 
             "revenue":
                 user.get(
@@ -363,15 +374,80 @@ def create_marketplace_listing():
             }
         )
 
+    data = request.get_json()
+
+    energy = float(
+        data["energy"]
+    )
+
+    price = float(
+        data["price"]
+    )
+
+    user = get_user_by_username(
+        username
+    )
+
+    balance = float(
+        user.get(
+            "energy_balance",
+            0
+        )
+    )
+
+    if energy <= 0:
+
+        return jsonify(
+            {
+                "success": False,
+                "message":
+                    "Invalid energy amount"
+            }
+        )
+
+    if energy > balance:
+
+        return jsonify(
+            {
+                "success": False,
+                "message":
+                    "Insufficient Energy Balance"
+            }
+        )
+
     create_listing(
         username,
-        50,
-        10
+        energy,
+        price
+    )
+
+    blockchain = Blockchain()
+
+    blockchain.add_block(
+        {
+            "type":
+                "ENERGY_LISTED",
+
+            "seller":
+                username,
+
+            "energy":
+                energy,
+
+            "price":
+                price
+        }
+    )
+
+    save_block(
+        blockchain.get_latest_block()
     )
 
     return jsonify(
         {
-            "success": True
+            "success": True,
+            "message":
+                "Listing Created Successfully"
         }
     )
 
@@ -412,7 +488,19 @@ def buy_energy():
         )
     )
 
-    energy = 50
+    listing = (
+        get_listing_by_seller(
+            seller
+        )
+    )
+
+    energy = float(
+        listing["energy"]
+    )
+
+    amount = float(
+        listing["total_price"]
+    )
 
     update_energy_balance(
         seller,
@@ -441,7 +529,7 @@ def buy_energy():
                 "total_revenue",
                 0
             )
-        ) + 500
+        ) + amount
     )
 
     complete_listing(
@@ -453,14 +541,14 @@ def buy_energy():
         seller,
         buyer,
         energy,
-        500
+        amount
     )
 
     save_user_transaction(
         buyer,
         seller,
         energy,
-        500
+        amount
     )
 
     blockchain = Blockchain()
@@ -471,7 +559,7 @@ def buy_energy():
             "seller": seller,
             "buyer": buyer,
             "energy": energy,
-            "amount": 500
+            "amount": amount
         }
     )
 
@@ -484,5 +572,53 @@ def buy_energy():
             "success": True,
             "message":
                 "Energy Purchased Successfully"
+        }
+    )
+
+@user_bp.route(
+    "/api/submit-energy",
+    methods=["POST"]
+)
+def submit_energy():
+
+    username = session.get(
+        "username"
+    )
+
+    if not username:
+
+        return jsonify(
+            {
+                "success": False
+            }
+        )
+
+    data = request.get_json()
+
+    generated = float(
+        data.get(
+            "generated",
+            0
+        )
+    )
+
+    consumed = float(
+        data.get(
+            "consumed",
+            0
+        )
+    )
+
+    save_energy_record(
+        username,
+        generated,
+        consumed
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "message":
+                "Reading Submitted Successfully"
         }
     )

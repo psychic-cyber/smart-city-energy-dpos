@@ -151,3 +151,32 @@ def find_user_by_username(
             "username": username
         }
     )
+
+def update_energy_stats(
+    username,
+    generated,
+    consumed,
+    balance
+):
+
+    collection = (
+        get_users_collection()
+    )
+
+    collection.update_one(
+        {
+            "username": username
+        },
+        {
+            "$set": {
+                "energy_generated":
+                    generated,
+
+                "energy_consumed":
+                    consumed,
+
+                "energy_balance":
+                    balance
+            }
+        }
+    )
