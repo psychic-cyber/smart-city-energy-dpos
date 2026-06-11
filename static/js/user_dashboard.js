@@ -66,3 +66,17 @@ async function sellEnergy() {
 loadUserDashboard();
 
 loadTransactions();
+
+async function createListing() {
+  const response = await fetch("/api/create-listing", {
+    method: "POST",
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    alert("Listing Created Successfully");
+  } else {
+    alert(result.message);
+  }
+}
