@@ -5,15 +5,16 @@ async function loadTransactions() {
 
   table.innerHTML = "";
 
-  transactions.slice(0, 20).forEach((t) => {
+  transactions.forEach((t) => {
     table.innerHTML += `
       <tr>
-        <td>${t.entity_id}</td>
-        <td>${t.entity_type}</td>
-        <td>${t.district}</td>
-        <td>${t.bill_amount}</td>
+        <td>${t.username}</td>
+        <td>${t.buyer}</td>
+        <td>${t.energy_sold}</td>
+        <td>${t.revenue}</td>
+        <td>${t.status}</td>
       </tr>
-      `;
+    `;
   });
 }
 

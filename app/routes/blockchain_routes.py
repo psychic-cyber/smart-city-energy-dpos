@@ -27,7 +27,15 @@ from database.mongodb.user_repository import (
     count_regular_users,
     get_latest_users,
     get_user_by_username,
-    count_role
+    count_role,
+)
+
+from database.mongodb.user_transaction_repository import (
+    get_all_user_transactions
+)
+
+from database.mongodb.mongo_manager import (
+    db
 )
 
 
@@ -41,6 +49,23 @@ blockchain_bp = Blueprint(
     "/api/stats",
     methods=["GET"]
 )
+# def get_stats():
+
+#     blockchain = Blockchain()
+
+#     return jsonify(
+#         {
+#             "total_transactions":
+#                 count_transactions(),
+
+#             "total_blocks":
+#                 count_blocks(),
+
+#             "chain_valid":
+#                 blockchain.is_chain_valid()
+#         }
+#     )
+
 def get_stats():
 
     blockchain = Blockchain()
@@ -48,7 +73,9 @@ def get_stats():
     return jsonify(
         {
             "total_transactions":
-                count_transactions(),
+                len(
+                    get_all_user_transactions()
+                ),
 
             "total_blocks":
                 count_blocks(),
@@ -58,7 +85,6 @@ def get_stats():
         }
     )
 
-
 @blockchain_bp.route(
     "/api/transactions",
     methods=["GET"]
@@ -66,7 +92,7 @@ def get_stats():
 def transactions():
 
     return jsonify(
-        get_transactions()
+        get_all_user_transactions()
     )
 
 @blockchain_bp.route(
@@ -96,8 +122,41 @@ def analytics():
 )
 def districts():
 
+    users = get_all_users()
+
+    role_energy = {}
+
+    for user in users:
+
+        role = user.get(
+            "role",
+            "Unknown"
+        )
+
+        consumed = float(
+            user.get(
+                "energy_consumed",
+                0
+            )
+        )
+
+        role_energy[role] = (
+            role_energy.get(
+                role,
+                0
+            )
+            + consumed
+        )
+
     return jsonify(
-        get_district_analytics()
+        [
+            {
+                "_id": role,
+                "energy": energy
+            }
+            for role, energy
+            in role_energy.items()
+        ]
     )
 
 @blockchain_bp.route(

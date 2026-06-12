@@ -77,10 +77,10 @@ async function loadDashboard() {
   transactions.slice(0, 10).forEach((t) => {
     transactionTable.innerHTML += `
         <tr>
-          <td>${t.entity_id}</td>
-          <td>${t.entity_type}</td>
-          <td>${t.district}</td>
-          <td>${t.bill_amount}</td>
+          <td>${t.username}</td>
+          <td>${t.buyer}</td>
+          <td>${t.energy_sold}</td>
+          <td>${t.revenue}</td>
         </tr>
       `;
   });

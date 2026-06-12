@@ -64,3 +64,19 @@ def get_user_transactions(
         )
         .limit(10)
     )
+
+def get_all_user_transactions():
+
+    return list(
+        get_transactions_collection()
+        .find(
+            {},
+            {
+                "_id": 0
+            }
+        )
+        .sort(
+            "timestamp",
+            -1
+        )
+    )
