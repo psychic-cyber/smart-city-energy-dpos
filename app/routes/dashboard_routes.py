@@ -42,7 +42,7 @@ def dashboard():
     if "user_id" not in session:
         return redirect("/login")
 
-    if session.get("role") != "admin":
+    if session.get("role") != "Admin":
         return redirect("/user-dashboard")
 
     return render_template(
@@ -114,7 +114,7 @@ def users_page():
     if "user_id" not in session:
         return redirect("/login")
 
-    if session.get("role") != "admin":
+    if session.get("role") != "Admin":
         return redirect("/user-dashboard")
 
     return render_template(
@@ -126,7 +126,7 @@ def users_page():
 )
 def pending_readings():
 
-    if session.get("role") != "admin":
+    if session.get("role") != "Admin":
 
         return jsonify(
             []
@@ -142,7 +142,7 @@ def pending_readings():
 )
 def approve_reading():
 
-    if session.get("role") != "admin":
+    if session.get("role") != "Admin":
 
         return jsonify(
             {

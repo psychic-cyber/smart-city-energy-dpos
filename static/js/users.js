@@ -9,21 +9,27 @@ async function loadUsers() {
 
   document.getElementById("totalUsers").innerText = stats.total_users;
 
-  document.getElementById("admins").innerText = stats.total_admins;
+  document.getElementById("admins").innerText = stats.admins;
 
-  document.getElementById("regularUsers").innerText = stats.total_regular_users;
+  document.getElementById("regularUsers").innerText =
+    stats.houses +
+    stats.hospitals +
+    stats.universities +
+    stats.restaurants +
+    stats.offices +
+    stats.factories +
+    stats.solarfarms;
 
-  document.getElementById("latestUsers").innerText = stats.latest_users;
+  document.getElementById("latestUsers").innerText = latest.length;
 
   const table = document.getElementById("usersTable");
 
   table.innerHTML = "";
 
   users.forEach((user) => {
-    const roleBadge =
-      user.role === "admin"
-        ? `<span class="badge bg-danger">Admin</span>`
-        : `<span class="badge bg-success">User</span>`;
+    const roleBadge = `<span class="badge bg-info">
+      ${user.role}
+   </span>`;
 
     const createdDate = user.created_at
       ? new Date(user.created_at).toLocaleDateString("en-GB", {
@@ -49,7 +55,7 @@ async function loadUsers() {
   latestList.innerHTML = "";
 
   latest.forEach((user) => {
-    const roleColor = user.role === "admin" ? "#ef4444" : "#22c55e";
+    const roleColor = user.role === "Admin" ? "#ef4444" : "#22c55e";
 
     latestList.innerHTML += `
       <div
@@ -85,13 +91,37 @@ async function loadUsers() {
     type: "pie",
 
     data: {
-      labels: ["Admins", "Users"],
+      labels: [
+        "House",
+        "Hospital",
+        "University",
+        "Restaurant",
+        "Office",
+        "Factory",
+        "SolarFarm",
+      ],
 
       datasets: [
         {
-          data: [stats.total_admins, stats.total_regular_users],
+          data: [
+            stats.houses,
+            stats.hospitals,
+            stats.universities,
+            stats.restaurants,
+            stats.offices,
+            stats.factories,
+            stats.solarfarms,
+          ],
 
-          backgroundColor: ["#38bdf8", "#f43f5e"],
+          backgroundColor: [
+            "#38bdf8",
+            "#f43f5e",
+            "#22c55e",
+            "#f59e0b",
+            "#8b5cf6",
+            "#ef4444",
+            "#06b6d4",
+          ],
         },
       ],
     },

@@ -69,7 +69,7 @@ def register():
             request.form["username"],
             request.form["email"],
             request.form["password"],
-            "user"
+            request.form["role"]
         )
 
         if result[0]:
@@ -110,7 +110,7 @@ def login():
                 "role"
             ]
 
-            if user["role"] == "admin":
+            if user["role"] == "Admin":
 
                 return redirect(
                     "/admin-dashboard"

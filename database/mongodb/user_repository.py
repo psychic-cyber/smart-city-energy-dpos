@@ -180,3 +180,13 @@ def update_energy_stats(
             }
         }
     )
+
+def count_role(role):
+
+    collection = get_users_collection()
+
+    return collection.count_documents(
+        {
+            "role": role
+        }
+    )

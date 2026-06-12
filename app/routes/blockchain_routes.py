@@ -26,7 +26,8 @@ from database.mongodb.user_repository import (
     count_admins,
     count_regular_users,
     get_latest_users,
-    get_user_by_username
+    get_user_by_username,
+    count_role
 )
 
 
@@ -121,16 +122,29 @@ def users_stats():
             "total_users":
                 count_users(),
 
-            "total_admins":
-                count_admins(),
+            "admins":
+                count_role("Admin"),
 
-            "total_regular_users":
-                count_regular_users(),
+            "houses":
+                count_role("House"),
 
-            "latest_users":
-                len(
-                    get_latest_users()
-                )
+            "hospitals":
+                count_role("Hospital"),
+
+            "universities":
+                count_role("University"),
+
+            "restaurants":
+                count_role("Restaurant"),
+
+            "offices":
+                count_role("Office"),
+
+            "factories":
+                count_role("Factory"),
+
+            "solarfarms":
+                count_role("SolarFarm")
         }
     )
 
