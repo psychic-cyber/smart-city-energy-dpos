@@ -15,20 +15,61 @@ async function loadBlockchain() {
     ? "VALID"
     : "INVALID";
 
+  document.getElementById("chainStatus").style.color = stats.chain_valid
+    ? "#22c55e"
+    : "#ef4444";
+
+  document.getElementById("securityScore").innerText = stats.chain_valid
+    ? "100%"
+    : "0%";
+
+  document.getElementById("securityScore").style.color = stats.chain_valid
+    ? "#22c55e"
+    : "#ef4444";
+
   const table = document.getElementById("blockchainTable");
 
   table.innerHTML = "";
 
-  blocks.forEach((block) => {
-    table.innerHTML += `
+  blocks
+    .slice(-10)
+    .reverse()
+    .forEach((block) => {
+      table.innerHTML += `
       <tr>
         <td>${block.index}</td>
-        <td>${block.hash.substring(0, 15)}...</td>
+        <td>
+          <span class="hash-badge">
+            ${block.hash.substring(0, 12)}...
+          </span>
+        </td>
       </tr>
     `;
+    });
+
+  const transactions = await (await fetch("/api/transactions")).json();
+
+  const transactionTypes = {};
+
+  transactions.forEach((t) => {
+    let type = "User Trading";
+
+    if (t.username.includes("SolarFarm") || t.buyer.includes("SolarFarm")) {
+      type = "Solar Trading";
+    }
+
+    transactionTypes[type] = (transactionTypes[type] || 0) + 1;
   });
 
-  const blockIndexes = blocks.map((block) => block.index);
+  const chartLabels = Object.keys(transactionTypes);
+
+  const chartValues = Object.values(transactionTypes);
+
+  const txLabels = transactions.map((_, index) => `Trade ${index + 1}`);
+
+  transactions.reverse();
+
+  const txEnergy = transactions.map((t) => t.energy_sold);
 
   if (growthChart) growthChart.destroy();
 
@@ -36,35 +77,84 @@ async function loadBlockchain() {
     type: "line",
 
     data: {
-      labels: blockIndexes,
+      labels: txLabels,
 
       datasets: [
         {
-          label: "Block Index",
+          label: "Energy Traded (kWh)",
 
-          data: blockIndexes,
+          data: txEnergy,
 
-          borderColor: "#22c55e",
-
-          tension: 0.4,
+          backgroundColor: "#22c55e",
+          borderColor: "#16a34a",
+          borderWidth: 1,
+          borderRadius: 10,
         },
       ],
+    },
+
+    options: {
+      responsive: true,
+
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function (context) {
+              const tx = transactions[context.dataIndex];
+
+              return `${tx.username} → ${tx.buyer}`;
+            },
+          },
+        },
+
+        legend: {
+          labels: {
+            color: "white",
+          },
+        },
+      },
+
+      scales: {
+        x: {
+          ticks: {
+            color: "#cbd5e1",
+          },
+        },
+
+        y: {
+          ticks: {
+            color: "#cbd5e1",
+          },
+        },
+      },
     },
   });
 
   if (distributionChart) distributionChart.destroy();
 
   distributionChart = new Chart(document.getElementById("blockDistribution"), {
-    type: "pie",
+    type: "doughnut",
 
     data: {
-      labels: ["Blocks", "Transactions"],
+      labels: chartLabels,
 
       datasets: [
         {
-          data: [stats.total_blocks, stats.total_transactions],
+          data: chartValues,
         },
       ],
+    },
+
+    options: {
+      cutout: "65%",
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            color: "white",
+          },
+        },
+      },
     },
   });
 }

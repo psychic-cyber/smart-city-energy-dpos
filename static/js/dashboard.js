@@ -40,7 +40,7 @@ async function loadDashboard() {
   ).toLocaleString();
 
   document.getElementById("revenue").innerText =
-    "₨ " + Math.round(analytics.total_bill_amount * 280).toLocaleString();
+    "₨ " + Math.round(analytics.total_bill_amount).toLocaleString();
 
   document.getElementById("lastUpdated").innerText =
     "Last Updated: " + new Date().toLocaleString();
@@ -156,8 +156,17 @@ async function loadDashboard() {
   if (pendingTable) {
     pendingTable.innerHTML = "";
 
-    pendingReadings.forEach((record) => {
-      pendingTable.innerHTML += `
+    if (pendingReadings.length === 0) {
+      pendingTable.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;">
+          No Pending Energy Readings
+        </td>
+      </tr>
+    `;
+    } else {
+      pendingReadings.forEach((record) => {
+        pendingTable.innerHTML += `
       <tr>
         <td>${record.username}</td>
         <td>${record.energy_generated}</td>
@@ -173,7 +182,8 @@ async function loadDashboard() {
         </td>
       </tr>
       `;
-    });
+      });
+    }
   }
 
   const districtEnergy = districts.map((d) => Math.round(d.energy));

@@ -18,23 +18,21 @@ async function loadReports() {
 
   if (energyChart) energyChart.destroy();
 
+  const districts = await (await fetch("/api/districts")).json();
+
   energyChart = new Chart(document.getElementById("energyChart"), {
     type: "bar",
 
     data: {
-      labels: ["House", "School", "Office"],
+      labels: districts.map((d) => d._id),
 
       datasets: [
         {
-          label: "Energy Consumption",
+          label: "Energy Consumption (kWh)",
 
-          data: [
-            analytics.house_consumption,
-            analytics.school_consumption,
-            analytics.office_consumption,
-          ],
+          data: districts.map((d) => Math.round(d.energy)),
 
-          backgroundColor: ["#3b82f6", "#22c55e", "#f59e0b"],
+          backgroundColor: "#38bdf8",
         },
       ],
     },
@@ -43,20 +41,19 @@ async function loadReports() {
   if (revenueChart) revenueChart.destroy();
 
   revenueChart = new Chart(document.getElementById("revenueChart"), {
-    type: "radar",
+    type: "doughnut",
 
     data: {
-      labels: ["Revenue", "Efficiency", "Health Score", "Carbon Saved"],
+      labels: ["Revenue", "Energy Consumed", "Energy Generated"],
 
       datasets: [
         {
           label: "System Performance",
 
           data: [
-            analytics.total_bill_amount / 10000,
-            analytics.energy_efficiency,
-            analytics.health_score,
-            analytics.carbon_saved / 10000,
+            analytics.total_bill_amount,
+            analytics.total_energy_consumed,
+            analytics.total_energy_generated
           ],
         },
       ],

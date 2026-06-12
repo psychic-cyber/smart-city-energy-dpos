@@ -72,7 +72,7 @@
               Reports
             </a>
           </li>
-          
+
           <li>
             <a href="/users">
               <i class="bi bi-people"></i>
@@ -92,7 +92,11 @@
           <div class="row mt-4">
             <div class="col-lg-6">
               <div class="data-panel">
-                <h4>Blockchain Growth</h4>
+                <h4>Real-time energy trades validated on blockchain</h4>
+
+                <p class="text-muted small">
+                  Approved energy trades recorded on blockchain
+                </p>
                 <canvas id="blockChart"></canvas>
               </div>
             </div>
@@ -100,17 +104,18 @@
             <div class="col-lg-6">
               <div class="data-panel">
                 <h4>Latest Blocks</h4>
+                <div class="block-table-wrapper">
+                  <table class="table table-dark">
+                    <thead>
+                      <tr>
+                        <th>Index</th>
+                        <th>Hash</th>
+                      </tr>
+                    </thead>
 
-                <table class="table table-dark">
-                  <thead>
-                    <tr>
-                      <th>Index</th>
-                      <th>Hash</th>
-                    </tr>
-                  </thead>
-
-                  <tbody id="blockchainTable"></tbody>
-                </table>
+                    <tbody id="blockchainTable"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -120,35 +125,45 @@
               <div class="data-panel">
                 <h4>Chain Statistics</h4>
 
-                <table class="table table-dark">
-                  <tbody>
-                    <tr>
-                      <td>Total Blocks</td>
-                      <td id="totalBlocks">0</td>
-                    </tr>
+                <div class="row text-center">
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
+                      <h3 id="totalBlocks">0</h3>
+                      <p>Total Blocks</p>
+                    </div>
+                  </div>
 
-                    <tr>
-                      <td>Total Transactions</td>
-                      <td id="totalTransactions">0</td>
-                    </tr>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
+                      <h3 id="totalTransactions">0</h3>
+                      <p>Transactions</p>
+                    </div>
+                  </div>
 
-                    <tr>
-                      <td>Chain Status</td>
-                      <td id="chainStatus">-</td>
-                    </tr>
+                  <div class="col-6">
+                    <div class="mini-stat">
+                      <h3 id="chainStatus">-</h3>
+                      <p>Chain Status</p>
+                    </div>
+                  </div>
 
-                    <tr>
-                      <td>Security Score</td>
-                      <td>100%</td>
-                    </tr>
-                  </tbody>
-                </table>
+                  <div class="col-6">
+                    <div class="mini-stat">
+                      <h3 id="securityScore">100%</h3>
+                      <p>Security Score</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div class="col-lg-6">
               <div class="data-panel">
-                <h4>Block Distribution</h4>
+                <h4>Transaction Types</h4>
+
+                <p class="text-muted small">
+                  Distribution of blockchain transaction categories
+                </p>
                 <canvas id="blockDistribution"></canvas>
               </div>
             </div>

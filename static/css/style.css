@@ -382,3 +382,50 @@ canvas {
     font-size: 1.5rem;
   }
 }
+
+.hash-badge {
+  background: rgba(59,130,246,0.15);
+  color: #38bdf8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.block-table-wrapper {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.hash-badge {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.mini-stat {
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: 0.3s;
+}
+
+.mini-stat:hover {
+  transform: translateY(-3px);
+  border-color: #22c55e;
+}
+
+.mini-stat h3 {
+  color: #22c55e;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.mini-stat p {
+  color: #94a3b8;
+  margin: 0;
+}
