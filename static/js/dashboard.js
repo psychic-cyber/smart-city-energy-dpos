@@ -179,6 +179,13 @@ async function loadDashboard() {
           >
             Approve
           </button>
+
+          <button
+            class="btn btn-danger btn-sm ms-1"
+            onclick="declineReading('${record.username}')"
+          >
+            Decline
+          </button>
         </td>
       </tr>
       `;
@@ -235,6 +242,30 @@ async function approveReading(username) {
       username: username,
     }),
   });
+
+  const result = await response.json();
+
+  alert(result.message);
+
+  loadDashboard();
+}
+
+async function declineReading(username) {
+
+  const response = await fetch(
+    "/api/decline-reading",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        username: username,
+      }),
+    }
+  );
 
   const result = await response.json();
 

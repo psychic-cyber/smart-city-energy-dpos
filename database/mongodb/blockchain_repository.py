@@ -80,3 +80,18 @@ def get_latest_block():
         {},
         sort=[("index", -1)]
     )
+
+def block_index_exists(index):
+
+    collection = (
+        get_blocks_collection()
+    )
+
+    return (
+        collection.find_one(
+            {
+                "index": index
+            }
+        )
+        is not None
+    )

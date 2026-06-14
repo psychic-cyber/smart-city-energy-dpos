@@ -75,6 +75,27 @@ def approve_record(
         }
     )
 
+def decline_record(
+    username
+):
+
+    get_energy_records_collection().update_one(
+        {
+            "username":
+                username,
+
+            "status":
+                "Pending"
+        },
+        {
+            "$set":
+                {
+                    "status":
+                        "Declined"
+                }
+        }
+    )
+
 
 def get_latest_approved_record(
     username

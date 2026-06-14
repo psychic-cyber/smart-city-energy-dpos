@@ -10,6 +10,7 @@ from flask import (
 from database.mongodb.energy_record_repository import (
     get_pending_records,
     approve_record,
+    decline_record,
     get_pending_record_by_username
 )
 
@@ -171,6 +172,38 @@ def approve_reading():
                 "message": "Reading Not Found"
             }
         )
+    
+@dashboard_bp.route(
+    "/api/decline-reading",
+    methods=["POST"]
+)
+def decline_reading():
+
+    if session.get("role") != "Admin":
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Unauthorized"
+            }
+        )
+
+    data = request.get_json()
+
+    username = data[
+        "username"
+    ]
+
+    decline_record(
+        username
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "Reading Declined Successfully"
+        }
+    )
 
     user = get_user_by_username(
         username

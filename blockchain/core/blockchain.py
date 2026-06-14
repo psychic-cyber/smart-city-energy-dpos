@@ -5,7 +5,9 @@ from blockchain.storage.storage_manager import (
 )
 
 from database.mongodb.blockchain_repository import (
-    get_latest_block
+    get_blocks,
+    get_latest_block,
+    block_index_exists
 )
 
 
@@ -15,17 +17,11 @@ class Blockchain:
 
         try:
 
-            loaded_chain = (
-                load_blockchain()
-            )
+            loaded_chain = load_blockchain()
 
-            if len(
-                loaded_chain
-            ) > 0:
+            if len(loaded_chain) > 0:
 
-                self.chain = (
-                    loaded_chain
-                )
+                self.chain = loaded_chain
 
             else:
 
@@ -57,23 +53,15 @@ class Blockchain:
         validator=None
     ):
 
-        mongo_latest = get_latest_block()
+        latest_block = self.get_latest_block()
 
-        if mongo_latest:
+        next_index = (
+            latest_block.index + 1
+        )
 
-            next_index = (
-                mongo_latest["index"] + 1
-            )
-
-            previous_hash = (
-                mongo_latest["hash"]
-            )
-
-        else:
-
-            next_index = 1
-
-            previous_hash = "0"
+        previous_hash = (
+            latest_block.hash
+        )
 
         block_data = {
             "validator": validator,
