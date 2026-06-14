@@ -405,5 +405,20 @@
         },
         "previous_hash": "1726b2fed298359ed5aff7d041f8b1582c345bf8f0095e23cfc56fba428978ec",
         "hash": "6606c2ebf6776dbc8a4247b645c252ae95e962c3ec52f2e30b4b607352fbde4e"
+    },
+    {
+        "index": 32,
+        "timestamp": "2026-06-13 23:47:19.761577",
+        "data": {
+            "validator": null,
+            "transaction": {
+                "type": "ENERGY_READING_APPROVED",
+                "username": "Zaz-House",
+                "generated": 250.0,
+                "consumed": 100.0
+            }
+        },
+        "previous_hash": "c175e5bdb09e9b7b950b335a825783b43579b1294d031f5b9bad32b4ea414fa2",
+        "hash": "bd964cb8f65bba83737e8733eaad617177bb19b2ca257269b3d65255a37639ab"
     }
 ]
