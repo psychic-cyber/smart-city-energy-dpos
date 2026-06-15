@@ -7,3 +7,4 @@ __pycache__/
 backup/
 mongodb-backup.zip
 blockchain/storage/blockchain_data.json
+blockchain/storage/blockchain_data.json
