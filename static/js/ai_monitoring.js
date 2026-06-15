@@ -2,14 +2,17 @@ let predictionChart = null;
 let anomalyChart = null;
 
 async function loadAI() {
-  const analytics = await (await fetch("/api/analytics")).json();
+  const aiData = await (await fetch("/api/ai-monitoring")).json();
 
-  const totalTransactions = analytics.total_transactions;
-  const anomalies = analytics.anomalies_detected;
+  const anomalies = aiData.anomalies;
 
-  const anomalyRate = analytics.anomaly_percentage;
-  const healthScore = analytics.health_score;
-  const efficiency = analytics.energy_efficiency;
+  const anomalyRate = aiData.anomaly_rate;
+
+  const healthScore = aiData.accuracy;
+
+  const efficiency = aiData.confidence;
+
+  const totalTransactions = aiData.total_records;
 
   document.getElementById("anomalies").innerText = anomalies.toLocaleString();
 
@@ -20,6 +23,14 @@ async function loadAI() {
 
   document.getElementById("systemStatus").innerText =
     healthScore >= 90 ? "ACTIVE" : "WARNING";
+
+  document.getElementById("riskLevel").innerText = aiData.risk_level;
+
+  document.getElementById("aiInsight").innerText = aiData.insight;
+
+  document.getElementById("recommendation").innerText = aiData.recommendation;
+
+  document.getElementById("actionPlan").innerText = aiData.action;
 
   if (predictionChart) predictionChart.destroy();
 

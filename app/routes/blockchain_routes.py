@@ -13,7 +13,8 @@ from database.mongodb.transaction_repository import (
 
 from database.mongodb.blockchain_repository import (
     count_blocks,
-    get_blocks
+    get_blocks,
+    save_block
 )
 
 from blockchain.core.blockchain import (
@@ -36,6 +37,15 @@ from database.mongodb.user_transaction_repository import (
 
 from database.mongodb.mongo_manager import (
     db
+)
+
+from ai.ai_engine import (
+    generate_ai_insight
+)
+
+from ml.ai_engine import (
+    get_ai_monitoring_data,
+    should_create_ai_alert
 )
 
 
@@ -114,6 +124,78 @@ def analytics():
 
     return jsonify(
         get_analytics()
+    )
+
+@blockchain_bp.route(
+    "/api/ai-monitoring",
+    methods=["GET"]
+)
+def ai_monitoring():
+
+    data = get_ai_monitoring_data()
+
+    if should_create_ai_alert(
+        data["risk_level"]
+    ):
+
+        blockchain = Blockchain()
+
+        blockchain.add_block(
+            {
+                "type":
+                    "AI_ALERT",
+
+                "risk_level":
+                    data["risk_level"],
+
+                "risk_score":
+                    data["risk_score"],
+
+                "anomalies":
+                    data["anomalies"],
+
+                "anomaly_rate":
+                    data["anomaly_rate"]
+            }
+        )
+
+        save_block(
+            blockchain.get_latest_block()
+        )
+
+    return jsonify(
+        data
+    )
+
+@blockchain_bp.route(
+    "/api/ai-insights",
+    methods=["GET"]
+)
+def ai_insights():
+
+    analytics_data = get_analytics()
+
+    anomaly_rate = (
+        analytics_data.get(
+            "anomaly_percentage",
+            0
+        )
+    )
+
+    efficiency = (
+        analytics_data.get(
+            "energy_efficiency",
+            0
+        )
+    )
+
+    ai_result = generate_ai_insight(
+        anomaly_rate,
+        efficiency
+    )
+
+    return jsonify(
+        ai_result
     )
 
 @blockchain_bp.route(
