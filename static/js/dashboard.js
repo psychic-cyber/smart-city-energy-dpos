@@ -4,6 +4,8 @@ let districtChart = null;
 async function loadDashboard() {
   const stats = await (await fetch("/api/stats")).json();
 
+  const aiData = await (await fetch("/api/ai-monitoring")).json();
+
   const analytics = await (await fetch("/api/analytics")).json();
 
   const transactions = await (await fetch("/api/transactions")).json();
@@ -24,9 +26,8 @@ async function loadDashboard() {
     ? "VALID"
     : "INVALID";
 
-  document.getElementById("health").innerText = stats.chain_valid
-    ? "100%"
-    : "ERROR";
+  document.getElementById("health").innerText =
+    aiData.accuracy.toFixed(2) + "%";
 
   document.getElementById("anomalies").innerText =
     analytics.anomalies_detected.toLocaleString();
@@ -58,17 +59,25 @@ async function loadDashboard() {
     document.getElementById("efficiency").style.color = "#ef4444";
   }
 
-  const gridStability =
-    100 - (analytics.anomalies_detected / stats.total_transactions) * 100;
+  let gridStability = 100;
+
+  if (stats.total_transactions > 0) {
+    gridStability =
+      100 - (analytics.anomalies_detected / stats.total_transactions) * 100;
+  }
 
   document.getElementById("gridStability").innerText =
     gridStability.toFixed(1) + "%";
 
-  document.getElementById("aiAccuracy").innerText = "96.8%";
+  document.getElementById("gridStability").innerText =
+    gridStability.toFixed(1) + "%";
 
-  document.getElementById("securityScore").innerText = stats.chain_valid
-    ? "100%"
-    : "0%";
+  document.getElementById("aiAccuracy").innerText =
+    aiData.accuracy.toFixed(2) + "%";
+
+  const securityScore = stats.chain_valid ? 100 : 50;
+
+  document.getElementById("securityScore").innerText = securityScore + "%";
 
   const transactionTable = document.getElementById("transactionsTable");
 
@@ -251,21 +260,17 @@ async function approveReading(username) {
 }
 
 async function declineReading(username) {
+  const response = await fetch("/api/decline-reading", {
+    method: "POST",
 
-  const response = await fetch(
-    "/api/decline-reading",
-    {
-      method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
 
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        username: username,
-      }),
-    }
-  );
+    body: JSON.stringify({
+      username: username,
+    }),
+  });
 
   const result = await response.json();
 

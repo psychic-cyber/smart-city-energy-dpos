@@ -6,6 +6,9 @@ MODEL = joblib.load(
     "ml/anomaly_model.pkl"
 )
 
+MODEL_ACCURACY = joblib.load(
+    "ml/model_accuracy.pkl"
+)
 
 def calculate_risk_score(
     consumed,
@@ -197,7 +200,7 @@ def get_ai_monitoring_data():
 
     return {
     "accuracy": round(
-        99.95,
+        MODEL_ACCURACY * 100,
         2
     ),
     "anomalies": anomalies,
@@ -213,10 +216,3 @@ def get_ai_monitoring_data():
     "insight": f"{anomalies} anomalies detected in the smart grid",
     "action": recommendation
 }
-
-def should_create_ai_alert(level):
-
-    return level in [
-        "HIGH",
-        "CRITICAL"
-    ]

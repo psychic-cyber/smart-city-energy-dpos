@@ -31,6 +31,10 @@ from database.mongodb.blockchain_repository import (
     save_block
 )
 
+from blockchain.storage.storage_manager import (
+    save_blockchain
+)
+
 from database.mongodb.marketplace_repository import (
     create_listing,
     get_available_listings,
@@ -249,6 +253,10 @@ def sell_energy():
         blockchain.get_latest_block()
     )
 
+    save_blockchain(
+        blockchain.chain
+    )
+
     return jsonify(
         {
             "success": True,
@@ -443,6 +451,10 @@ def create_marketplace_listing():
         blockchain.get_latest_block()
     )
 
+    save_blockchain(
+        blockchain.chain
+    )
+
     return jsonify(
         {
             "success": True,
@@ -565,6 +577,10 @@ def buy_energy():
 
     save_block(
         blockchain.get_latest_block()
+    )
+
+    save_blockchain(
+        blockchain.chain
     )
 
     return jsonify(

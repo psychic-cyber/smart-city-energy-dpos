@@ -15,6 +15,10 @@ from database.mongodb.blockchain_repository import (
     count_blocks
 )
 
+from ml.ai_engine import (
+    get_ai_monitoring_data
+)
+
 def save_transaction(
     transaction
 ):
@@ -134,6 +138,8 @@ def get_analytics():
             count_role("SolarFarm")
     }
 
+    ai_data = get_ai_monitoring_data()
+
     return {
 
         "total_transactions":
@@ -170,13 +176,13 @@ def get_analytics():
             entity_distribution,
 
         "anomalies_detected":
-            0,
+            ai_data["anomalies"],
 
         "anomaly_percentage":
-            0,
+            ai_data["anomaly_rate"],
 
         "health_score":
-            100
+            ai_data["confidence"]
     }
 
 

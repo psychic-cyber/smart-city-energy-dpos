@@ -1,424 +1,55 @@
 [
     {
         "index": 0,
-        "timestamp": "2026-06-06 12:08:30.614646",
+        "timestamp": "2026-06-16 04:07:40.532083",
         "data": "Genesis Block",
         "previous_hash": "0",
-        "hash": "824ed447f5e9d608756ef90660e8c53f61f958fbb58a225b40f4acb1b10c1dc4"
+        "hash": "4231b0e09ca80a5fd3219188bf1d78939dd89f4e5a656e5c9f80a33aa6002eb4"
     },
     {
         "index": 1,
-        "timestamp": "2026-06-06 12:08:30.614808",
-        "data": {
-            "validator": "District-E",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "1",
-                "entity_type": "House",
-                "district": "District-E",
-                "energy_consumed": "25.61",
-                "energy_generated": "14.95",
-                "anomaly": "No",
-                "energy_price": "0.17",
-                "bill_amount": 1.81
-            }
-        },
-        "previous_hash": "824ed447f5e9d608756ef90660e8c53f61f958fbb58a225b40f4acb1b10c1dc4",
-        "hash": "68f8784a2197ddcaafdaca3abc8c830e985979fc5871ba5a196321073c4a95e4"
-    },
-    {
-        "index": 2,
-        "timestamp": "2026-06-06 12:08:30.614851",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "2",
-                "entity_type": "SolarFarm",
-                "district": "District-C",
-                "energy_consumed": "171.75",
-                "energy_generated": "3461.53",
-                "anomaly": "No",
-                "energy_price": "0.17",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "68f8784a2197ddcaafdaca3abc8c830e985979fc5871ba5a196321073c4a95e4",
-        "hash": "5379152dd23f8c23849f4c853b92fe8ced40c398fbda724308c0482eb88cc07f"
-    },
-    {
-        "index": 3,
-        "timestamp": "2026-06-06 12:08:30.614876",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "3",
-                "entity_type": "SolarFarm",
-                "district": "District-B",
-                "energy_consumed": "373.02",
-                "energy_generated": "4475.68",
-                "anomaly": "No",
-                "energy_price": "0.3",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "5379152dd23f8c23849f4c853b92fe8ced40c398fbda724308c0482eb88cc07f",
-        "hash": "421464ab0f901f0c6eb9c3356b534484e60dfa145ffc2799be2c196ec991f680"
-    },
-    {
-        "index": 4,
-        "timestamp": "2026-06-06 12:08:30.614898",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "4",
-                "entity_type": "Hospital",
-                "district": "District-A",
-                "energy_consumed": "1062.78",
-                "energy_generated": "144.08",
-                "anomaly": "No",
-                "energy_price": "0.39",
-                "bill_amount": 358.29
-            }
-        },
-        "previous_hash": "421464ab0f901f0c6eb9c3356b534484e60dfa145ffc2799be2c196ec991f680",
-        "hash": "f673300a1ef8f346df6ee46cfb128b84b5e85d44b4771d64b777154db93c2785"
-    },
-    {
-        "index": 5,
-        "timestamp": "2026-06-06 12:08:30.614920",
-        "data": {
-            "validator": "District-E",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "5",
-                "entity_type": "Factory",
-                "district": "District-B",
-                "energy_consumed": "1486.36",
-                "energy_generated": "285.62",
-                "anomaly": "No",
-                "energy_price": "0.2",
-                "bill_amount": 240.15
-            }
-        },
-        "previous_hash": "f673300a1ef8f346df6ee46cfb128b84b5e85d44b4771d64b777154db93c2785",
-        "hash": "bd0e5481c2ccb2011367a78153b892062fd582c38858268e8500c235da9581e6"
-    },
-    {
-        "index": 6,
-        "timestamp": "2026-06-06 12:08:30.614948",
-        "data": {
-            "validator": "District-A",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "6",
-                "entity_type": "House",
-                "district": "District-A",
-                "energy_consumed": "31.24",
-                "energy_generated": "1.05",
-                "anomaly": "No",
-                "energy_price": "0.24",
-                "bill_amount": 7.25
-            }
-        },
-        "previous_hash": "bd0e5481c2ccb2011367a78153b892062fd582c38858268e8500c235da9581e6",
-        "hash": "138b247d1918af4e80d7c9399bca22975b32d064e6edbcd07ba8dcc091638b33"
-    },
-    {
-        "index": 7,
-        "timestamp": "2026-06-06 12:08:30.614970",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "7",
-                "entity_type": "Office",
-                "district": "District-B",
-                "energy_consumed": "130.45",
-                "energy_generated": "38.95",
-                "anomaly": "No",
-                "energy_price": "0.16",
-                "bill_amount": 14.64
-            }
-        },
-        "previous_hash": "138b247d1918af4e80d7c9399bca22975b32d064e6edbcd07ba8dcc091638b33",
-        "hash": "b46970cd299b0278103f7397e1d9d39ebd1d4afab5ce442dc6aeda698c61c6f1"
-    },
-    {
-        "index": 8,
-        "timestamp": "2026-06-06 12:08:30.614990",
-        "data": {
-            "validator": "District-D",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "8",
-                "entity_type": "SolarFarm",
-                "district": "District-A",
-                "energy_consumed": "204.29",
-                "energy_generated": "5485.7",
-                "anomaly": "No",
-                "energy_price": "0.2",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "b46970cd299b0278103f7397e1d9d39ebd1d4afab5ce442dc6aeda698c61c6f1",
-        "hash": "7bb26dffce9299d85b5ab291a4fce8e26072cd6408fcf7fe35d114a2e183ffd5"
-    },
-    {
-        "index": 9,
-        "timestamp": "2026-06-06 12:08:30.615011",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "9",
-                "entity_type": "Apartment",
-                "district": "District-D",
-                "energy_consumed": "76.12",
-                "energy_generated": "10.95",
-                "anomaly": "No",
-                "energy_price": "0.22",
-                "bill_amount": 14.34
-            }
-        },
-        "previous_hash": "7bb26dffce9299d85b5ab291a4fce8e26072cd6408fcf7fe35d114a2e183ffd5",
-        "hash": "1392bd57dd72afed1e51ceb40465a68d7958fb6925c9f57c8f65fa66df431229"
-    },
-    {
-        "index": 10,
-        "timestamp": "2026-06-06 12:08:30.615032",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "10",
-                "entity_type": "University",
-                "district": "District-D",
-                "energy_consumed": "551.99",
-                "energy_generated": "17.04",
-                "anomaly": "No",
-                "energy_price": "0.19",
-                "bill_amount": 101.64
-            }
-        },
-        "previous_hash": "1392bd57dd72afed1e51ceb40465a68d7958fb6925c9f57c8f65fa66df431229",
-        "hash": "e4750db23c8d583a6025c3c5d546d6d01db974699516a9cbf1c38165d1182cd3"
-    },
-    {
-        "index": 11,
-        "timestamp": "2026-06-06 12:21:22.639236",
-        "data": {
-            "validator": "District-D",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "1",
-                "entity_type": "House",
-                "district": "District-E",
-                "energy_consumed": "25.61",
-                "energy_generated": "14.95",
-                "anomaly": "No",
-                "energy_price": "0.17",
-                "bill_amount": 1.81
-            }
-        },
-        "previous_hash": "e4750db23c8d583a6025c3c5d546d6d01db974699516a9cbf1c38165d1182cd3",
-        "hash": "117341b9431947208eb196bdd3cb48f141a8d86ad45a4eba6fa43ecaea59e2a0"
-    },
-    {
-        "index": 12,
-        "timestamp": "2026-06-06 12:21:22.639299",
-        "data": {
-            "validator": "District-D",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "2",
-                "entity_type": "SolarFarm",
-                "district": "District-C",
-                "energy_consumed": "171.75",
-                "energy_generated": "3461.53",
-                "anomaly": "No",
-                "energy_price": "0.17",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "117341b9431947208eb196bdd3cb48f141a8d86ad45a4eba6fa43ecaea59e2a0",
-        "hash": "adf003a4b739e64a57e4ca4d77505135816e79d43bd325fd9f3842f83d7f3179"
-    },
-    {
-        "index": 13,
-        "timestamp": "2026-06-06 12:21:22.639319",
-        "data": {
-            "validator": "District-B",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "3",
-                "entity_type": "SolarFarm",
-                "district": "District-B",
-                "energy_consumed": "373.02",
-                "energy_generated": "4475.68",
-                "anomaly": "No",
-                "energy_price": "0.3",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "adf003a4b739e64a57e4ca4d77505135816e79d43bd325fd9f3842f83d7f3179",
-        "hash": "1ebe9d8169fb18a823418cf5d2844d60fefe6b1472ee3ce3e7c1cabe75494235"
-    },
-    {
-        "index": 14,
-        "timestamp": "2026-06-06 12:21:22.639337",
-        "data": {
-            "validator": "District-B",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "4",
-                "entity_type": "Hospital",
-                "district": "District-A",
-                "energy_consumed": "1062.78",
-                "energy_generated": "144.08",
-                "anomaly": "No",
-                "energy_price": "0.39",
-                "bill_amount": 358.29
-            }
-        },
-        "previous_hash": "1ebe9d8169fb18a823418cf5d2844d60fefe6b1472ee3ce3e7c1cabe75494235",
-        "hash": "1d69f88eaa2d858def2347e72533d74071daf57b5900985e24515411c9918ace"
-    },
-    {
-        "index": 15,
-        "timestamp": "2026-06-06 12:21:22.639357",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "5",
-                "entity_type": "Factory",
-                "district": "District-B",
-                "energy_consumed": "1486.36",
-                "energy_generated": "285.62",
-                "anomaly": "No",
-                "energy_price": "0.2",
-                "bill_amount": 240.15
-            }
-        },
-        "previous_hash": "1d69f88eaa2d858def2347e72533d74071daf57b5900985e24515411c9918ace",
-        "hash": "9b2df53b66c1c40d3f282be3df86b487163c5b195d749344e9c61eff243c7ad3"
-    },
-    {
-        "index": 16,
-        "timestamp": "2026-06-06 12:21:22.639374",
-        "data": {
-            "validator": "District-B",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "6",
-                "entity_type": "House",
-                "district": "District-A",
-                "energy_consumed": "31.24",
-                "energy_generated": "1.05",
-                "anomaly": "No",
-                "energy_price": "0.24",
-                "bill_amount": 7.25
-            }
-        },
-        "previous_hash": "9b2df53b66c1c40d3f282be3df86b487163c5b195d749344e9c61eff243c7ad3",
-        "hash": "8b846beac6fdaf9a28b8780a8f2afc71e8bb546a2f4c8cda58c83dd2c200fdb9"
-    },
-    {
-        "index": 17,
-        "timestamp": "2026-06-06 12:21:22.639392",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "7",
-                "entity_type": "Office",
-                "district": "District-B",
-                "energy_consumed": "130.45",
-                "energy_generated": "38.95",
-                "anomaly": "No",
-                "energy_price": "0.16",
-                "bill_amount": 14.64
-            }
-        },
-        "previous_hash": "8b846beac6fdaf9a28b8780a8f2afc71e8bb546a2f4c8cda58c83dd2c200fdb9",
-        "hash": "f4e0d67c938f0701cc6014d4fb3870cb5ceeefc842686d5f55d42319a0e10545"
-    },
-    {
-        "index": 18,
-        "timestamp": "2026-06-06 12:21:22.639408",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "8",
-                "entity_type": "SolarFarm",
-                "district": "District-A",
-                "energy_consumed": "204.29",
-                "energy_generated": "5485.7",
-                "anomaly": "No",
-                "energy_price": "0.2",
-                "bill_amount": 0.0
-            }
-        },
-        "previous_hash": "f4e0d67c938f0701cc6014d4fb3870cb5ceeefc842686d5f55d42319a0e10545",
-        "hash": "14c3bf3430169058cedf3a8c4904884d77f59524396bdaec48b18f6669f8b19c"
-    },
-    {
-        "index": 19,
-        "timestamp": "2026-06-06 12:21:22.639424",
-        "data": {
-            "validator": "District-D",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "9",
-                "entity_type": "Apartment",
-                "district": "District-D",
-                "energy_consumed": "76.12",
-                "energy_generated": "10.95",
-                "anomaly": "No",
-                "energy_price": "0.22",
-                "bill_amount": 14.34
-            }
-        },
-        "previous_hash": "14c3bf3430169058cedf3a8c4904884d77f59524396bdaec48b18f6669f8b19c",
-        "hash": "1726b2fed298359ed5aff7d041f8b1582c345bf8f0095e23cfc56fba428978ec"
-    },
-    {
-        "index": 20,
-        "timestamp": "2026-06-06 12:21:22.639440",
-        "data": {
-            "validator": "District-C",
-            "transaction": {
-                "transaction_type": "energy_record",
-                "entity_id": "10",
-                "entity_type": "University",
-                "district": "District-D",
-                "energy_consumed": "551.99",
-                "energy_generated": "17.04",
-                "anomaly": "No",
-                "energy_price": "0.19",
-                "bill_amount": 101.64
-            }
-        },
-        "previous_hash": "1726b2fed298359ed5aff7d041f8b1582c345bf8f0095e23cfc56fba428978ec",
-        "hash": "6606c2ebf6776dbc8a4247b645c252ae95e962c3ec52f2e30b4b607352fbde4e"
-    },
-    {
-        "index": 32,
-        "timestamp": "2026-06-13 23:47:19.761577",
+        "timestamp": "2026-06-16 04:07:40.532133",
         "data": {
             "validator": null,
             "transaction": {
                 "type": "ENERGY_READING_APPROVED",
                 "username": "Zaz-House",
-                "generated": 250.0,
+                "generated": 200.0,
                 "consumed": 100.0
             }
         },
-        "previous_hash": "c175e5bdb09e9b7b950b335a825783b43579b1294d031f5b9bad32b4ea414fa2",
-        "hash": "bd964cb8f65bba83737e8733eaad617177bb19b2ca257269b3d65255a37639ab"
+        "previous_hash": "4231b0e09ca80a5fd3219188bf1d78939dd89f4e5a656e5c9f80a33aa6002eb4",
+        "hash": "99c7a3cce8f4051b77ce106a500119271d87c444e07d9e036d23262bdd4dad8b"
+    },
+    {
+        "index": 2,
+        "timestamp": "2026-06-16 04:16:25.361471",
+        "data": {
+            "validator": null,
+            "transaction": {
+                "type": "ENERGY_LISTED",
+                "seller": "Zaz-House",
+                "energy": 250.0,
+                "price": 10.0
+            }
+        },
+        "previous_hash": "99c7a3cce8f4051b77ce106a500119271d87c444e07d9e036d23262bdd4dad8b",
+        "hash": "494d8fce039ecb81c00d389dc9e03d8b2b6433739f9aa96626f162e3a61b5d18"
+    },
+    {
+        "index": 3,
+        "timestamp": "2026-06-16 04:22:55.530360",
+        "data": {
+            "validator": null,
+            "transaction": {
+                "type": "MARKETPLACE_TRADE",
+                "seller": "Zaz-House",
+                "buyer": "SmartCity-SolarFarm01",
+                "energy": 250.0,
+                "amount": 2500.0
+            }
+        },
+        "previous_hash": "494d8fce039ecb81c00d389dc9e03d8b2b6433739f9aa96626f162e3a61b5d18",
+        "hash": "089aeabae411a010393388d2ef14105be54429312e028a4c573977eb6183b295"
     }
 ]

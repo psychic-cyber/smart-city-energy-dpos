@@ -17,6 +17,10 @@ from database.mongodb.blockchain_repository import (
     save_block
 )
 
+from blockchain.storage.storage_manager import (
+    save_blockchain
+)
+
 from blockchain.core.blockchain import (
     Blockchain
 )
@@ -46,6 +50,13 @@ from ai.ai_engine import (
 from ml.ai_engine import (
     get_ai_monitoring_data,
     should_create_ai_alert
+)
+
+from database.mongodb.blockchain_repository import (
+    count_blocks,
+    get_blocks,
+    save_block,
+    latest_ai_alert
 )
 
 
@@ -134,35 +145,58 @@ def ai_monitoring():
 
     data = get_ai_monitoring_data()
 
+    latest_alert = (
+        latest_ai_alert()
+    )
+
+    create_alert = False
+
     if should_create_ai_alert(
         data["risk_level"]
     ):
 
-        blockchain = Blockchain()
+        if not latest_alert:
 
-        blockchain.add_block(
-            {
-                "type":
-                    "AI_ALERT",
+            create_alert = True
 
-                "risk_level":
-                    data["risk_level"],
+        else:
 
-                "risk_score":
-                    data["risk_score"],
+            old_score = (
+                latest_alert["data"]
+                ["transaction"]
+                ["risk_score"]
+            )
 
-                "anomalies":
-                    data["anomalies"],
+            if old_score != data["risk_score"]:
 
-                "anomaly_rate":
-                    data["anomaly_rate"]
-            }
-        )
+                create_alert = True
 
-        save_block(
-            blockchain.get_latest_block()
-        )
+        if create_alert:
 
+            blockchain = Blockchain()
+
+            blockchain.add_block(
+                {
+                    "type": "AI_ALERT",
+                    "risk_level":
+                        data["risk_level"],
+                    "risk_score":
+                        data["risk_score"],
+                    "anomalies":
+                        data["anomalies"],
+                    "anomaly_rate":
+                        data["anomaly_rate"]
+                }
+            )
+
+            save_block(
+                blockchain.get_latest_block()
+            )
+
+            save_blockchain(
+                blockchain.chain
+            )
+    
     return jsonify(
         data
     )

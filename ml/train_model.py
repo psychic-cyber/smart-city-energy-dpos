@@ -105,6 +105,11 @@ joblib.dump(
     "ml/model_features.pkl"
 )
 
+joblib.dump(
+    accuracy,
+    "ml/model_accuracy.pkl"
+)
+
 print(
     "\nModel Saved Successfully"
 )

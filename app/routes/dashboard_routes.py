@@ -24,6 +24,7 @@ from blockchain.core.blockchain import (
 )
 
 from database.mongodb.blockchain_repository import (
+    save_chain,
     save_block
 )
 
@@ -172,53 +173,17 @@ def approve_reading():
                 "message": "Reading Not Found"
             }
         )
-    
-@dashboard_bp.route(
-    "/api/decline-reading",
-    methods=["POST"]
-)
-def decline_reading():
-
-    if session.get("role") != "Admin":
-
-        return jsonify(
-            {
-                "success": False,
-                "message": "Unauthorized"
-            }
-        )
-
-    data = request.get_json()
-
-    username = data[
-        "username"
-    ]
-
-    decline_record(
-        username
-    )
-
-    return jsonify(
-        {
-            "success": True,
-            "message": "Reading Declined Successfully"
-        }
-    )
 
     user = get_user_by_username(
         username
     )
 
     generated = float(
-        record[
-            "energy_generated"
-        ]
+        record["energy_generated"]
     )
 
     consumed = float(
-        record[
-            "energy_consumed"
-        ]
+        record["energy_consumed"]
     )
 
     current_generated = float(
@@ -283,6 +248,10 @@ def decline_reading():
         blockchain.get_latest_block()
     )
 
+    save_chain(
+        blockchain.chain
+    )
+
     save_blockchain(
         blockchain.chain
     )
@@ -290,6 +259,36 @@ def decline_reading():
     return jsonify(
         {
             "success": True,
-            "message": "Reading Approved Successfully"
+            "message":
+                "Reading Approved Successfully"
+        }
+    )
+    
+@dashboard_bp.route(
+    "/api/decline-reading",
+    methods=["POST"]
+)
+def decline_reading():
+
+    if session.get("role") != "Admin":
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Unauthorized"
+            }
+        )
+
+    data = request.get_json()
+
+    username = data["username"]
+
+    decline_record(username)
+
+    return jsonify(
+        {
+            "success": True,
+            "message":
+                "Reading Declined Successfully"
         }
     )

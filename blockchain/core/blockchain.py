@@ -10,6 +10,10 @@ from database.mongodb.blockchain_repository import (
     block_index_exists
 )
 
+from database.mongodb.blockchain_repository import (
+    load_chain_from_mongo
+)
+
 
 class Blockchain:
 
@@ -17,7 +21,7 @@ class Blockchain:
 
         try:
 
-            loaded_chain = load_blockchain()
+            loaded_chain = load_chain_from_mongo()
 
             if len(loaded_chain) > 0:
 
@@ -80,22 +84,16 @@ class Blockchain:
 
     def is_chain_valid(self):
 
-        for i in range(
-            1,
-            len(self.chain)
-        ):
+        for i in range(1, len(self.chain)):
 
-            current_block = (
-                self.chain[i]
-            )
+            current_block = self.chain[i]
+            previous_block = self.chain[i - 1]
 
-            previous_block = (
-                self.chain[i - 1]
-            )
+            if current_block.previous_hash != previous_block.hash:
+                return False
 
             if (
-                current_block.previous_hash
-                != previous_block.hash
+                current_block.hash != current_block.generate_hash()
             ):
                 return False
 
