@@ -1,0 +1,3 @@
+username,buyer,energy_sold,revenue,status,timestamp
+Zaz-House,SmartCity-SolarFarm01,250.0,2500.0,Completed,2026-06-16 04:22:55.528882
+SmartCity-SolarFarm01,Zaz-House,250.0,2500.0,Completed,2026-06-16 04:22:55.529339

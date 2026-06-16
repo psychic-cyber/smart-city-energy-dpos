@@ -1,41 +1,44 @@
 let revenueChart = null;
 let energyChart = null;
 
-async function loadReports() {
-  const analytics = await (await fetch("/api/analytics")).json();
+async function loadReport(type = "monthly") {
+  const report = await (await fetch(`/api/report/${type}`)).json();
 
   document.getElementById("revenue").innerText =
-    "Rs " + Math.round(analytics.total_bill_amount).toLocaleString();
+    "Rs " + report.revenue.toLocaleString();
 
-  document.getElementById("consumed").innerText =
-    Math.round(analytics.total_energy_consumed).toLocaleString() + " kWh";
+  document.getElementById("generated").innerText = report.generated + " kWh";
 
-  document.getElementById("generated").innerText =
-    Math.round(analytics.total_energy_generated).toLocaleString() + " kWh";
+  document.getElementById("consumed").innerText = report.consumed + " kWh";
 
-  document.getElementById("performance").innerText =
-    analytics.energy_efficiency.toFixed(2) + "%";
+  document.getElementById("performance").innerText = report.efficiency + "%";
 
-  if (energyChart) energyChart.destroy();
+  document.getElementById("co2").innerText = report.co2_saved + " kg";
 
-  const districts = await (await fetch("/api/districts")).json();
+  document.getElementById("transactions").innerText = report.transactions;
 
-  energyChart = new Chart(document.getElementById("energyChart"), {
-    type: "bar",
+  document.getElementById("producerTable").innerHTML = "";
 
-    data: {
-      labels: districts.map((d) => d._id),
+  report.top_producers.forEach((p) => {
+    document.getElementById("producerTable").innerHTML += `
+      <tr>
+        <td>${p.username}</td>
+        <td>${p.role}</td>
+        <td>${p.energy_generated}</td>
+      </tr>
+      `;
+  });
 
-      datasets: [
-        {
-          label: "Energy Consumption (kWh)",
+  document.getElementById("consumerTable").innerHTML = "";
 
-          data: districts.map((d) => Math.round(d.energy)),
-
-          backgroundColor: "#38bdf8",
-        },
-      ],
-    },
+  report.top_consumers.forEach((p) => {
+    document.getElementById("consumerTable").innerHTML += `
+      <tr>
+        <td>${p.username}</td>
+        <td>${p.role}</td>
+        <td>${p.energy_consumed}</td>
+      </tr>
+      `;
   });
 
   if (revenueChart) revenueChart.destroy();
@@ -44,21 +47,33 @@ async function loadReports() {
     type: "doughnut",
 
     data: {
-      labels: ["Revenue", "Energy Consumed", "Energy Generated"],
+      labels: ["Revenue", "Generated", "Consumed"],
 
       datasets: [
         {
-          label: "System Performance",
+          data: [report.revenue, report.generated, report.consumed],
+        },
+      ],
+    },
+  });
 
-          data: [
-            analytics.total_bill_amount,
-            analytics.total_energy_consumed,
-            analytics.total_energy_generated
-          ],
+  if (energyChart) energyChart.destroy();
+
+  energyChart = new Chart(document.getElementById("energyChart"), {
+    type: "bar",
+
+    data: {
+      labels: report.top_producers.map((p) => p.username),
+
+      datasets: [
+        {
+          label: "Energy Generated",
+
+          data: report.top_producers.map((p) => p.energy_generated),
         },
       ],
     },
   });
 }
 
-loadReports();
+loadReport("monthly");

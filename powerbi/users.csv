@@ -1,0 +1,10 @@
+username,email,role,energy_balance,created_at,total_revenue,energy_consumed,energy_generated
+Admin,admin@smartgrid.com,Admin,0.0,2026-06-08 11:11:55.084654,,,
+Zaz-House,zaz@smartgrid.com,House,1000.0,2026-06-11 07:17:59.673891,6750.0,1000.0,2250.0
+Sania-House,sania@smartgrid.com,House,400.0,2026-06-11 07:28:47.111108,3250.0,200.0,700.0
+SmartCity-Hospital01,hospital01@smartgrid.com,Hospital,150.0,2026-06-12 06:55:20.473761,1500.0,1200.0,200.0
+SmartCity-University01,university01@smartgrid.com,University,0.0,2026-06-12 06:56:20.648522,0.0,0.0,0.0
+SmartCity-Restaurant01,restaurant01@smartgrid.com,Restaurant,50.0,2026-06-12 06:57:06.486515,500.0,0.0,0.0
+SmartCity-Office01,office01@smartgrid.com,Office,0.0,2026-06-12 06:57:39.766726,0.0,0.0,0.0
+SmartCity-Factory01,factory01@smartgrid.com,Factory,0.0,2026-06-12 06:58:31.265212,0.0,0.0,0.0
+SmartCity-SolarFarm01,solarfarm01@smartgrid.com,SolarFarm,3950.0,2026-06-12 06:59:14.813041,25000.0,300.0,5000.0

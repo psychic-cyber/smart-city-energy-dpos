@@ -1,7 +1,14 @@
 from flask import (
     Blueprint,
     jsonify,
-    session
+    session,
+    send_file
+)
+
+from os.path import abspath
+
+from app.utils.pdf_report_generator import (
+    generate_report_pdf
 )
 
 from database.mongodb.transaction_repository import (
@@ -57,6 +64,12 @@ from database.mongodb.blockchain_repository import (
     get_blocks,
     save_block,
     latest_ai_alert
+)
+
+from database.mongodb.report_repository import (
+    get_daily_report,
+    get_weekly_report,
+    get_monthly_report
 )
 
 
@@ -398,3 +411,96 @@ def latest_users():
 #                 revenue
 #         }
 #     )
+
+@blockchain_bp.route(
+    "/api/report/daily"
+)
+def daily_report():
+
+    return jsonify(
+        get_daily_report()
+    )
+
+
+@blockchain_bp.route(
+    "/api/report/weekly"
+)
+def weekly_report():
+
+    return jsonify(
+        get_weekly_report()
+    )
+
+
+@blockchain_bp.route(
+    "/api/report/monthly"
+)
+def monthly_report():
+
+    return jsonify(
+        get_monthly_report()
+    )
+
+@blockchain_bp.route(
+    "/api/report/pdf/daily"
+)
+def daily_report_pdf():
+
+    report = get_daily_report()
+
+    filename = "daily_report.pdf"
+
+    generate_report_pdf(
+        filename,
+        "Daily Smart City Energy Report",
+        report
+    )
+
+    return send_file(
+        abspath(filename),
+        as_attachment=True
+    )
+
+@blockchain_bp.route(
+    "/api/report/pdf/weekly"
+)
+def weekly_report_pdf():
+
+    report = get_weekly_report()
+
+    filename = "weekly_report.pdf"
+
+    generate_report_pdf(
+        filename,
+        "Weekly Smart City Energy Report",
+        report
+    )
+
+    return send_file(
+        abspath(filename),
+        as_attachment=True
+    )
+
+@blockchain_bp.route(
+    "/api/report/pdf/monthly"
+)
+def monthly_report_pdf():
+
+    report = (
+        get_monthly_report()
+    )
+
+    filename = (
+        "monthly_report.pdf"
+    )
+
+    generate_report_pdf(
+        filename,
+        "Monthly Smart City Energy Report",
+        report
+    )
+
+    return send_file(
+        abspath(filename),
+        as_attachment=True
+    )
