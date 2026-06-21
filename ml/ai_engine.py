@@ -161,10 +161,15 @@ def get_ai_monitoring_data():
         )
     ).astype(int)
 
-    total_records = len(data)
+    recent_data = data.tail(100)
+
+    total_records = max(
+        len(recent_data),
+        1
+    )
 
     anomalies = int(
-        data["anomaly"].sum()
+        recent_data["anomaly"].sum()
     )
 
     anomaly_rate = round(
@@ -213,6 +218,6 @@ def get_ai_monitoring_data():
         2
     ),
     "total_records": total_records,
-    "insight": f"{anomalies} anomalies detected in the smart grid",
+    "insight": f"{anomalies} unusual records found in recent monitoring",
     "action": recommendation
 }

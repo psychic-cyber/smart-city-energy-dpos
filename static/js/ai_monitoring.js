@@ -14,6 +14,18 @@ async function loadAI() {
 
   const totalTransactions = aiData.total_records;
 
+  const riskElement = document.getElementById("riskLevel");
+
+  riskElement.innerText = aiData.risk_level;
+
+  if (aiData.risk_level === "LOW") {
+    riskElement.style.color = "#22c55e";
+  } else if (aiData.risk_level === "MEDIUM") {
+    riskElement.style.color = "#f59e0b";
+  } else {
+    riskElement.style.color = "#ef4444";
+  }
+
   document.getElementById("anomalies").innerText = anomalies.toLocaleString();
 
   document.getElementById("aiAccuracy").innerText =
@@ -24,13 +36,20 @@ async function loadAI() {
   document.getElementById("systemStatus").innerText =
     healthScore >= 90 ? "ACTIVE" : "WARNING";
 
-  document.getElementById("riskLevel").innerText = aiData.risk_level;
+  document.getElementById("aiInsight").innerHTML =
+    `<div class="metric-highlight">
+        ${anomalies} DETECTED
+    </div>`;
 
-  document.getElementById("aiInsight").innerText = aiData.insight;
+  document.getElementById("recommendation").innerHTML =
+    `<div class="metric-highlight">
+      MONITOR
+    </div>`;
 
-  document.getElementById("recommendation").innerText = aiData.recommendation;
-
-  document.getElementById("actionPlan").innerText = aiData.action;
+  document.getElementById("actionPlan").innerHTML =
+    `<div class="metric-highlight">
+      ACTIVE
+    </div>`;
 
   if (predictionChart) predictionChart.destroy();
 

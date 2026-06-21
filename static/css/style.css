@@ -454,3 +454,28 @@ canvas {
   background: #22c55e;
   border-radius: 10px;
 }
+
+.metric-desc {
+  display: block;
+  margin-top: 8px;
+  color: #9ca3af;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.metric-highlight {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+
+.metric-card small {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255,255,255,.6);
+  font-size: .75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}

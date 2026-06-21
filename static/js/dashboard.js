@@ -27,7 +27,7 @@ async function loadDashboard() {
     : "INVALID";
 
   document.getElementById("health").innerText =
-    aiData.accuracy.toFixed(2) + "%";
+    (100 - aiData.anomaly_rate).toFixed(2) + "%";
 
   document.getElementById("anomalies").innerText =
     analytics.anomalies_detected.toLocaleString();
@@ -41,13 +41,15 @@ async function loadDashboard() {
   ).toLocaleString();
 
   document.getElementById("revenue").innerText =
-    "₨ " + Math.round(analytics.total_bill_amount).toLocaleString();
+    "Rs " + Math.round(analytics.total_bill_amount).toLocaleString();
 
   document.getElementById("lastUpdated").innerText =
     "Last Updated: " + new Date().toLocaleString();
 
-  const efficiency =
-    (analytics.total_energy_consumed / analytics.total_energy_generated) * 100;
+  const efficiency = Math.min(
+    100,
+    (analytics.total_energy_consumed / analytics.total_energy_generated) * 100,
+  );
 
   document.getElementById("efficiency").innerText = efficiency.toFixed(1) + "%";
 
@@ -62,8 +64,9 @@ async function loadDashboard() {
   let gridStability = 100;
 
   if (stats.total_transactions > 0) {
-    gridStability =
-      100 - (analytics.anomalies_detected / stats.total_transactions) * 100;
+    const anomalyRate = aiData.anomaly_rate || 0;
+
+    gridStability = Math.max(0, 100 - anomalyRate * 1.5);
   }
 
   document.getElementById("gridStability").innerText =
@@ -102,7 +105,9 @@ async function loadDashboard() {
     blockTable.innerHTML += `
         <tr>
           <td>${b.index}</td>
-          <td>${b.hash.substring(0, 15)}...</td>
+          <td>${b.hash.substring(0, 10)}
+            ...${b.hash.substring(b.hash.length - 6)}
+          </td>
         </tr>
       `;
   });

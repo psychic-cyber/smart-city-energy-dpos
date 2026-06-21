@@ -55,6 +55,22 @@ async function loadAnalytics() {
       ],
     },
   });
+
+  document.getElementById("totalEnergy").innerText =
+    Math.round(
+      analytics.total_energy_generated + analytics.total_energy_consumed,
+    ).toLocaleString() + " kWh";
+
+  document.getElementById("totalRevenue").innerText =
+    "Rs " + Math.round(analytics.total_bill_amount).toLocaleString();
+
+  document.getElementById("efficiencyRate").innerText =
+    (
+      (analytics.total_energy_consumed / analytics.total_energy_generated) *
+      100
+    ).toFixed(1) + "%";
+
+  document.getElementById("entityCount").innerText = districts.length;
 }
 
 loadAnalytics();
