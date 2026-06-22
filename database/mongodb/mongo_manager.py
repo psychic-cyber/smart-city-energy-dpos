@@ -22,3 +22,9 @@ def get_transactions_collection():
     return db[
         "energy_transactions"
     ]
+
+def get_delegate_collection():
+
+    return db[
+        "delegates"
+    ]

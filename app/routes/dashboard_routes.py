@@ -32,6 +32,10 @@ from blockchain.storage.storage_manager import (
     save_blockchain
 )
 
+from ml.anomaly_detector import (
+    predict_anomaly
+)
+
 dashboard_bp = Blueprint(
     "dashboard",
     __name__
@@ -186,6 +190,11 @@ def approve_reading():
         record["energy_consumed"]
     )
 
+    is_anomaly = predict_anomaly(
+        consumed,
+        generated
+    )
+
     current_generated = float(
         user.get(
             "energy_generated",
@@ -228,10 +237,16 @@ def approve_reading():
 
     blockchain = Blockchain()
 
+    transaction_type = (
+        "AI_ALERT"
+        if is_anomaly == 1
+        else "ENERGY_READING_APPROVED"
+    )
+
     blockchain.add_block(
         {
             "type":
-                "ENERGY_READING_APPROVED",
+                transaction_type,
 
             "username":
                 username,
@@ -240,7 +255,10 @@ def approve_reading():
                 generated,
 
             "consumed":
-                consumed
+                consumed,
+
+            "anomaly":
+                bool(is_anomaly)
         }
     )
 

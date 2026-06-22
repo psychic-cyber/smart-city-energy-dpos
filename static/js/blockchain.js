@@ -6,6 +6,8 @@ async function loadBlockchain() {
 
   const blocks = await (await fetch("/api/blocks")).json();
 
+  const delegates = await (await fetch("/api/delegates/top")).json();
+
   document.getElementById("totalBlocks").innerText = stats.total_blocks;
 
   document.getElementById("totalTransactions").innerText =
@@ -38,6 +40,11 @@ async function loadBlockchain() {
       table.innerHTML += `
       <tr>
         <td>${block.index}</td>
+
+        <td>
+          ${block.data?.validator || "SYSTEM"}
+        </td>
+
         <td>
           <span class="hash-badge">
             ${block.hash.substring(0, 12)}...
@@ -46,6 +53,22 @@ async function loadBlockchain() {
       </tr>
     `;
     });
+
+  const delegateTable = document.getElementById("delegateTable");
+
+  if (delegateTable) {
+    delegateTable.innerHTML = "";
+
+    delegates.forEach((d) => {
+      delegateTable.innerHTML += `
+      <tr>
+        <td>${d.username}</td>
+        <td>${d.role}</td>
+        <td>${d.votes}</td>
+      </tr>
+    `;
+    });
+  }
 
   const transactions = await (await fetch("/api/transactions")).json();
 

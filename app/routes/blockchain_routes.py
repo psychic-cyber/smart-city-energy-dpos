@@ -72,6 +72,20 @@ from database.mongodb.report_repository import (
     get_monthly_report
 )
 
+from database.mongodb.delegate_repository import (
+    get_all_delegates,
+    get_top_delegates,
+    vote_delegate
+)
+
+from blockchain.dpos.consensus import (
+    DPoSConsensus
+)
+
+from blockchain.dpos.delegate import (
+    Delegate
+)
+
 
 blockchain_bp = Blueprint(
     "blockchain",
@@ -188,6 +202,8 @@ def ai_monitoring():
 
             blockchain = Blockchain()
 
+            validator = get_current_validator()
+
             blockchain.add_block(
                 {
                     "type": "AI_ALERT",
@@ -199,7 +215,8 @@ def ai_monitoring():
                         data["anomalies"],
                     "anomaly_rate":
                         data["anomaly_rate"]
-                }
+                },
+                validator=validator
             )
 
             save_block(
@@ -504,3 +521,43 @@ def monthly_report_pdf():
         abspath(filename),
         as_attachment=True
     )
+
+@blockchain_bp.route(
+    "/api/delegates"
+)
+def delegates():
+
+    return jsonify(
+        get_all_delegates()
+    )
+
+
+@blockchain_bp.route(
+    "/api/delegates/top"
+)
+def top_delegates():
+
+    return jsonify(
+        get_top_delegates()
+    )
+
+
+def get_current_validator():
+
+    consensus = DPoSConsensus()
+
+    delegates = get_all_delegates()
+
+    for delegate in delegates:
+
+        consensus.register_delegate(
+            Delegate(
+                delegate["username"],
+                delegate["role"],
+                delegate["votes"]
+            )
+        )
+
+    selected = consensus.select_delegate()
+
+    return selected.delegate_id

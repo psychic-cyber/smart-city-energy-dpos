@@ -14,6 +14,10 @@ from database.mongodb.blockchain_repository import (
     load_chain_from_mongo
 )
 
+from database.mongodb.delegate_repository import (
+    get_top_delegates
+)
+
 
 class Blockchain:
 
@@ -57,6 +61,18 @@ class Blockchain:
         validator=None
     ):
 
+        if validator is None:
+
+            delegates = get_top_delegates(1)
+
+            if delegates:
+
+                validator = delegates[0]["username"]
+
+            else:
+
+                validator = "SYSTEM"
+
         latest_block = self.get_latest_block()
 
         next_index = (
@@ -76,7 +92,7 @@ class Blockchain:
             next_index,
             block_data,
             previous_hash
-    )
+        )
 
         self.chain.append(
             new_block
