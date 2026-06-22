@@ -1,3 +1,9 @@
+from datetime import datetime
+
+from database.mongodb.ai_alert_repository import (
+    save_ai_alert
+)
+
 from flask import (
     Blueprint,
     render_template,
@@ -30,10 +36,6 @@ from database.mongodb.blockchain_repository import (
 
 from blockchain.storage.storage_manager import (
     save_blockchain
-)
-
-from ml.anomaly_detector import (
-    predict_anomaly
 )
 
 dashboard_bp = Blueprint(
@@ -190,10 +192,33 @@ def approve_reading():
         record["energy_consumed"]
     )
 
-    is_anomaly = predict_anomaly(
-        consumed,
-        generated
-    )
+    is_anomaly = False
+
+    reason = None
+
+    if consumed > generated * 5:
+
+        is_anomaly = True
+
+        reason = (
+            "Abnormally High Consumption"
+        )
+
+    elif generated > consumed * 10:
+
+        is_anomaly = True
+
+        reason = (
+            "Abnormally High Generation"
+        )
+
+    elif consumed > 2000:
+
+        is_anomaly = True
+
+        reason = (
+            "Critical Energy Consumption"
+        )
 
     current_generated = float(
         user.get(
@@ -234,6 +259,32 @@ def approve_reading():
     approve_record(
         username
     )
+
+    if is_anomaly:
+
+        save_ai_alert(
+            {
+                "username":
+                    username,
+
+                "generated":
+                    generated,
+
+                "consumed":
+                    consumed,
+
+                "reason":
+                    reason,
+
+                "risk_level":
+                    "HIGH",
+
+                "timestamp":
+                    str(
+                        datetime.now()
+                    )
+            }
+        )
 
     blockchain = Blockchain()
 

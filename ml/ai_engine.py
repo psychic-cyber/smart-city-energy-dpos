@@ -2,6 +2,11 @@ import joblib
 
 import pandas as pd
 
+from database.mongodb.ai_alert_repository import (
+    count_ai_alerts,
+    get_latest_ai_alert
+)
+
 MODEL = joblib.load(
     "ml/anomaly_model.pkl"
 )
@@ -203,21 +208,52 @@ def get_ai_monitoring_data():
         )
     )
 
+    latest_alert = get_latest_ai_alert()
+
+    latest_message = "No AI Alerts"
+
+    if latest_alert:
+
+        latest_message = (
+            latest_alert.get(
+                "reason",
+                "AI Alert Detected"
+            )
+        )
+
     return {
-    "accuracy": round(
-        MODEL_ACCURACY * 100,
-        2
-    ),
-    "anomalies": anomalies,
-    "anomaly_rate": anomaly_rate,
-    "risk_score": score,
-    "risk_level": level,
-    "recommendation": recommendation,
-    "confidence": round(
-        100 - anomaly_rate,
-        2
-    ),
-    "total_records": total_records,
-    "insight": f"{anomalies} unusual records found in recent monitoring",
-    "action": recommendation
-}
+        "accuracy": round(
+            MODEL_ACCURACY * 100,
+            2
+        ),
+
+        "anomalies":
+            count_ai_alerts(),
+
+        "anomaly_rate":
+            anomaly_rate,
+
+        "risk_score":
+            score,
+
+        "risk_level":
+            level,
+
+        "recommendation":
+            recommendation,
+
+        "confidence":
+            round(
+                100 - anomaly_rate,
+                2
+            ),
+
+        "total_records":
+            total_records,
+
+        "insight":
+            latest_message,
+
+        "action":
+            recommendation
+    }

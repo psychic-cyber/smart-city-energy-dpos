@@ -36,20 +36,30 @@ async function loadAI() {
   document.getElementById("systemStatus").innerText =
     healthScore >= 90 ? "ACTIVE" : "WARNING";
 
-  document.getElementById("aiInsight").innerHTML =
-    `<div class="metric-highlight">
-        ${anomalies} DETECTED
-    </div>`;
+  document.getElementById("aiInsight").innerHTML = `
+    <div class="metric-highlight">
+      ${anomalies}
+    </div>
 
-  document.getElementById("recommendation").innerHTML =
-    `<div class="metric-highlight">
-      MONITOR
-    </div>`;
+    <div class="metric-sub">
+      Active AI Alerts
+    </div>
+    `;
 
-  document.getElementById("actionPlan").innerHTML =
-    `<div class="metric-highlight">
-      ACTIVE
-    </div>`;
+  document.getElementById("recommendation").innerHTML = `
+    <div class="metric-highlight">
+      ${aiData.recommendation}
+    </div>
+    `;
+
+  document.getElementById("actionPlan").innerHTML = `
+    <div class="metric-highlight">
+      NO ACTION
+    </div>
+    <div class="metric-sub">
+      REQUIRED
+    </div>
+    `;
 
   if (predictionChart) predictionChart.destroy();
 
@@ -82,10 +92,42 @@ async function loadAI() {
       datasets: [
         {
           data: [totalTransactions - anomalies, anomalies],
+
+          backgroundColor: ["#22c55e", "#ef4444"],
         },
       ],
     },
   });
+
+  // AI ALERTS
+
+  try {
+    const alerts = await (await fetch("/api/ai-alerts")).json();
+
+    const table = document.getElementById("aiAlertsTable");
+
+    if (table) {
+      table.innerHTML = "";
+
+      alerts.forEach((a) => {
+        table.innerHTML += `
+          <tr>
+            <td>${a.username}</td>
+            <td>${a.generated} kWh</td>
+            <td>${a.consumed} kWh</td>
+            <td>
+              <span class="badge bg-danger">
+                ${a.risk_level}
+              </span>
+            </td>
+            <td>${a.reason}</td>
+          </tr>
+          `;
+      });
+    }
+  } catch (error) {
+    console.error("AI Alerts Error:", error);
+  }
 }
 
 loadAI();

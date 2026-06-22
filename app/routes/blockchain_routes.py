@@ -62,8 +62,7 @@ from ml.ai_engine import (
 from database.mongodb.blockchain_repository import (
     count_blocks,
     get_blocks,
-    save_block,
-    latest_ai_alert
+    save_block
 )
 
 from database.mongodb.report_repository import (
@@ -84,6 +83,11 @@ from blockchain.dpos.consensus import (
 
 from blockchain.dpos.delegate import (
     Delegate
+)
+
+from database.mongodb.ai_alert_repository import (
+    get_latest_ai_alert,
+    get_all_ai_alerts
 )
 
 
@@ -173,7 +177,7 @@ def ai_monitoring():
     data = get_ai_monitoring_data()
 
     latest_alert = (
-        latest_ai_alert()
+        get_latest_ai_alert()
     )
 
     create_alert = False
@@ -561,3 +565,13 @@ def get_current_validator():
     selected = consensus.select_delegate()
 
     return selected.delegate_id
+
+@blockchain_bp.route(
+    "/api/ai-alerts",
+    methods=["GET"]
+)
+def ai_alerts():
+
+    return jsonify(
+        get_all_ai_alerts()
+    )
