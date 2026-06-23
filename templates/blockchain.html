@@ -92,10 +92,10 @@
           <div class="row mt-4">
             <div class="col-lg-6">
               <div class="data-panel">
-                <h4>Blockchain Verified Energy Trading</h4>
+                <h4>Blockchain Growth</h4>
 
                 <p style="color: #94a3b8">
-                  Approved smart-grid transactions recorded on-chain
+                  Energy activity recorded and validated on-chain
                 </p>
                 <canvas id="blockChart"></canvas>
               </div>
@@ -154,36 +154,48 @@
                       <p>Security Score</p>
                     </div>
                   </div>
+
+                  <div class="col-12 mt-3">
+                    <div class="mini-stat">
+                      <h3 id="currentValidator">-</h3>
+                      <p>Active DPoS Validator</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div class="col-lg-6">
-              <div class="data-panel">
+              <div class="data-panel delegates-panel">
                 <h4>Top DPoS Delegates</h4>
 
-                <table class="table table-dark">
-                  <thead>
-                    <tr>
-                      <th>Delegate</th>
-                      <th>Role</th>
-                      <th>Votes</th>
-                    </tr>
-                  </thead>
+                <div class="delegate-table-wrapper">
+                  <table class="table table-dark">
+                    <thead>
+                      <tr>
+                        <th>Delegate</th>
+                        <th>Role</th>
+                        <th>Votes</th>
+                      </tr>
+                    </thead>
 
-                  <tbody id="delegateTable"></tbody>
-                </table>
+                    <tbody id="delegateTable"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-12 mt-3">
               <div class="data-panel">
-                <h4>Transaction Types</h4>
+                <h4 class="text-center">Transaction Types</h4>
 
-                <p class="text-muted small">
+                <p class="text-center text-muted small">
                   Distribution of blockchain transaction categories
                 </p>
-                <canvas id="blockDistribution"></canvas>
+
+                <div style="height: 260px; max-width: 700px; margin: auto">
+                  <canvas id="blockDistribution"></canvas>
+                </div>
               </div>
             </div>
           </div>

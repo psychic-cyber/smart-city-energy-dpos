@@ -575,3 +575,21 @@ def ai_alerts():
     return jsonify(
         get_all_ai_alerts()
     )
+
+@blockchain_bp.route(
+    "/api/delegates/vote/<username>",
+    methods=["POST"]
+)
+def cast_vote(username):
+
+    vote_delegate(
+        username
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "message":
+                "Vote Cast Successfully"
+        }
+    )

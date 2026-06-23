@@ -59,40 +59,61 @@ async function loadBlockchain() {
   if (delegateTable) {
     delegateTable.innerHTML = "";
 
-    delegates.forEach((d) => {
+    delegates.forEach((d, index) => {
       delegateTable.innerHTML += `
       <tr>
-        <td>${d.username}</td>
+        <td>
+          ${index === 0 ? `<span style="color:#fbbf24;">👑</span>` : ""}
+          ${d.username}
+        </td>
         <td>${d.role}</td>
         <td>${d.votes}</td>
       </tr>
-    `;
+      `;
     });
   }
+
+  const validator = delegates.length > 0 ? delegates[0].username : "SYSTEM";
+
+  document.getElementById("currentValidator").innerText = validator;
 
   const transactions = await (await fetch("/api/transactions")).json();
 
   const transactionTypes = {};
 
-  transactions.forEach((t) => {
-    let type = "User Trading";
+  blocks.forEach((block) => {
+    const type = block.data?.transaction?.type;
 
-    if (t.username.includes("SolarFarm") || t.buyer.includes("SolarFarm")) {
-      type = "Solar Trading";
-    }
+    if (!type) return;
 
     transactionTypes[type] = (transactionTypes[type] || 0) + 1;
   });
 
-  const chartLabels = Object.keys(transactionTypes);
+  const labelMap = {
+    ENERGY_READING_APPROVED: "Energy Reading",
+    ENERGY_LISTED: "Energy Listed",
+    MARKETPLACE_TRADE: "Marketplace Trade",
+    ENERGY_SALE: "Energy Sale",
+    AI_ALERT: "AI Alert",
+  };
+
+  const chartLabels = Object.keys(transactionTypes).map(
+    (type) => labelMap[type] || type,
+  );
 
   const chartValues = Object.values(transactionTypes);
 
-  const txLabels = transactions.map((_, index) => `Trade ${index + 1}`);
+  const blockLabels = blocks.map((block) => `#${block.index}`);
 
-  transactions.reverse();
+  const blockActivity = blocks.map((block) => {
+    const tx = block.data?.transaction;
 
-  const txEnergy = transactions.map((t) => t.energy_sold);
+    if (!tx) {
+      return 0;
+    }
+
+    return tx.energy || tx.generated || tx.consumed || 0;
+  });
 
   if (growthChart) growthChart.destroy();
 
@@ -100,13 +121,13 @@ async function loadBlockchain() {
     type: "line",
 
     data: {
-      labels: txLabels,
+      labels: blockLabels,
 
       datasets: [
         {
-          label: "Energy Traded (kWh)",
+          label: "Blockchain Activity",
 
-          data: txEnergy,
+          data: blockActivity,
 
           backgroundColor: "#22c55e",
           borderColor: "#16a34a",
@@ -120,16 +141,6 @@ async function loadBlockchain() {
       responsive: true,
 
       plugins: {
-        tooltip: {
-          callbacks: {
-            afterLabel: function (context) {
-              const tx = transactions[context.dataIndex];
-
-              return `${tx.username} → ${tx.buyer}`;
-            },
-          },
-        },
-
         legend: {
           labels: {
             color: "white",
@@ -169,6 +180,8 @@ async function loadBlockchain() {
     },
 
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       cutout: "65%",
       plugins: {
         legend: {
