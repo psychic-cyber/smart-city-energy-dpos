@@ -40,6 +40,8 @@ from database.mongodb.user_repository import (
     get_latest_users,
     get_user_by_username,
     count_role,
+    has_user_voted,
+    mark_user_voted
 )
 
 from database.mongodb.user_transaction_repository import (
@@ -582,14 +584,40 @@ def ai_alerts():
 )
 def cast_vote(username):
 
+    voter = session.get(
+        "username"
+    )
+
+    if not voter:
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Login Required"
+            }
+        )
+
+    if has_user_voted(voter):
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "You already voted"
+            }
+        )
+
     vote_delegate(
+        username
+    )
+
+    mark_user_voted(
+        voter,
         username
     )
 
     return jsonify(
         {
             "success": True,
-            "message":
-                "Vote Cast Successfully"
+            "message": "Vote Cast Successfully"
         }
     )

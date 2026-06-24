@@ -27,9 +27,11 @@ async function loadUsers() {
   table.innerHTML = "";
 
   users.forEach((user) => {
-    const roleBadge = `<span class="badge bg-info">
+    const roleBadge = `
+    <span class="badge bg-info">
       ${user.role}
-   </span>`;
+    </span>
+  `;
 
     const createdDate = user.created_at
       ? new Date(user.created_at).toLocaleDateString("en-GB", {
@@ -39,15 +41,29 @@ async function loadUsers() {
         })
       : "N/A";
 
+    const allowedRoles = ["SolarFarm", "Hospital", "University"];
+
+    const voteButton = allowedRoles.includes(user.role)
+      ? `
+        <button
+          class="btn btn-sm btn-success"
+          onclick="voteDelegate('${user.username}')"
+        >
+          Vote
+        </button>
+      `
+      : "-";
+
     table.innerHTML += `
-      <tr>
-        <td>${user.username}</td>
-        <td>${user.email}</td>
-        <td>${roleBadge}</td>
-        <td>${user.energy_balance || 0}</td>
-        <td>${createdDate}</td>
-      </tr>
-    `;
+    <tr>
+      <td>${user.username}</td>
+      <td>${user.email}</td>
+      <td>${roleBadge}</td>
+      <td>${user.energy_balance || 0}</td>
+      <td>${createdDate}</td>
+      <td>${voteButton}</td>
+    </tr>
+  `;
   });
 
   const latestList = document.getElementById("latestUsersList");
@@ -141,3 +157,15 @@ async function loadUsers() {
 }
 
 loadUsers();
+
+async function voteDelegate(username) {
+  const response = await fetch(`/api/delegates/vote/${username}`, {
+    method: "POST",
+  });
+
+  const result = await response.json();
+
+  alert(result.message);
+
+  loadUsers();
+}

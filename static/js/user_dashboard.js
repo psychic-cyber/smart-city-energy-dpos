@@ -67,6 +67,8 @@ loadUserDashboard();
 
 loadTransactions();
 
+loadDelegates();
+
 async function createListing() {
   const energy = document.getElementById("listingEnergy").value;
 
@@ -111,4 +113,64 @@ async function submitEnergyReading() {
   const result = await response.json();
 
   alert(result.message);
+}
+
+async function loadDelegates() {
+  const response = await fetch("/api/delegates");
+
+  const delegates = await response.json();
+
+  const container = document.getElementById("delegateVotingList");
+
+  container.innerHTML = "";
+
+  delegates.forEach((d) => {
+    container.innerHTML += `
+      <div
+        class="d-flex justify-content-between align-items-center mb-3 p-3"
+        style="
+          background: rgba(15,23,42,0.8);
+          border-radius:12px;
+        "
+      >
+        <div>
+          <h6 style="color:white;">
+            ${d.username}
+          </h6>
+
+          <small>
+            ${d.role}
+          </small>
+        </div>
+
+        <button
+          class="btn btn-success"
+          onclick="vote('${d.username}')"
+        >
+          Vote
+        </button>
+
+      </div>
+    `;
+  });
+}
+
+async function vote(delegate) {
+  const response = await fetch("/api/vote", {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      delegate,
+    }),
+  });
+
+  const result = await response.json();
+
+  alert(result.message);
+
+  loadDelegates();
 }

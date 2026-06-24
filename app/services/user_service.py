@@ -59,8 +59,13 @@ def register_user(
         energy_balance=0
     )
 
+    user_dict = user.to_dict()
+
+    user_dict["has_voted"] = False
+    user_dict["voted_for"] = None
+
     save_user(
-        user.to_dict()
+        user_dict
     )
 
     return (

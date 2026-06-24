@@ -190,3 +190,55 @@ def count_role(role):
             "role": role
         }
     )
+
+
+def mark_user_voted(
+    username,
+    delegate_username
+):
+
+    collection = get_users_collection()
+
+    collection.update_one(
+        {
+            "username": username
+        },
+        {
+            "$set": {
+                "has_voted": True,
+                "voted_for": delegate_username
+            }
+        }
+    )
+
+def vote_for_delegate(voter_username, delegate_username):
+
+    collection = get_users_collection()
+
+    collection.update_one(
+        {
+            "username": voter_username
+        },
+        {
+            "$set": {
+                "has_voted": True,
+                "voted_for": delegate_username
+            }
+        }
+    )
+
+
+def has_user_voted(username):
+
+    collection = get_users_collection()
+
+    user = collection.find_one(
+        {
+            "username": username
+        }
+    )
+
+    return user.get(
+        "has_voted",
+        False
+    )

@@ -15,7 +15,10 @@ from app.controllers.user_controller import (
 from database.mongodb.user_repository import (
     get_user_by_username,
     update_energy_balance,
-    update_revenue
+    update_revenue,
+    vote_for_delegate,
+    has_user_voted,
+    get_all_users
 )
 
 from database.mongodb.user_transaction_repository import (
@@ -45,6 +48,10 @@ from database.mongodb.marketplace_repository import (
 
 from database.mongodb.energy_record_repository import (
     save_energy_record
+)
+
+from database.mongodb.delegate_repository import (
+    vote_delegate
 )
 
 user_bp = Blueprint(
@@ -636,5 +643,87 @@ def submit_energy():
             "success": True,
             "message":
                 "Reading Submitted Successfully"
+        }
+    )
+
+@user_bp.route(
+    "/api/delegates"
+)
+def delegates():
+
+    users = get_all_users()
+
+    delegates = []
+
+    for user in users:
+
+        if user["role"] in [
+            "Hospital",
+            "University",
+            "SolarFarm"
+        ]:
+
+            delegates.append(
+                {
+                    "username":
+                        user["username"],
+
+                    "role":
+                        user["role"],
+
+                    "votes":
+                        user.get(
+                            "votes",
+                            0
+                        )
+                }
+            )
+
+    return jsonify(
+        delegates
+    )
+
+
+@user_bp.route(
+    "/api/vote",
+    methods=["POST"]
+)
+def vote():
+
+    voter = session.get(
+        "username"
+    )
+
+    if has_user_voted(
+        voter
+    ):
+        return jsonify(
+            {
+                "success": False,
+                "message":
+                    "You already voted"
+            }
+        )
+
+    data = request.get_json()
+
+    delegate = data[
+        "delegate"
+    ]
+
+    vote_for_delegate(
+        voter,
+        delegate
+    )
+
+    vote_delegate(
+        delegate
+    )
+
+    return jsonify(
+        {
+            "success": True,
+            "message":
+                "Vote Cast Successfully"
         }
     )
