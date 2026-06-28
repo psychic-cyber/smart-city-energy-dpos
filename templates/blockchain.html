@@ -89,6 +89,36 @@
             <p>Distributed Ledger Monitoring</p>
           </div>
 
+          <div class="row g-4 mt-1">
+            <div class="col-xl-3 col-md-6">
+              <div class="metric-card">
+                <h6>Current Validator</h6>
+                <h2 id="currentValidator">-</h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+              <div class="metric-card">
+                <h6>Total Delegate Votes</h6>
+                <h2 id="totalDelegateVotes">0</h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+              <div class="metric-card">
+                <h6>Last Election Time</h6>
+                <h2 id="lastElectionTime" class="dpos-time">-</h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+              <div class="metric-card">
+                <h6>Election Status</h6>
+                <h2 id="electionStatus">-</h2>
+              </div>
+            </div>
+          </div>
+
           <div class="row mt-4">
             <div class="col-lg-6">
               <div class="data-panel">
@@ -155,12 +185,6 @@
                     </div>
                   </div>
 
-                  <div class="col-12 mt-3">
-                    <div class="mini-stat">
-                      <h3 id="currentValidator">-</h3>
-                      <p>Active DPoS Validator</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -176,6 +200,7 @@
                         <th>Delegate</th>
                         <th>Role</th>
                         <th>Votes</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
 
@@ -195,6 +220,26 @@
 
                 <div style="height: 260px; max-width: 700px; margin: auto">
                   <canvas id="blockDistribution"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 mt-3">
+              <div class="data-panel">
+                <h4>Validator History</h4>
+                <div class="table-responsive">
+                  <table class="table table-dark align-middle">
+                    <thead>
+                      <tr>
+                        <th>Previous Validator</th>
+                        <th>New Validator</th>
+                        <th>Previous Votes</th>
+                        <th>New Votes</th>
+                        <th>Election Time</th>
+                      </tr>
+                    </thead>
+                    <tbody id="validatorHistoryTable"></tbody>
+                  </table>
                 </div>
               </div>
             </div>

@@ -1,8 +1,3 @@
-import random
-
-from blockchain.dpos.delegate import Delegate
-
-
 class DPoSConsensus:
 
     def __init__(self):
@@ -20,31 +15,17 @@ class DPoSConsensus:
 
     def get_top_delegate(self):
 
-        return max(
+        if not self.delegates:
+            return None
+
+        return sorted(
             self.delegates,
-            key=lambda d: d.votes
-        )
+            key=lambda delegate: (
+                -delegate.votes,
+                str(delegate.delegate_id)
+            )
+        )[0]
 
     def select_delegate(self):
 
-        total_votes = sum(
-            delegate.votes
-            for delegate in self.delegates
-        )
-
-        random_number = random.uniform(
-            0,
-            total_votes
-        )
-
-        current = 0
-
-        for delegate in self.delegates:
-
-            current += delegate.votes
-
-            if current >= random_number:
-
-                return delegate
-
-        return self.delegates[0]
+        return self.get_top_delegate()

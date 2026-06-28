@@ -53,8 +53,8 @@ from database.mongodb.energy_record_repository import (
     save_energy_record
 )
 
-from database.mongodb.delegate_repository import (
-    vote_delegate
+from app.services.dpos_service import (
+    cast_delegate_vote
 )
 
 user_bp = Blueprint(
@@ -517,6 +517,14 @@ def vote():
         "username"
     )
 
+    if not voter:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Login Required"
+            }
+        )
+
     if has_user_voted(
         voter
     ):
@@ -534,12 +542,20 @@ def vote():
         "delegate"
     ]
 
-    vote_for_delegate(
-        voter,
+    success, message, validator = cast_delegate_vote(
         delegate
     )
 
-    vote_delegate(
+    if not success:
+        return jsonify(
+            {
+                "success": False,
+                "message": message
+            }
+        )
+
+    vote_for_delegate(
+        voter,
         delegate
     )
 
@@ -547,6 +563,9 @@ def vote():
         {
             "success": True,
             "message":
-                "Vote Cast Successfully"
+                message,
+            "active_validator":
+                validator["username"]
+                if validator else None
         }
     )

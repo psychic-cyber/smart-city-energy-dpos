@@ -1,21 +1,11 @@
 from blockchain.core.block import Block
 
-from blockchain.storage.storage_manager import (
-    load_blockchain
-)
-
-from database.mongodb.blockchain_repository import (
-    get_blocks,
-    get_latest_block,
-    block_index_exists
-)
-
 from database.mongodb.blockchain_repository import (
     load_chain_from_mongo
 )
 
-from database.mongodb.delegate_repository import (
-    get_top_delegates
+from app.services.dpos_service import (
+    get_current_validator
 )
 
 
@@ -61,17 +51,9 @@ class Blockchain:
         validator=None
     ):
 
-        if validator is None:
-
-            delegates = get_top_delegates(1)
-
-            if delegates:
-
-                validator = delegates[0]["username"]
-
-            else:
-
-                validator = "SYSTEM"
+        validator = get_current_validator(
+            fallback=validator or "SYSTEM"
+        )
 
         latest_block = self.get_latest_block()
 

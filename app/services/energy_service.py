@@ -5,7 +5,6 @@ from blockchain.core.blockchain import Blockchain
 from blockchain.storage.storage_manager import save_blockchain
 from blockchain.utils.hash_utils import calculate_hash
 from database.mongodb.blockchain_repository import save_block
-from database.mongodb.delegate_repository import get_top_delegates
 from database.mongodb.marketplace_repository import (
     complete_matched_requests,
     create_energy_request,
@@ -183,10 +182,8 @@ def _record_blockchain_transaction(transaction):
     transaction = dict(transaction)
     transaction.setdefault("timestamp", str(datetime.now()))
     transaction["hash"] = calculate_hash(str(sorted(transaction.items())))
-    delegates = get_top_delegates(1)
-    validator = delegates[0]["username"] if delegates else "SYSTEM"
     blockchain = Blockchain()
-    blockchain.add_block(transaction, validator=validator)
+    blockchain.add_block(transaction)
     block = blockchain.get_latest_block()
     save_block(block)
     save_blockchain(blockchain.chain)

@@ -61,12 +61,6 @@ from ml.ai_engine import (
     should_create_ai_alert
 )
 
-from database.mongodb.blockchain_repository import (
-    count_blocks,
-    get_blocks,
-    save_block
-)
-
 from database.mongodb.report_repository import (
     get_daily_report,
     get_weekly_report,
@@ -75,16 +69,13 @@ from database.mongodb.report_repository import (
 
 from database.mongodb.delegate_repository import (
     get_all_delegates,
-    get_top_delegates,
-    vote_delegate
+    get_top_delegates
 )
 
-from blockchain.dpos.consensus import (
-    DPoSConsensus
-)
-
-from blockchain.dpos.delegate import (
-    Delegate
+from app.services.dpos_service import (
+    cast_delegate_vote,
+    get_dpos_status,
+    get_recent_validator_history
 )
 
 from database.mongodb.ai_alert_repository import (
@@ -208,8 +199,6 @@ def ai_monitoring():
 
             blockchain = Blockchain()
 
-            validator = get_current_validator()
-
             blockchain.add_block(
                 {
                     "type": "AI_ALERT",
@@ -221,8 +210,7 @@ def ai_monitoring():
                         data["anomalies"],
                     "anomaly_rate":
                         data["anomaly_rate"]
-                },
-                validator=validator
+                }
             )
 
             save_block(
@@ -548,25 +536,26 @@ def top_delegates():
     )
 
 
-def get_current_validator():
+@blockchain_bp.route(
+    "/api/dpos/status",
+    methods=["GET"]
+)
+def dpos_status():
 
-    consensus = DPoSConsensus()
+    return jsonify(
+        get_dpos_status()
+    )
 
-    delegates = get_all_delegates()
 
-    for delegate in delegates:
+@blockchain_bp.route(
+    "/api/dpos/validator-history",
+    methods=["GET"]
+)
+def validator_history():
 
-        consensus.register_delegate(
-            Delegate(
-                delegate["username"],
-                delegate["role"],
-                delegate["votes"]
-            )
-        )
-
-    selected = consensus.select_delegate()
-
-    return selected.delegate_id
+    return jsonify(
+        get_recent_validator_history(10)
+    )
 
 @blockchain_bp.route(
     "/api/ai-alerts",
@@ -606,9 +595,17 @@ def cast_vote(username):
             }
         )
 
-    vote_delegate(
+    success, message, validator = cast_delegate_vote(
         username
     )
+
+    if not success:
+        return jsonify(
+            {
+                "success": False,
+                "message": message
+            }
+        )
 
     mark_user_voted(
         voter,
@@ -618,6 +615,9 @@ def cast_vote(username):
     return jsonify(
         {
             "success": True,
-            "message": "Vote Cast Successfully"
+            "message": message,
+            "active_validator":
+                validator["username"]
+                if validator else None
         }
     )

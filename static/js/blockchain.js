@@ -8,6 +8,12 @@ async function loadBlockchain() {
 
   const delegates = await (await fetch("/api/delegates/top")).json();
 
+  const dposStatus = await (await fetch("/api/dpos/status")).json();
+
+  const validatorHistory = await (
+    await fetch("/api/dpos/validator-history")
+  ).json();
+
   document.getElementById("totalBlocks").innerText = stats.total_blocks;
 
   document.getElementById("totalTransactions").innerText =
@@ -59,23 +65,64 @@ async function loadBlockchain() {
   if (delegateTable) {
     delegateTable.innerHTML = "";
 
-    delegates.forEach((d, index) => {
+    delegates.forEach((d) => {
       delegateTable.innerHTML += `
       <tr>
         <td>
-          ${index === 0 ? `<span style="color:#fbbf24;">👑</span>` : ""}
+          ${d.is_active ? `<span style="color:#fbbf24;">👑</span>` : ""}
           ${d.username}
         </td>
         <td>${d.role}</td>
         <td>${d.votes}</td>
+        <td>
+          <span class="badge ${d.is_active ? "bg-success" : "bg-secondary"}">
+            ${d.is_active ? "Active" : "Standby"}
+          </span>
+        </td>
       </tr>
       `;
     });
   }
 
-  const validator = delegates.length > 0 ? delegates[0].username : "SYSTEM";
+  document.getElementById("currentValidator").innerText =
+    dposStatus.current_validator || "SYSTEM";
 
-  document.getElementById("currentValidator").innerText = validator;
+  document.getElementById("totalDelegateVotes").innerText =
+    dposStatus.total_delegate_votes;
+
+  document.getElementById("lastElectionTime").innerText =
+    dposStatus.last_election_time
+      ? new Date(dposStatus.last_election_time).toLocaleString()
+      : "Not elected";
+
+  const electionStatus = document.getElementById("electionStatus");
+  electionStatus.innerText = dposStatus.election_status;
+  electionStatus.style.color = dposStatus.current_validator
+    ? "#22c55e"
+    : "#fbbf24";
+
+  const historyTable = document.getElementById("validatorHistoryTable");
+  historyTable.innerHTML = "";
+
+  if (!validatorHistory.length) {
+    historyTable.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-secondary">
+          No validator changes recorded
+        </td>
+      </tr>`;
+  } else {
+    validatorHistory.forEach((election) => {
+      historyTable.innerHTML += `
+        <tr>
+          <td>${election.previous_validator || "Initial Election"}</td>
+          <td>${election.new_validator}</td>
+          <td>${election.previous_votes}</td>
+          <td>${election.new_votes}</td>
+          <td>${new Date(election.election_time).toLocaleString()}</td>
+        </tr>`;
+    });
+  }
 
   const transactions = await (await fetch("/api/transactions")).json();
 

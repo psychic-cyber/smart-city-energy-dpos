@@ -8,3 +8,6 @@ backup/
 mongodb-backup.zip
 blockchain/storage/blockchain_data.json
 *.pdf
+*.py[cod]
+.pytest_cache/
+.coverage
