@@ -268,6 +268,59 @@ def generate_report_pdf(
     )
 
     # ==================================================
+    # MARKETPLACE PURCHASES
+    # ==================================================
+
+    elements.append(
+        Paragraph(
+            "Marketplace Purchases",
+            heading_style
+        )
+    )
+
+    marketplace_data = [[
+        "Seller", "Buyer", "Original", "Bought", "Left", "Price", "Paid", "Timestamp"
+    ]]
+
+    for transaction in report.get("marketplace_transactions", []):
+        marketplace_data.append([
+            str(transaction.get("seller", "")),
+            str(transaction.get("buyer", "")),
+            str(transaction.get("original_listing_amount", 0)),
+            str(transaction.get("purchased_amount", 0)),
+            str(transaction.get("remaining_amount", 0)),
+            str(transaction.get("price_per_kwh", 0)),
+            str(transaction.get("total_amount", 0)),
+            str(transaction.get("timestamp", ""))[:19],
+        ])
+
+    if len(marketplace_data) == 1:
+        marketplace_data.append(["No purchases", "", "", "", "", "", "", ""])
+
+    marketplace_table = Table(
+        marketplace_data,
+        colWidths=[50, 50, 45, 42, 42, 42, 48, 100]
+    )
+
+    marketplace_table.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0284c7")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 6),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+             [colors.white, colors.HexColor("#f8fafc")])
+        ])
+    )
+
+    elements.append(marketplace_table)
+
+    elements.append(
+        Spacer(1, 15)
+    )
+
+    # ==================================================
     # PROJECT INFO
     # ==================================================
 

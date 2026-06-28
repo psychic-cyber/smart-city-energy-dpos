@@ -354,6 +354,43 @@ canvas {
   max-height: 350px;
 }
 
+/* Marketplace */
+.marketplace-card {
+  min-height: 100%;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.marketplace-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+.marketplace-card.matching-listing {
+  border-color: #fbbf24;
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.12);
+}
+
+.quantity-selector .btn {
+  min-width: 48px;
+  font-weight: 700;
+}
+
+.quantity-selector .form-control {
+  min-width: 80px;
+}
+
+.input-group-text {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+}
+
+@media (max-width: 767px) {
+  .marketplace-card {
+    padding: 20px;
+  }
+}
+
 /* =========================
    LAST UPDATED
 ========================= */

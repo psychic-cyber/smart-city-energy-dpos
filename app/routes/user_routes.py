@@ -39,11 +39,14 @@ from blockchain.storage.storage_manager import (
 )
 
 from database.mongodb.marketplace_repository import (
-    create_listing,
     get_available_listings,
-    complete_listing,
-    has_active_listing,
-    get_listing_by_seller
+    get_energy_requests
+)
+
+from app.services.energy_service import (
+    create_marketplace_listing as create_listing_service,
+    purchase_energy,
+    submit_energy_request
 )
 
 from database.mongodb.energy_record_repository import (
@@ -377,98 +380,11 @@ def create_marketplace_listing():
         "username"
     )
 
-    if has_active_listing(
-        username
-    ):
-
-        return jsonify(
-            {
-                "success": False,
-                "message":
-                    "You already have an active listing"
-            }
-        )
-
-    data = request.get_json()
-
-    energy = float(
-        data["energy"]
+    data = request.get_json(silent=True) or {}
+    success, message, result = create_listing_service(
+        username, data.get("energy"), data.get("price")
     )
-
-    price = float(
-        data["price"]
-    )
-
-    user = get_user_by_username(
-        username
-    )
-
-    balance = float(
-        user.get(
-            "energy_balance",
-            0
-        )
-    )
-
-    if energy <= 0:
-
-        return jsonify(
-            {
-                "success": False,
-                "message":
-                    "Invalid energy amount"
-            }
-        )
-
-    if energy > balance:
-
-        return jsonify(
-            {
-                "success": False,
-                "message":
-                    "Insufficient Energy Balance"
-            }
-        )
-
-    create_listing(
-        username,
-        energy,
-        price
-    )
-
-    blockchain = Blockchain()
-
-    blockchain.add_block(
-        {
-            "type":
-                "ENERGY_LISTED",
-
-            "seller":
-                username,
-
-            "energy":
-                energy,
-
-            "price":
-                price
-        }
-    )
-
-    save_block(
-        blockchain.get_latest_block()
-    )
-
-    save_blockchain(
-        blockchain.chain
-    )
-
-    return jsonify(
-        {
-            "success": True,
-            "message":
-                "Listing Created Successfully"
-        }
-    )
+    return jsonify({"success": success, "message": message, "data": result})
 
 @user_bp.route(
     "/api/marketplace"
@@ -484,119 +400,26 @@ def marketplace_data():
     methods=["POST"]
 )
 def buy_energy():
-
-    buyer = session.get(
-        "username"
+    data = request.get_json(silent=True) or {}
+    success, message, result = purchase_energy(
+        session.get("username"), data.get("seller"), data.get("quantity")
     )
+    return jsonify({"success": success, "message": message, "data": result})
 
-    data = request.get_json()
 
-    seller = data[
-        "seller"
-    ]
+@user_bp.route("/api/marketplace/requests", methods=["GET", "POST"])
+def marketplace_requests():
+    if request.method == "GET":
+        return jsonify(get_energy_requests())
 
-    seller_user = (
-        get_user_by_username(
-            seller
-        )
+    data = request.get_json(silent=True) or {}
+    success, message, result = submit_energy_request(
+        session.get("username"),
+        data.get("requested_energy"),
+        data.get("maximum_price_per_kwh"),
+        data.get("message"),
     )
-
-    buyer_user = (
-        get_user_by_username(
-            buyer
-        )
-    )
-
-    listing = (
-        get_listing_by_seller(
-            seller
-        )
-    )
-
-    energy = float(
-        listing["energy"]
-    )
-
-    amount = float(
-        listing["total_price"]
-    )
-
-    update_energy_balance(
-        seller,
-        float(
-            seller_user.get(
-                "energy_balance",
-                0
-            )
-        ) - energy
-    )
-
-    update_energy_balance(
-        buyer,
-        float(
-            buyer_user.get(
-                "energy_balance",
-                0
-            )
-        ) + energy
-    )
-
-    update_revenue(
-        seller,
-        float(
-            seller_user.get(
-                "total_revenue",
-                0
-            )
-        ) + amount
-    )
-
-    complete_listing(
-        seller,
-        buyer
-    )
-
-    save_user_transaction(
-        seller,
-        buyer,
-        energy,
-        amount
-    )
-
-    save_user_transaction(
-        buyer,
-        seller,
-        energy,
-        amount
-    )
-
-    blockchain = Blockchain()
-
-    blockchain.add_block(
-        {
-            "type": "MARKETPLACE_TRADE",
-            "seller": seller,
-            "buyer": buyer,
-            "energy": energy,
-            "amount": amount
-        }
-    )
-
-    save_block(
-        blockchain.get_latest_block()
-    )
-
-    save_blockchain(
-        blockchain.chain
-    )
-
-    return jsonify(
-        {
-            "success": True,
-            "message":
-                "Energy Purchased Successfully"
-        }
-    )
+    return jsonify({"success": success, "message": message, "data": result})
 
 @user_bp.route(
     "/api/submit-energy",

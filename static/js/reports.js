@@ -41,6 +41,27 @@ async function loadReport(type = "monthly") {
       `;
   });
 
+  const marketplaceTable = document.getElementById("marketplaceReportTable");
+  marketplaceTable.innerHTML = "";
+  const marketplaceTransactions = report.marketplace_transactions || [];
+  if (!marketplaceTransactions.length) {
+    marketplaceTable.innerHTML = '<tr><td colspan="8" class="text-center text-secondary">No marketplace purchases in this period</td></tr>';
+  } else {
+    marketplaceTransactions.forEach((transaction) => {
+      marketplaceTable.innerHTML += `
+        <tr>
+          <td>${transaction.seller}</td>
+          <td>${transaction.buyer}</td>
+          <td>${transaction.original_listing_amount} kWh</td>
+          <td>${transaction.purchased_amount} kWh</td>
+          <td>${transaction.remaining_amount} kWh</td>
+          <td>Rs ${transaction.price_per_kwh}</td>
+          <td>Rs ${transaction.total_amount}</td>
+          <td>${transaction.timestamp}</td>
+        </tr>`;
+    });
+  }
+
   if (revenueChart) revenueChart.destroy();
 
   revenueChart = new Chart(document.getElementById("revenueChart"), {

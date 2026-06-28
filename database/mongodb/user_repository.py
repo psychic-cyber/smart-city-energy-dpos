@@ -123,6 +123,20 @@ def update_energy_balance(
     )
 
 
+def adjust_energy_balance(username, amount):
+    return get_users_collection().update_one(
+        {"username": username},
+        {"$inc": {"energy_balance": amount}},
+    )
+
+
+def debit_energy_balance(username, amount):
+    return get_users_collection().update_one(
+        {"username": username, "energy_balance": {"$gte": amount}},
+        {"$inc": {"energy_balance": -amount}},
+    )
+
+
 def update_revenue(
     username,
     revenue
@@ -136,6 +150,13 @@ def update_revenue(
                 "total_revenue": revenue
             }
         }
+    )
+
+
+def adjust_revenue(username, amount):
+    return get_users_collection().update_one(
+        {"username": username},
+        {"$inc": {"total_revenue": amount}},
     )
 
 def find_user_by_username(

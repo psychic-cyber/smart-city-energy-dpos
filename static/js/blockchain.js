@@ -196,3 +196,6 @@ async function loadBlockchain() {
 }
 
 loadBlockchain();
+
+// Keep an already-open ledger view current when marketplace trades add blocks.
+setInterval(loadBlockchain, 5000);

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from database.mongodb.mongo_manager import db
 from database.mongodb.user_repository import get_all_users
+from database.mongodb.marketplace_repository import get_marketplace_transactions
 
 
 def clean_user(user):
@@ -48,6 +49,10 @@ def get_daily_report():
     return build_report(
         daily_records,
         daily_transactions,
+        [
+            transaction for transaction in get_marketplace_transactions()
+            if datetime.fromisoformat(transaction["timestamp"]).date() == today
+        ],
     )
 
 
@@ -85,6 +90,7 @@ def get_weekly_report():
     return build_report(
         weekly_records,
         weekly_transactions,
+        get_marketplace_transactions(start_date),
     )
 
 
@@ -122,10 +128,12 @@ def get_monthly_report():
     return build_report(
         monthly_records,
         monthly_transactions,
+        get_marketplace_transactions(start_date),
     )
 
 
-def build_report(records, transactions):
+def build_report(records, transactions, marketplace_transactions=None):
+    marketplace_transactions = marketplace_transactions or []
     generated = sum(
         float(r.get("energy_generated", 0))
         for r in records
@@ -193,4 +201,5 @@ def build_report(records, transactions):
         "transactions": len(transactions),
         "top_producers": top_producers,
         "top_consumers": top_consumers,
+        "marketplace_transactions": marketplace_transactions,
     }
