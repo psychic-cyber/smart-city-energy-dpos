@@ -16,8 +16,6 @@ from database.mongodb.user_repository import (
     get_user_by_username,
     update_energy_balance,
     update_revenue,
-    vote_for_delegate,
-    has_user_voted,
     get_all_users
 )
 
@@ -513,11 +511,10 @@ def delegates():
 )
 def vote():
 
-    voter = session.get(
-        "username"
-    )
+    voter = session.get("username")
 
     if not voter:
+
         return jsonify(
             {
                 "success": False,
@@ -525,45 +522,19 @@ def vote():
             }
         )
 
-    if has_user_voted(
-        voter
-    ):
-        return jsonify(
-            {
-                "success": False,
-                "message":
-                    "You already voted"
-            }
-        )
-
     data = request.get_json()
 
-    delegate = data[
-        "delegate"
-    ]
+    delegate = data["delegate"]
 
     success, message, validator = cast_delegate_vote(
-        delegate
-    )
-
-    if not success:
-        return jsonify(
-            {
-                "success": False,
-                "message": message
-            }
-        )
-
-    vote_for_delegate(
         voter,
         delegate
     )
 
     return jsonify(
         {
-            "success": True,
-            "message":
-                message,
+            "success": success,
+            "message": message,
             "active_validator":
                 validator["username"]
                 if validator else None

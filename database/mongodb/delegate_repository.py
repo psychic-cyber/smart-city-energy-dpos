@@ -186,3 +186,40 @@ def get_total_delegate_votes():
     )
 
     return result[0]["total"] if result else 0
+
+def reset_delegate_votes():
+
+    get_delegate_collection().update_many(
+        {},
+        {
+            "$set": {
+                "votes": 0,
+                "is_active": False,
+                "elected_at": None
+            }
+        }
+    )
+
+
+def get_delegate_count():
+
+    return get_delegate_collection().count_documents(
+        {}
+    )
+
+
+def get_current_leader():
+
+    leaders = get_top_delegates(
+        1
+    )
+
+    if not leaders:
+        return None
+
+    return leaders[0]
+
+
+def get_total_active_votes():
+
+    return get_total_delegate_votes()

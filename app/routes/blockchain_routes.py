@@ -39,9 +39,7 @@ from database.mongodb.user_repository import (
     count_regular_users,
     get_latest_users,
     get_user_by_username,
-    count_role,
-    has_user_voted,
-    mark_user_voted
+    count_role
 )
 
 from database.mongodb.user_transaction_repository import (
@@ -74,8 +72,14 @@ from database.mongodb.delegate_repository import (
 
 from app.services.dpos_service import (
     cast_delegate_vote,
+    close_election,
     get_dpos_status,
-    get_recent_validator_history
+    get_recent_validator_history,
+    start_next_election
+)
+
+from database.mongodb.election_repository import (
+    get_election_history
 )
 
 from database.mongodb.ai_alert_repository import (
@@ -548,6 +552,39 @@ def dpos_status():
 
 
 @blockchain_bp.route(
+    "/api/election/close",
+    methods=["POST"]
+)
+def close_election_route():
+
+    return jsonify(
+        close_election()
+    )
+
+
+@blockchain_bp.route(
+    "/api/election/start",
+    methods=["POST"]
+)
+def start_election():
+
+    return jsonify(
+        start_next_election()
+    )
+
+
+@blockchain_bp.route(
+    "/api/election/history",
+    methods=["GET"]
+)
+def election_history():
+
+    return jsonify(
+        get_election_history()
+    )
+
+
+@blockchain_bp.route(
     "/api/dpos/validator-history",
     methods=["GET"]
 )
@@ -586,31 +623,19 @@ def cast_vote(username):
             }
         )
 
-    if has_user_voted(voter):
-
-        return jsonify(
-            {
-                "success": False,
-                "message": "You already voted"
-            }
-        )
-
     success, message, validator = cast_delegate_vote(
+        voter,
         username
     )
 
     if not success:
+
         return jsonify(
             {
                 "success": False,
                 "message": message
             }
         )
-
-    mark_user_voted(
-        voter,
-        username
-    )
 
     return jsonify(
         {

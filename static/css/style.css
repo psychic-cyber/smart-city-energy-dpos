@@ -578,3 +578,180 @@ canvas {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* =========================
+   ELECTION CENTER
+========================= */
+
+.election-center-panel h4 {
+  color: #f8fafc;
+}
+
+.election-grid {
+  margin-top: 0.25rem;
+}
+
+.election-stat-card {
+  height: 100%;
+  min-height: 118px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: 0.3s ease;
+}
+
+.election-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.election-stat-label {
+  margin: 0 0 8px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.election-stat-card h3 {
+  margin: 0;
+  color: #22c55e;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.election-stat-card small {
+  margin-top: 6px;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.election-leader-card h3 {
+  color: #fbbf24;
+}
+
+.election-participation-card h3 {
+  font-size: 1.05rem;
+}
+
+.election-validator-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.election-validator-badge.elected {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #22c55e;
+}
+
+.election-action-btn {
+  min-width: 190px;
+  padding: 10px 22px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.election-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.election-modal[hidden] {
+  display: none;
+}
+
+.election-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.election-modal-dialog {
+  position: relative;
+  width: min(100%, 520px);
+  padding: 28px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #12243d, #0b1728);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.election-modal-dialog h5 {
+  margin-bottom: 12px;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.election-modal-dialog p {
+  margin-bottom: 22px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.election-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.election-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #ecfdf5;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  transform: translateY(16px);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.election-toast[hidden] {
+  display: none;
+}
+
+.election-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.election-toast i {
+  color: #22c55e;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .election-stat-card h3 {
+    font-size: 1.15rem;
+  }
+
+  .election-action-btn {
+    width: 100%;
+  }
+}
