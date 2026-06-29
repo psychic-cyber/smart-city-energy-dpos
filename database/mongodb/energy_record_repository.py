@@ -130,3 +130,23 @@ def get_pending_record_by_username(
             }
         )
     )
+
+
+def get_approved_records(limit=100):
+
+    return list(
+        get_energy_records_collection()
+        .find(
+            {
+                "status": "Approved"
+            },
+            {
+                "_id": 0
+            }
+        )
+        .sort(
+            "created_at",
+            -1
+        )
+        .limit(limit)
+    )

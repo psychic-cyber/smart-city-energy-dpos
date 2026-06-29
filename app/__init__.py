@@ -25,6 +25,10 @@ def create_app():
         user_bp
     )
 
+    from app.routes.ai_routes import (
+        ai_bp
+    )
+
     app.register_blueprint(
         blockchain_bp
     )
@@ -35,6 +39,10 @@ def create_app():
 
     app.register_blueprint(
         user_bp
+    )
+
+    app.register_blueprint(
+        ai_bp
     )
 
     return app

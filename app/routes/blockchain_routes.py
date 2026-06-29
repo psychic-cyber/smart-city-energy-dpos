@@ -54,9 +54,9 @@ from ai.ai_engine import (
     generate_ai_insight
 )
 
-from ml.ai_engine import (
-    get_ai_monitoring_data,
-    should_create_ai_alert
+from app.services.ai_service import (
+    get_monitoring_data,
+    process_monitoring_blockchain_alert,
 )
 
 from database.mongodb.report_repository import (
@@ -78,7 +78,6 @@ from app.services.dpos_service import (
 )
 
 from database.mongodb.ai_alert_repository import (
-    get_latest_ai_alert,
     get_all_ai_alerts
 )
 
@@ -166,60 +165,10 @@ def analytics():
 )
 def ai_monitoring():
 
-    data = get_ai_monitoring_data()
+    data = get_monitoring_data()
 
-    latest_alert = (
-        get_latest_ai_alert()
-    )
+    process_monitoring_blockchain_alert(data)
 
-    create_alert = False
-
-    if should_create_ai_alert(
-        data["risk_level"]
-    ):
-
-        if not latest_alert:
-
-            create_alert = True
-
-        else:
-
-            old_score = (
-                latest_alert["data"]
-                ["transaction"]
-                ["risk_score"]
-            )
-
-            if old_score != data["risk_score"]:
-
-                create_alert = True
-
-        if create_alert:
-
-            blockchain = Blockchain()
-
-            blockchain.add_block(
-                {
-                    "type": "AI_ALERT",
-                    "risk_level":
-                        data["risk_level"],
-                    "risk_score":
-                        data["risk_score"],
-                    "anomalies":
-                        data["anomalies"],
-                    "anomaly_rate":
-                        data["anomaly_rate"]
-                }
-            )
-
-            save_block(
-                blockchain.get_latest_block()
-            )
-
-            save_blockchain(
-                blockchain.chain
-            )
-    
     return jsonify(
         data
     )
