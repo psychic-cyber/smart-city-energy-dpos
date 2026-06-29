@@ -9,7 +9,10 @@ from database.mongodb.marketplace_repository import (
     complete_matched_requests,
     create_energy_request,
     create_listing,
+    get_inactive_listing_by_seller,
     get_listing_by_seller,
+    get_marketplace_summary,
+    get_user_marketplace_statistics,
     has_active_listing,
     match_requests_for_listing,
     purchase_listing,
@@ -20,7 +23,9 @@ from database.mongodb.user_repository import (
     adjust_energy_balance,
     adjust_revenue,
     debit_energy_balance,
+    debit_revenue,
     get_user_by_username,
+    refund_revenue,
 )
 from database.mongodb.user_transaction_repository import save_user_transaction
 
@@ -41,6 +46,49 @@ def _positive_number(value, field_name, integer=False, optional=False):
 
 def calculate_total(quantity, price_per_kwh):
     return round(float(Decimal(str(quantity)) * Decimal(str(price_per_kwh))), 2)
+
+
+def _build_trade_record(
+    buyer,
+    seller,
+    quantity,
+    price_per_kwh,
+    total_price,
+    timestamp,
+    original_listing_amount=None,
+    remaining_amount=None,
+):
+    record = {
+        "type": "MARKETPLACE_TRADE",
+        "buyer": buyer,
+        "seller": seller,
+        "quantity": quantity,
+        "price_per_kwh": float(price_per_kwh),
+        "total_price": total_price,
+        "timestamp": timestamp,
+        "purchased_amount": quantity,
+        "energy": quantity,
+        "total_amount": total_price,
+    }
+
+    if original_listing_amount is not None:
+        record["original_listing_amount"] = original_listing_amount
+    if remaining_amount is not None:
+        record["remaining_amount"] = remaining_amount
+
+    return record
+
+
+def _record_blockchain_transaction(transaction):
+    transaction = dict(transaction)
+    transaction.setdefault("timestamp", str(datetime.now()))
+    transaction["hash"] = calculate_hash(str(sorted(transaction.items())))
+    blockchain = Blockchain()
+    blockchain.add_block(transaction)
+    block = blockchain.get_latest_block()
+    save_block(block)
+    save_blockchain(blockchain.chain)
+    return block
 
 
 def create_marketplace_listing(seller, energy_value, price_value):
@@ -89,45 +137,61 @@ def purchase_energy(buyer, seller, quantity_value):
 
     listing = get_listing_by_seller(seller)
     if not listing:
+        if get_inactive_listing_by_seller(seller):
+            return False, "This listing is no longer active", None
         return False, "This listing is no longer available", None
+
     available = float(listing.get("energy", 0))
     if quantity > available:
         return False, f"Only {available:g} kWh is currently available", None
-    if not get_user_by_username(buyer) or not get_user_by_username(seller):
+
+    buyer_user = get_user_by_username(buyer)
+    seller_user = get_user_by_username(seller)
+    if not buyer_user or not seller_user:
         return False, "Buyer or seller account was not found", None
+
+    amount = calculate_total(quantity, listing["price_per_kwh"])
+    buyer_balance = float(buyer_user.get("total_revenue", 0))
+    if buyer_balance < amount:
+        return False, "Insufficient balance to complete this purchase", None
 
     updated_listing = purchase_listing(seller, quantity, buyer)
     if not updated_listing:
         return False, "The available energy changed. Please try again", None
 
-    amount = calculate_total(quantity, listing["price_per_kwh"])
     original_energy = float(listing.get("original_energy", available))
     remaining = float(updated_listing["energy"])
-    seller_adjusted = buyer_adjusted = revenue_adjusted = False
+    seller_adjusted = buyer_adjusted = revenue_adjusted = buyer_paid = False
     try:
         debit_result = debit_energy_balance(seller, quantity)
         if debit_result.modified_count != 1:
             restore_listing_energy(updated_listing["_id"], quantity)
             return False, "Seller no longer has enough energy for this purchase", None
         seller_adjusted = True
+
+        payment_result = debit_revenue(buyer, amount)
+        if payment_result.modified_count != 1:
+            adjust_energy_balance(seller, quantity)
+            restore_listing_energy(updated_listing["_id"], quantity)
+            return False, "Insufficient balance to complete this purchase", None
+        buyer_paid = True
+
         adjust_energy_balance(buyer, quantity)
         buyer_adjusted = True
         adjust_revenue(seller, amount)
         revenue_adjusted = True
 
         timestamp = str(datetime.now())
-        transaction = {
-            "type": "MARKETPLACE_TRADE",
-            "seller": seller,
-            "buyer": buyer,
-            "original_listing_amount": original_energy,
-            "purchased_amount": quantity,
-            "remaining_amount": remaining,
-            "energy": quantity,
-            "price_per_kwh": float(listing["price_per_kwh"]),
-            "total_amount": amount,
-            "timestamp": timestamp,
-        }
+        transaction = _build_trade_record(
+            buyer,
+            seller,
+            quantity,
+            listing["price_per_kwh"],
+            amount,
+            timestamp,
+            original_listing_amount=original_energy,
+            remaining_amount=remaining,
+        )
         block = _record_blockchain_transaction(transaction)
         transaction["validator"] = block.data["validator"]
         transaction["hash"] = block.hash
@@ -139,6 +203,8 @@ def purchase_energy(buyer, seller, quantity_value):
     except Exception:
         if revenue_adjusted:
             adjust_revenue(seller, -amount)
+        if buyer_paid:
+            refund_revenue(buyer, amount)
         if buyer_adjusted:
             adjust_energy_balance(buyer, -quantity)
         if seller_adjusted:
@@ -178,13 +244,11 @@ def submit_energy_request(buyer, energy_value, maximum_price_value, message):
     return True, "Energy request created", request_data
 
 
-def _record_blockchain_transaction(transaction):
-    transaction = dict(transaction)
-    transaction.setdefault("timestamp", str(datetime.now()))
-    transaction["hash"] = calculate_hash(str(sorted(transaction.items())))
-    blockchain = Blockchain()
-    blockchain.add_block(transaction)
-    block = blockchain.get_latest_block()
-    save_block(block)
-    save_blockchain(blockchain.chain)
-    return block
+def get_marketplace_summary_data():
+    return get_marketplace_summary()
+
+
+def get_user_marketplace_stats(username):
+    if not username:
+        return None
+    return get_user_marketplace_statistics(username)

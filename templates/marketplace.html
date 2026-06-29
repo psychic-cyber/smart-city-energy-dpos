@@ -8,77 +8,302 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
 
-  <body>
+  <body class="marketplace-page">
     <div class="dashboard-layout">
       <div class="sidebar">
         <div class="logo-section">
-          <h2>⚡ SmartGrid</h2>
+          <h2>
+            <i class="bi bi-lightning-charge-fill"></i>
+            SmartGrid
+          </h2>
           <p>User Portal</p>
         </div>
         <ul>
-          <li><a href="/user-dashboard">Dashboard</a></li>
-          <li class="active"><a href="/marketplace">Marketplace</a></li>
-          <li><a href="/logout">Logout</a></li>
+          <li>
+            <a href="/user-dashboard">
+              <i class="bi bi-speedometer2"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="active">
+            <a href="/marketplace">
+              <i class="bi bi-shop"></i>
+              Marketplace
+            </a>
+          </li>
+          <li>
+            <a href="/logout">
+              <i class="bi bi-box-arrow-right"></i>
+              Logout
+            </a>
+          </li>
         </ul>
       </div>
 
       <div class="main-content">
-        <div class="container-fluid p-4">
-          <div class="hero-section">
-            <h1>Energy Marketplace</h1>
-            <p>Buy the exact amount of energy you need</p>
-          </div>
+        <div class="marketplace-shell">
+          <header class="marketplace-hero">
+            <div class="marketplace-hero__icon">
+              <i class="bi bi-shop-window"></i>
+            </div>
+            <h1 class="marketplace-hero__title">Energy Marketplace</h1>
+            <p class="marketplace-hero__subtitle">Buy the exact amount of energy you need</p>
+          </header>
 
-          <div id="marketplaceAlert" class="mt-4" aria-live="polite"></div>
+          <section class="marketplace-section">
+            <div class="row g-3 g-lg-4 marketplace-summary-row">
+              <div class="col-xl-3 col-sm-6">
+                <div class="marketplace-stat-card">
+                  <div class="marketplace-stat-card__icon marketplace-stat-card__icon--blue">
+                    <i class="bi bi-collection"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Active Listings</p>
+                  <p class="marketplace-stat-card__value" id="summaryActiveListings">0</p>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6">
+                <div class="marketplace-stat-card">
+                  <div class="marketplace-stat-card__icon marketplace-stat-card__icon--green">
+                    <i class="bi bi-check2-circle"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Completed Trades</p>
+                  <p class="marketplace-stat-card__value" id="summaryCompletedTrades">0</p>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6">
+                <div class="marketplace-stat-card">
+                  <div class="marketplace-stat-card__icon marketplace-stat-card__icon--cyan">
+                    <i class="bi bi-lightning-charge"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Energy Traded</p>
+                  <p class="marketplace-stat-card__value" id="summaryEnergyTraded">0</p>
+                </div>
+              </div>
+              <div class="col-xl-3 col-sm-6">
+                <div class="marketplace-stat-card">
+                  <div class="marketplace-stat-card__icon marketplace-stat-card__icon--amber">
+                    <i class="bi bi-cash-stack"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Market Volume</p>
+                  <p class="marketplace-stat-card__value" id="summaryMarketVolume">Rs 0</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          <section class="mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h3 class="mb-0">Available Energy</h3>
-              <button class="btn btn-outline-light btn-sm" onclick="loadMarketplace()">
+          <section class="marketplace-section">
+            <div class="row g-3 g-lg-4">
+              <div class="col-lg-4">
+                <div class="marketplace-panel marketplace-panel--equal">
+                  <div class="marketplace-panel__header">
+                    <h2 class="marketplace-panel__title">
+                      <i class="bi bi-graph-up-arrow"></i>
+                      Market Pricing
+                    </h2>
+                  </div>
+                  <div class="marketplace-pricing-grid">
+                    <div class="marketplace-pricing-card">
+                      <i class="bi bi-bar-chart-line marketplace-pricing-card__icon"></i>
+                      <p class="marketplace-pricing-card__value" id="summaryAveragePrice">0</p>
+                      <p class="marketplace-pricing-card__label">Average</p>
+                    </div>
+                    <div class="marketplace-pricing-card">
+                      <i class="bi bi-arrow-up-circle marketplace-pricing-card__icon marketplace-pricing-card__icon--high"></i>
+                      <p class="marketplace-pricing-card__value" id="summaryHighestPrice">0</p>
+                      <p class="marketplace-pricing-card__label">Highest</p>
+                    </div>
+                    <div class="marketplace-pricing-card">
+                      <i class="bi bi-arrow-down-circle marketplace-pricing-card__icon marketplace-pricing-card__icon--low"></i>
+                      <p class="marketplace-pricing-card__value" id="summaryLowestPrice">0</p>
+                      <p class="marketplace-pricing-card__label">Lowest</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-8">
+                <div class="marketplace-panel marketplace-panel--equal">
+                  <div class="marketplace-panel__header">
+                    <h2 class="marketplace-panel__title">
+                      <i class="bi bi-person-lines-fill"></i>
+                      Your Marketplace Activity
+                    </h2>
+                  </div>
+                  <div class="marketplace-activity-grid">
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userEnergyBought">0</p>
+                      <p class="marketplace-activity-card__label">Energy Bought</p>
+                    </div>
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userEnergySold">0</p>
+                      <p class="marketplace-activity-card__label">Energy Sold</p>
+                    </div>
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userCompletedTrades">0</p>
+                      <p class="marketplace-activity-card__label">Completed Trades</p>
+                    </div>
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userTotalRevenue">Rs 0</p>
+                      <p class="marketplace-activity-card__label">Total Revenue</p>
+                    </div>
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userTotalSpending">Rs 0</p>
+                      <p class="marketplace-activity-card__label">Total Spending</p>
+                    </div>
+                    <div class="marketplace-activity-card">
+                      <p class="marketplace-activity-card__value" id="userActiveListings">0</p>
+                      <p class="marketplace-activity-card__label">Active Listings</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="marketplace-section">
+            <div class="marketplace-panel">
+              <div class="marketplace-panel__header marketplace-panel__header--split">
+                <div>
+                  <h2 class="marketplace-panel__title">
+                    <i class="bi bi-plus-square"></i>
+                    Create Listing
+                  </h2>
+                  <p class="marketplace-panel__subtitle">
+                    List surplus energy for other users to purchase
+                  </p>
+                </div>
+              </div>
+              <form id="createListingForm" class="marketplace-form-row" novalidate>
+                <div class="marketplace-form-field">
+                  <label for="listingEnergy" class="form-label">Energy (kWh)</label>
+                  <input
+                    id="listingEnergy"
+                    type="number"
+                    min="1"
+                    step="1"
+                    class="form-control marketplace-input"
+                    placeholder="Whole kWh only"
+                    required
+                  />
+                </div>
+                <div class="marketplace-form-field">
+                  <label for="listingPrice" class="form-label">Price per kWh</label>
+                  <div class="input-group marketplace-input-group">
+                    <span class="input-group-text">Rs</span>
+                    <input
+                      id="listingPrice"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      class="form-control marketplace-input"
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="marketplace-form-action">
+                  <button type="submit" class="btn marketplace-btn-primary w-100" id="createListingBtn">
+                    <i class="bi bi-plus-circle"></i>
+                    Create Listing
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="marketplace-section">
+            <div class="marketplace-section-header">
+              <div>
+                <h2 class="marketplace-section-title">Available Energy</h2>
+                <p class="marketplace-section-subtitle">Browse live listings and purchase instantly</p>
+              </div>
+              <button
+                class="btn marketplace-btn-ghost"
+                type="button"
+                id="refreshMarketplaceBtn"
+              >
+                <i class="bi bi-arrow-clockwise"></i>
                 Refresh
               </button>
             </div>
-            <div id="marketplaceListings" class="row g-4"></div>
+            <div id="marketplaceListings" class="row g-3 g-lg-4 marketplace-listings-grid"></div>
           </section>
 
-          <section class="mt-5">
-            <div class="data-panel">
-              <div class="row g-4">
+          <section class="marketplace-section">
+            <div class="marketplace-panel">
+              <div class="row g-4 g-xl-5">
                 <div class="col-lg-5">
-                  <h4>Request Energy</h4>
-                  <p class="text-secondary">
-                    Can’t find a suitable listing? Tell sellers what you need.
-                  </p>
-                  <form id="energyRequestForm" novalidate>
+                  <div class="marketplace-panel__header">
+                    <h2 class="marketplace-panel__title">
+                      <i class="bi bi-envelope-open"></i>
+                      Request Energy
+                    </h2>
+                    <p class="marketplace-panel__subtitle">
+                      Can’t find a suitable listing? Tell sellers what you need.
+                    </p>
+                  </div>
+                  <form id="energyRequestForm" class="marketplace-request-form" novalidate>
                     <div class="mb-3">
                       <label for="requestedEnergy" class="form-label">Requested Energy</label>
-                      <div class="input-group">
-                        <input id="requestedEnergy" type="number" min="1" step="1" class="form-control" required />
+                      <div class="input-group marketplace-input-group">
+                        <input
+                          id="requestedEnergy"
+                          type="number"
+                          min="1"
+                          step="1"
+                          class="form-control marketplace-input"
+                          required
+                        />
                         <span class="input-group-text">kWh</span>
                       </div>
                     </div>
                     <div class="mb-3">
-                      <label for="maximumPrice" class="form-label">Maximum Price per kWh (optional)</label>
-                      <div class="input-group">
+                      <label for="maximumPrice" class="form-label">
+                        Maximum Price per kWh (optional)
+                      </label>
+                      <div class="input-group marketplace-input-group">
                         <span class="input-group-text">Rs</span>
-                        <input id="maximumPrice" type="number" min="0.01" step="0.01" class="form-control" />
+                        <input
+                          id="maximumPrice"
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          class="form-control marketplace-input"
+                        />
                       </div>
                     </div>
                     <div class="mb-3">
                       <label for="requestMessage" class="form-label">Message (optional)</label>
-                      <textarea id="requestMessage" class="form-control" rows="3" maxlength="500"></textarea>
+                      <textarea
+                        id="requestMessage"
+                        class="form-control marketplace-input marketplace-textarea"
+                        rows="3"
+                        maxlength="500"
+                      ></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Request</button>
+                    <button type="submit" class="btn marketplace-btn-primary marketplace-btn-fixed">
+                      <i class="bi bi-send"></i>
+                      Create Request
+                    </button>
                   </form>
                 </div>
 
                 <div class="col-lg-7">
-                  <h4>Marketplace Requests</h4>
-                  <div class="table-responsive">
-                    <table class="table table-dark align-middle">
+                  <div class="marketplace-panel__header">
+                    <h2 class="marketplace-panel__title">
+                      <i class="bi bi-table"></i>
+                      Marketplace Requests
+                    </h2>
+                  </div>
+                  <div class="marketplace-table-wrap">
+                    <table class="table table-dark align-middle marketplace-table">
                       <thead>
                         <tr>
                           <th>Buyer</th>
@@ -99,6 +324,101 @@
       </div>
     </div>
 
+    <div
+      class="toast-container marketplace-toast-container"
+      id="toastContainer"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <div
+      class="modal fade marketplace-modal"
+      id="buyEnergyModal"
+      tabindex="-1"
+      aria-labelledby="buyEnergyModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content marketplace-modal__content">
+          <div class="modal-header marketplace-modal__header">
+            <div>
+              <p class="marketplace-modal__eyebrow">Secure Purchase</p>
+              <h5 class="modal-title marketplace-modal__title" id="buyEnergyModalLabel">
+                <i class="bi bi-cart-check"></i>
+                Buy Energy
+              </h5>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body marketplace-modal__body">
+            <div class="marketplace-modal__seller">
+              <span class="marketplace-modal__label">Seller</span>
+              <p class="marketplace-modal__seller-name" id="modalSeller">-</p>
+            </div>
+            <div class="marketplace-modal__meta">
+              <div class="marketplace-modal__meta-item">
+                <span class="marketplace-modal__label">Available</span>
+                <p class="marketplace-modal__meta-value marketplace-modal__meta-value--green" id="modalAvailable">0 kWh</p>
+              </div>
+              <div class="marketplace-modal__meta-item">
+                <span class="marketplace-modal__label">Price per kWh</span>
+                <p class="marketplace-modal__meta-value marketplace-modal__meta-value--blue" id="modalPrice">Rs 0</p>
+              </div>
+            </div>
+
+            <label for="modalQuantity" class="form-label marketplace-modal__label">Quantity</label>
+            <div class="marketplace-quantity-selector">
+              <button
+                class="btn marketplace-quantity-btn"
+                type="button"
+                id="modalQuantityDecrease"
+                aria-label="Decrease quantity"
+              >
+                <i class="bi bi-dash-lg"></i>
+              </button>
+              <input
+                id="modalQuantity"
+                class="form-control marketplace-input marketplace-quantity-input text-center"
+                type="number"
+                value="1"
+                min="1"
+                step="1"
+              />
+              <button
+                class="btn marketplace-quantity-btn marketplace-quantity-btn--plus"
+                type="button"
+                id="modalQuantityIncrease"
+                aria-label="Increase quantity"
+              >
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+            <div id="modalQuantityError" class="marketplace-modal__error" aria-live="polite"></div>
+
+            <div class="marketplace-modal__total">
+              <span class="marketplace-modal__total-label">Total Cost</span>
+              <strong class="marketplace-modal__total-value" id="modalTotalCost">Rs 0</strong>
+            </div>
+          </div>
+          <div class="modal-footer marketplace-modal__footer">
+            <button type="button" class="btn marketplace-btn-secondary" data-bs-dismiss="modal">
+              Cancel
+            </button>
+            <button type="button" class="btn marketplace-btn-primary" id="confirmPurchaseBtn">
+              <i class="bi bi-bag-check"></i>
+              Confirm Purchase
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/marketplace.js"></script>
   </body>
 </html>

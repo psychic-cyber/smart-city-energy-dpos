@@ -48,8 +48,7 @@ def create_first_election():
 
 def close_current_election(
     winner=None,
-    total_votes=None,
-    winner_votes=None
+    total_votes=None
 ):
 
     current = get_current_election()
@@ -69,8 +68,7 @@ def close_current_election(
                 "status": "Closed",
                 "ended_at": str(datetime.now()),
                 "winner": winner,
-                "total_votes": total_votes,
-                "winner_votes": winner_votes or 0
+                "total_votes": total_votes
             }
         }
     )
@@ -80,7 +78,6 @@ def close_current_election(
     closed["ended_at"] = str(datetime.now())
     closed["winner"] = winner
     closed["total_votes"] = total_votes
-    closed["winner_votes"] = winner_votes or 0
 
     return closed
 
@@ -101,40 +98,6 @@ def create_next_election(election_id):
     )
 
     return election
-
-
-def get_latest_closed_election():
-
-    return get_election_collection().find_one(
-        {
-            "status": "Closed"
-        },
-        {
-            "_id": 0
-        },
-        sort=[
-            ("election_id", -1)
-        ]
-    )
-
-
-def get_next_election_id():
-
-    latest = get_election_collection().find_one(
-        {},
-        {
-            "_id": 0,
-            "election_id": 1
-        },
-        sort=[
-            ("election_id", -1)
-        ]
-    )
-
-    if not latest:
-        return 1
-
-    return latest["election_id"] + 1
 
 
 def start_new_election(

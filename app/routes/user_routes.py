@@ -43,6 +43,8 @@ from database.mongodb.marketplace_repository import (
 
 from app.services.energy_service import (
     create_marketplace_listing as create_listing_service,
+    get_marketplace_summary_data,
+    get_user_marketplace_stats,
     purchase_energy,
     submit_energy_request
 )
@@ -391,6 +393,37 @@ def marketplace_data():
 
     return jsonify(
         get_available_listings()
+    )
+
+
+@user_bp.route(
+    "/api/marketplace/summary"
+)
+def marketplace_summary():
+
+    return jsonify(
+        get_marketplace_summary_data()
+    )
+
+
+@user_bp.route(
+    "/api/user/marketplace-stats"
+)
+def user_marketplace_stats():
+
+    username = session.get("username")
+
+    if not username:
+
+        return jsonify(
+            {
+                "success": False,
+                "message": "Login Required"
+            }
+        ), 401
+
+    return jsonify(
+        get_user_marketplace_stats(username)
     )
 
 @user_bp.route(

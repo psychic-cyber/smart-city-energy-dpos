@@ -71,15 +71,10 @@ from database.mongodb.delegate_repository import (
 )
 
 from app.services.dpos_service import (
+    begin_new_election,
     cast_delegate_vote,
-    close_election,
     get_dpos_status,
-    get_recent_validator_history,
-    start_next_election
-)
-
-from database.mongodb.election_repository import (
-    get_election_history
+    get_recent_validator_history
 )
 
 from database.mongodb.ai_alert_repository import (
@@ -552,35 +547,13 @@ def dpos_status():
 
 
 @blockchain_bp.route(
-    "/api/election/close",
-    methods=["POST"]
-)
-def close_election_route():
-
-    return jsonify(
-        close_election()
-    )
-
-
-@blockchain_bp.route(
     "/api/election/start",
     methods=["POST"]
 )
 def start_election():
 
     return jsonify(
-        start_next_election()
-    )
-
-
-@blockchain_bp.route(
-    "/api/election/history",
-    methods=["GET"]
-)
-def election_history():
-
-    return jsonify(
-        get_election_history()
+        begin_new_election()
     )
 
 

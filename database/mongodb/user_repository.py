@@ -159,6 +159,33 @@ def adjust_revenue(username, amount):
         {"$inc": {"total_revenue": amount}},
     )
 
+
+def debit_revenue(username, amount):
+    return get_users_collection().update_one(
+        {
+            "username": username,
+            "total_revenue": {"$gte": amount},
+        },
+        {
+            "$inc": {
+                "total_revenue": -amount,
+                "total_spending": amount,
+            }
+        },
+    )
+
+
+def refund_revenue(username, amount):
+    return get_users_collection().update_one(
+        {"username": username},
+        {
+            "$inc": {
+                "total_revenue": amount,
+                "total_spending": -amount,
+            }
+        },
+    )
+
 def find_user_by_username(
     username
 ):

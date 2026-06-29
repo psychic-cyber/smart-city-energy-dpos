@@ -236,3 +236,134 @@ def get_listing_by_seller(
             "status": "Available"
         }
     )
+
+
+def get_inactive_listing_by_seller(seller):
+
+    return get_marketplace_collection().find_one(
+        {
+            "seller": seller,
+            "status": {
+                "$ne": "Available"
+            }
+        }
+    )
+
+
+def count_active_listings():
+
+    return get_marketplace_collection().count_documents(
+        {
+            "status": "Available"
+        }
+    )
+
+
+def count_user_active_listings(username):
+
+    return get_marketplace_collection().count_documents(
+        {
+            "seller": username,
+            "status": "Available"
+        }
+    )
+
+
+def _transaction_quantity(transaction):
+
+    return float(
+        transaction.get(
+            "quantity",
+            transaction.get(
+                "purchased_amount",
+                transaction.get("energy", 0)
+            )
+        )
+    )
+
+
+def _transaction_total_price(transaction):
+
+    return float(
+        transaction.get(
+            "total_price",
+            transaction.get("total_amount", 0)
+        )
+    )
+
+
+def get_marketplace_summary():
+
+    transactions = get_marketplace_transactions()
+    prices = [
+        float(transaction["price_per_kwh"])
+        for transaction in transactions
+        if transaction.get("price_per_kwh") is not None
+    ]
+    total_energy_traded = sum(
+        _transaction_quantity(transaction)
+        for transaction in transactions
+    )
+    market_volume = round(
+        sum(
+            _transaction_total_price(transaction)
+            for transaction in transactions
+        ),
+        2
+    )
+
+    return {
+        "active_listings": count_active_listings(),
+        "completed_trades": len(transactions),
+        "total_energy_traded": total_energy_traded,
+        "market_volume": market_volume,
+        "average_price": round(
+            sum(prices) / len(prices),
+            2
+        ) if prices else 0,
+        "highest_price": max(prices) if prices else 0,
+        "lowest_price": min(prices) if prices else 0,
+    }
+
+
+def get_user_marketplace_statistics(username):
+
+    transactions = get_marketplace_transactions()
+    user_transactions = [
+        transaction
+        for transaction in transactions
+        if transaction.get("buyer") == username
+        or transaction.get("seller") == username
+    ]
+
+    total_energy_bought = sum(
+        _transaction_quantity(transaction)
+        for transaction in user_transactions
+        if transaction.get("buyer") == username
+    )
+    total_energy_sold = sum(
+        _transaction_quantity(transaction)
+        for transaction in user_transactions
+        if transaction.get("seller") == username
+    )
+    total_spending = round(
+        sum(
+            _transaction_total_price(transaction)
+            for transaction in user_transactions
+            if transaction.get("buyer") == username
+        ),
+        2
+    )
+
+    from database.mongodb.user_repository import get_user_by_username
+
+    user = get_user_by_username(username) or {}
+
+    return {
+        "total_energy_bought": total_energy_bought,
+        "total_energy_sold": total_energy_sold,
+        "total_revenue": float(user.get("total_revenue", 0)),
+        "total_spending": total_spending,
+        "active_listings": count_user_active_listings(username),
+        "completed_trades": len(user_transactions),
+    }

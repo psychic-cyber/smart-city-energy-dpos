@@ -92,29 +92,29 @@
           <div class="row g-4 mt-1">
             <div class="col-xl-3 col-md-6">
               <div class="metric-card">
-                <h6>Total Blocks</h6>
-                <h2 id="totalBlocks">0</h2>
+                <h6>Current Validator</h6>
+                <h2 id="currentValidator">-</h2>
               </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
               <div class="metric-card">
-                <h6>Total Transactions</h6>
-                <h2 id="totalTransactions">0</h2>
+                <h6>Total Delegate Votes</h6>
+                <h2 id="totalDelegateVotes">0</h2>
               </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
               <div class="metric-card">
-                <h6>Chain Status</h6>
-                <h2 id="chainStatus">-</h2>
+                <h6>Last Election Time</h6>
+                <h2 id="lastElectionTime" class="dpos-time">-</h2>
               </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
               <div class="metric-card">
-                <h6>Security Score</h6>
-                <h2 id="securityScore">100%</h2>
+                <h6>Election Status</h6>
+                <h2 id="electionStatus">-</h2>
               </div>
             </div>
           </div>
@@ -152,93 +152,67 @@
           </div>
 
           <div class="row mt-4">
-            <div class="col-lg-7">
-              <div class="data-panel election-center-panel">
-                <div
-                  class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
-                >
-                  <h4 class="mb-0">Election Center</h4>
-                  <span
-                    id="electionValidatorBadge"
-                    class="election-validator-badge"
-                  >
-                    Validator: Not elected yet
-                  </span>
-                </div>
+            <div class="col-lg-6">
+              <div class="data-panel">
+                <h4>Election Center</h4>
 
-                <div class="row g-3 election-grid">
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Election Number</p>
+                <div class="row text-center">
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
                       <h3 id="electionNumber">-</h3>
+                      <p>Election Number</p>
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Status</p>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
                       <h3 id="electionCenterStatus">-</h3>
+                      <p>Status</p>
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card election-leader-card">
-                      <p class="election-stat-label">👑 Current Leader</p>
-                      <h3 id="electionLeaderName">Waiting for votes</h3>
-                      <small id="electionLeaderVotes">0 votes</small>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
+                      <h3 id="electionLeader">-</h3>
+                      <p>Leader</p>
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Leader Votes</p>
-                      <h3 id="electionLeaderVoteCount">0</h3>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
+                      <h3 id="electionVotes">0</h3>
+                      <p>Votes</p>
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card election-participation-card">
-                      <p class="election-stat-label">Participation</p>
-                      <h3 id="electionParticipationCount">0 / 0 Users Voted</h3>
-                      <small id="electionParticipationRate">0%</small>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
+                      <h3 id="electionParticipation">0%</h3>
+                      <p>Participation</p>
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Started Time</p>
+                  <div class="col-6 mb-3">
+                    <div class="mini-stat">
                       <h3 id="electionStarted" class="dpos-time">-</h3>
-                    </div>
-                  </div>
-
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Ended Time</p>
-                      <h3 id="electionEnded" class="dpos-time">-</h3>
-                    </div>
-                  </div>
-
-                  <div class="col-sm-6 col-lg-4">
-                    <div class="election-stat-card">
-                      <p class="election-stat-label">Winner</p>
-                      <h3 id="electionWinner">-</h3>
+                      <p>Started</p>
                     </div>
                   </div>
                 </div>
 
-                <div class="text-center mt-4">
+                <div class="text-center mt-2">
                   <button
-                    id="electionActionBtn"
-                    class="btn btn-success election-action-btn"
+                    id="startElectionBtn"
+                    class="btn btn-success"
                     type="button"
                   >
-                    Close Election
+                    Start New Election
                   </button>
                 </div>
               </div>
             </div>
 
-            <div class="col-lg-5">
+            <div class="col-lg-6">
               <div class="data-panel delegates-panel">
                 <h4>Top DPoS Delegates</h4>
 
@@ -254,27 +228,6 @@
                     </thead>
 
                     <tbody id="delegateTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 mt-3">
-              <div class="data-panel">
-                <h4>Election History</h4>
-                <div class="table-responsive">
-                  <table class="table table-dark align-middle">
-                    <thead>
-                      <tr>
-                        <th>Election #</th>
-                        <th>Winner</th>
-                        <th>Votes</th>
-                        <th>Started</th>
-                        <th>Ended</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody id="electionHistoryTable"></tbody>
                   </table>
                 </div>
               </div>
@@ -316,38 +269,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div id="closeElectionModal" class="election-modal" hidden>
-      <div class="election-modal-backdrop"></div>
-      <div class="election-modal-dialog">
-        <h5>Close Election</h5>
-        <p>
-          Closing this election will permanently record the winner, archive all
-          votes, and start a new election cycle.
-        </p>
-        <div class="election-modal-actions">
-          <button
-            id="cancelCloseElectionBtn"
-            class="btn btn-secondary"
-            type="button"
-          >
-            Cancel
-          </button>
-          <button
-            id="confirmCloseElectionBtn"
-            class="btn btn-danger"
-            type="button"
-          >
-            Close Election
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div id="electionToast" class="election-toast" hidden>
-      <i class="bi bi-check-circle-fill"></i>
-      <span id="electionToastMessage">Election closed successfully.</span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

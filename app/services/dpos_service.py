@@ -15,12 +15,8 @@ from database.mongodb.delegate_repository import (
 )
 
 from database.mongodb.election_repository import (
-    close_current_election,
     create_first_election,
-    create_next_election,
     get_current_election,
-    get_latest_closed_election,
-    get_next_election_id,
     get_total_votes,
     has_user_voted,
     save_vote,
@@ -130,35 +126,11 @@ def get_current_validator(fallback="SYSTEM"):
 def get_dpos_status():
 
     delegates = get_all_delegates()
-    validator = get_active_validator()
-    active_election = get_current_election()
+    active = get_active_validator()
+    current = get_current_election() or {}
+    total_votes = get_total_votes()
     total_users = count_users()
-
-    if active_election:
-        display = active_election
-        total_votes = get_total_votes()
-        leader = get_current_leader()
-
-        if leader and leader.get("votes", 0) > 0:
-            current_leader = leader.get("username")
-            leader_votes = leader.get("votes", 0)
-        else:
-            current_leader = None
-            leader_votes = 0
-
-        winner = None
-        election_state = active_election.get("status")
-        can_close_election = True
-        can_start_next_election = False
-    else:
-        display = get_latest_closed_election() or {}
-        total_votes = display.get("total_votes", 0)
-        winner = display.get("winner")
-        current_leader = winner
-        leader_votes = display.get("winner_votes", 0)
-        election_state = display.get("status")
-        can_close_election = False
-        can_start_next_election = True
+    leader = get_current_leader()
 
     if total_users > 0:
         participation = round(
@@ -170,44 +142,44 @@ def get_dpos_status():
 
     if not delegates:
         election_status = "No Delegates"
-    elif not validator:
+    elif not active:
         election_status = "Awaiting Election"
     else:
         election_status = "Validator Elected"
 
-    started_at = display.get(
+    started_at = current.get(
         "started_at",
-        display.get("start_time")
+        current.get("start_time")
     )
-    ended_at = display.get(
+    ended_at = current.get(
         "ended_at",
-        display.get("end_time")
+        current.get("end_time")
     )
 
     return {
         "current_validator":
-            validator.get("username")
-            if validator else None,
+            active.get("username")
+            if active else None,
 
         "current_validator_votes":
-            validator.get("votes", 0)
-            if validator else 0,
+            active.get("votes", 0)
+            if active else 0,
 
         "total_delegate_votes":
             get_total_delegate_votes(),
 
         "last_election_time":
-            validator.get("elected_at")
-            if validator else None,
+            active.get("elected_at")
+            if active else None,
 
         "election_status":
             election_status,
 
         "current_election":
-            display.get("election_id"),
+            current.get("election_id"),
 
         "election_state":
-            election_state,
+            current.get("status"),
 
         "election_started":
             started_at,
@@ -218,26 +190,13 @@ def get_dpos_status():
         "total_votes":
             total_votes,
 
-        "total_users":
-            total_users,
-
         "participation_percentage":
             participation,
 
         "current_leader":
-            current_leader,
-
-        "leader_votes":
-            leader_votes,
-
-        "winner":
-            winner,
-
-        "can_close_election":
-            can_close_election,
-
-        "can_start_next_election":
-            can_start_next_election
+            leader.get("username")
+            if leader and leader.get("votes", 0) > 0
+            else None
     }
 
 
@@ -277,11 +236,9 @@ def begin_new_election():
 
     leader = get_current_leader()
     winner = None
-    winner_votes = 0
 
     if leader and leader.get("votes", 0) > 0:
         winner = leader["username"]
-        winner_votes = leader.get("votes", 0)
 
     total_votes = get_total_votes()
 
@@ -291,43 +248,5 @@ def begin_new_election():
     )
 
     reset_delegate_votes()
-
-    return get_dpos_status()
-
-
-def close_election():
-
-    if not get_current_election():
-        return get_dpos_status()
-
-    leader = get_current_leader()
-    winner = None
-    winner_votes = 0
-
-    if leader and leader.get("votes", 0) > 0:
-        winner = leader["username"]
-        winner_votes = leader.get("votes", 0)
-
-    total_votes = get_total_votes()
-
-    close_current_election(
-        winner,
-        total_votes,
-        winner_votes
-    )
-
-    reset_delegate_votes()
-
-    return get_dpos_status()
-
-
-def start_next_election():
-
-    if get_current_election():
-        return get_dpos_status()
-
-    create_next_election(
-        get_next_election_id()
-    )
 
     return get_dpos_status()
