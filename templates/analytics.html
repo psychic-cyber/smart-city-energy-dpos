@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
 
-  <body>
+  <body class="marketplace-page">
     <div class="dashboard-layout">
       <div class="sidebar">
         <div class="logo-section">
@@ -85,60 +85,76 @@
       </div>
 
       <div class="main-content">
-        <div class="container-fluid p-4">
-          <div class="hero-section">
-            <h1>Analytics Center</h1>
+        <div class="marketplace-shell">
+          <header class="marketplace-hero">
+            <div class="marketplace-hero__icon marketplace-hero__icon--blue">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <h1 class="marketplace-hero__title">Analytics Center</h1>
+            <p class="marketplace-hero__subtitle">Smart Grid Analytics & Insights</p>
+          </header>
 
-            <p>Smart Grid Analytics & Insights</p>
+          <section class="marketplace-section">
+            <div class="row g-4 mb-4 mt-3">
+              <div class="col-lg-3">
+                <div class="marketplace-stat-card">
+                  <div class="marketplace-stat-card__icon marketplace-stat-card__icon--blue">
+                    <i class="bi bi-lightning-charge"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Total Energy</p>
+                  <p class="marketplace-stat-card__value" id="totalEnergy"></p>
+                </div>
+              </div>
+
+            <div class="col-lg-3">
+              <div class="marketplace-stat-card">
+                <div class="marketplace-stat-card__icon marketplace-stat-card__icon--green">
+                  <i class="bi bi-currency-dollar"></i>
+                </div>
+                <p class="marketplace-stat-card__label">Total Revenue</p>
+                <p class="marketplace-stat-card__value" id="totalRevenue"></p>
+              </div>
+            </div>
+
+            <div class="col-lg-3">
+              <div class="marketplace-stat-card">
+                <div class="marketplace-stat-card__icon marketplace-stat-card__icon--cyan">
+                  <i class="bi bi-speedometer2"></i>
+                </div>
+                <p class="marketplace-stat-card__label">Energy Utilization</p>
+                <p class="marketplace-stat-card__value" id="efficiencyRate"></p>
+              </div>
+            </div>
+
+            <div class="col-lg-3">
+              <div class="marketplace-stat-card">
+                <div class="marketplace-stat-card__icon marketplace-stat-card__icon--amber">
+                  <i class="bi bi-people"></i>
+                </div>
+                <p class="marketplace-stat-card__label">Registered Nodes</p>
+                <p class="marketplace-stat-card__value" id="entityCount"></p>
+              </div>
+            </div>
           </div>
+          </section>
 
-          <div class="row g-4 mb-4 mt-3">
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Total Energy</h6>
-                <h2 id="totalEnergy"></h2>
+          <section class="marketplace-section">
+            <div class="row mt-4">
+              <div class="col-lg-6">
+                <div class="marketplace-panel">
+                  <h2 class="marketplace-panel__title"><i class="bi bi-bar-chart-line"></i> Energy Consumption By Role</h2>
+                  <canvas id="districtChart"></canvas>
+                </div>
               </div>
-            </div>
 
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Total Revenue</h6>
-                <h2 id="totalRevenue"></h2>
-              </div>
-            </div>
-
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Energy Utilization</h6>
-                <h2 id="efficiencyRate"></h2>
-              </div>
-            </div>
-
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Registered Nodes</h6>
-                <h2 id="entityCount"></h2>
-              </div>
-            </div>
-          </div>
-
-          <div class="row mt-4">
             <div class="col-lg-6">
-              <div class="data-panel">
-                <h4>Energy Consumption By Role</h4>
-
-                <canvas id="districtChart"> </canvas>
-              </div>
-            </div>
-
-            <div class="col-lg-6">
-              <div class="data-panel">
-                <h4>Entity Analytics</h4>
-
-                <canvas id="entityChart"> </canvas>
+              <div class="marketplace-panel">
+                <h2 class="marketplace-panel__title"><i class="bi bi-diagram-3"></i> Entity Analytics</h2>
+                <canvas id="entityChart"></canvas>
               </div>
             </div>
           </div>
+          </section>
         </div>
       </div>
     </div>

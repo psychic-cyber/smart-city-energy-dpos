@@ -11,12 +11,17 @@
       rel="stylesheet"
     />
 
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
     <link rel="stylesheet" href="/static/css/style.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
-  <body>
+  <body class="marketplace-page">
     <div class="dashboard-layout">
       <div class="sidebar">
         <div class="logo-section">
@@ -81,65 +86,101 @@
       </div>
 
       <div class="main-content">
-        <div class="container-fluid p-4">
-          <div class="hero-section">
-            <h1>User Management</h1>
-            <p>Manage SmartGrid Platform Users</p>
-          </div>
+        <div class="marketplace-shell">
+          <header class="marketplace-hero">
+            <div class="marketplace-hero__icon marketplace-hero__icon--blue">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <h1 class="marketplace-hero__title">User Management</h1>
+            <p class="marketplace-hero__subtitle">
+              Manage SmartGrid Platform Users
+            </p>
+          </header>
 
-          <div class="row mt-4">
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Total Users</h6>
-                <h2 id="totalUsers">0</h2>
+          <section class="marketplace-section">
+            <div class="row mt-4">
+              <div class="col-lg-3">
+                <div class="marketplace-stat-card">
+                  <div
+                    class="marketplace-stat-card__icon marketplace-stat-card__icon--blue"
+                  >
+                    <i class="bi bi-people"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Total Users</p>
+                  <p class="marketplace-stat-card__value" id="totalUsers">0</p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="marketplace-stat-card">
+                  <div
+                    class="marketplace-stat-card__icon marketplace-stat-card__icon--green"
+                  >
+                    <i class="bi bi-person-badge"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Admins</p>
+                  <p class="marketplace-stat-card__value" id="admins">0</p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="marketplace-stat-card">
+                  <div
+                    class="marketplace-stat-card__icon marketplace-stat-card__icon--cyan"
+                  >
+                    <i class="bi bi-person-lines-fill"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Regular Users</p>
+                  <p class="marketplace-stat-card__value" id="regularUsers">
+                    0
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-lg-3">
+                <div class="marketplace-stat-card">
+                  <div
+                    class="marketplace-stat-card__icon marketplace-stat-card__icon--amber"
+                  >
+                    <i class="bi bi-clock-history"></i>
+                  </div>
+                  <p class="marketplace-stat-card__label">Latest Users</p>
+                  <p class="marketplace-stat-card__value" id="latestUsers">0</p>
+                </div>
               </div>
             </div>
+          </section>
 
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Admins</h6>
-                <h2 id="admins">0</h2>
+          <section class="marketplace-section">
+            <div class="row mt-4">
+              <div class="col-lg-6">
+                <div class="marketplace-panel">
+                  <h2 class="marketplace-panel__title">
+                    <i class="bi bi-pie-chart-fill"></i> Role Distribution
+                  </h2>
+                  <canvas id="userChart"></canvas>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="marketplace-panel">
+                  <h2 class="marketplace-panel__title">
+                    <i class="bi bi-person-lines-fill"></i> Latest Registered
+                    Users
+                  </h2>
+                  <ul id="latestUsersList" class="list-group"></ul>
+                </div>
               </div>
             </div>
+          </section>
 
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Regular Users</h6>
-                <h2 id="regularUsers">0</h2>
-              </div>
-            </div>
-
-            <div class="col-lg-3">
-              <div class="metric-card">
-                <h6>Latest Users</h6>
-                <h2 id="latestUsers">0</h2>
-              </div>
-            </div>
-          </div>
-
-          <div class="row mt-4">
-            <div class="col-lg-6">
-              <div class="data-panel">
-                <h4>Role Distribution</h4>
-                <canvas id="userChart"></canvas>
-              </div>
-            </div>
-
-            <div class="col-lg-6">
-              <div class="data-panel">
-                <h4>Latest Registered Users</h4>
-
-                <ul id="latestUsersList" class="list-group"></ul>
-              </div>
-            </div>
-          </div>
-
-          <div class="row mt-4">
-            <div class="col-lg-12">
-              <div class="data-panel">
-                <h4>All Users</h4>
-
-                <table class="table table-dark table-hover">
+          <section class="marketplace-section">
+            <div class="marketplace-panel">
+              <h2 class="marketplace-panel__title">
+                <i class="bi bi-people-fill"></i> All Users
+              </h2>
+              <div class="marketplace-table-wrap">
+                <table class="marketplace-table w-100">
                   <thead>
                     <tr>
                       <th>Username</th>
@@ -150,12 +191,11 @@
                       <th>Vote</th>
                     </tr>
                   </thead>
-
                   <tbody id="usersTable"></tbody>
                 </table>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>
