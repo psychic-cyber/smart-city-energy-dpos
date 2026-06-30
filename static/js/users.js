@@ -1,4 +1,5 @@
 let userChart = null;
+let userToDeleteUsername = null;
 
 async function loadUsers() {
   const users = await (await fetch("/api/users")).json();
@@ -54,6 +55,19 @@ async function loadUsers() {
       `
       : "-";
 
+    // Add delete button for non-admin users
+    const deleteButton = user.role !== "Admin"
+      ? `
+        <button
+          class="btn btn-sm btn-danger"
+          onclick="showDeleteModal('${user.username}')"
+          title="Delete user"
+        >
+          <i class="bi bi-trash"></i>
+        </button>
+      `
+      : "-";
+
     table.innerHTML += `
     <tr>
       <td>${user.username}</td>
@@ -62,6 +76,7 @@ async function loadUsers() {
       <td>${user.energy_balance || 0}</td>
       <td>${createdDate}</td>
       <td>${voteButton}</td>
+      <td>${deleteButton}</td>
     </tr>
   `;
   });
@@ -155,6 +170,114 @@ async function loadUsers() {
     },
   });
 }
+
+function showDeleteModal(username) {
+  userToDeleteUsername = username;
+  document.querySelector(".user-to-delete-name").textContent = `Username: ${username}`;
+  const deleteModal = new bootstrap.Modal(document.getElementById("deleteUserModal"));
+  deleteModal.show();
+}
+
+async function confirmDeleteUser() {
+  if (!userToDeleteUsername) return;
+
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+  confirmBtn.disabled = true;
+  confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+
+  try {
+    const response = await fetch(`/api/delete-user/${userToDeleteUsername}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showSuccessToast(`User '${userToDeleteUsername}' deleted successfully`);
+      const deleteModal = bootstrap.Modal.getInstance(document.getElementById("deleteUserModal"));
+      deleteModal.hide();
+      loadUsers();
+    } else {
+      showErrorToast(data.message || "Failed to delete user");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    showErrorToast("An error occurred while deleting the user");
+  } finally {
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = "Delete User";
+    userToDeleteUsername = null;
+  }
+}
+
+function showSuccessToast(message) {
+  const toastHtml = `
+    <div class="toast-notification toast-success" role="alert">
+      <div class="toast-content">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>${message}</span>
+      </div>
+    </div>
+  `;
+  const toastContainer = document.querySelector(".toast-container") || createToastContainer();
+  const toastElement = document.createElement("div");
+  toastElement.innerHTML = toastHtml;
+  toastContainer.appendChild(toastElement.firstElementChild);
+
+  const toast = toastContainer.lastElementChild;
+  setTimeout(() => {
+    toast.style.animation = "slideOut 0.3s ease forwards";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function showErrorToast(message) {
+  const toastHtml = `
+    <div class="toast-notification toast-error" role="alert">
+      <div class="toast-content">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span>${message}</span>
+      </div>
+    </div>
+  `;
+  const toastContainer = document.querySelector(".toast-container") || createToastContainer();
+  const toastElement = document.createElement("div");
+  toastElement.innerHTML = toastHtml;
+  toastContainer.appendChild(toastElement.firstElementChild);
+
+  const toast = toastContainer.lastElementChild;
+  setTimeout(() => {
+    toast.style.animation = "slideOut 0.3s ease forwards";
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function createToastContainer() {
+  const container = document.createElement("div");
+  container.className = "toast-container";
+  container.style.cssText = `
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  `;
+  document.body.appendChild(container);
+  return container;
+}
+
+// Setup delete confirmation button
+document.addEventListener("DOMContentLoaded", function() {
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", confirmDeleteUser);
+  }
+});
 
 loadUsers();
 

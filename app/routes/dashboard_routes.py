@@ -22,7 +22,10 @@ from database.mongodb.energy_record_repository import (
 
 from database.mongodb.user_repository import (
     get_user_by_username,
-    update_energy_stats
+    update_energy_stats,
+    delete_user,
+    count_admins,
+    find_user_by_username
 )
 
 from blockchain.core.blockchain import (
@@ -361,3 +364,85 @@ def decline_reading():
                 "Reading Declined Successfully"
         }
     )
+
+
+@dashboard_bp.route(
+    "/api/delete-user/<username>",
+    methods=["DELETE"]
+)
+def delete_user_endpoint(username):
+    """
+    Delete a user account. Only admins can delete users.
+    Prevents deletion of the current logged-in admin and the last remaining admin.
+    """
+    # Check if user is authenticated and is admin
+    if "user_id" not in session:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Unauthorized"
+            }
+        ), 401
+
+    if session.get("role") != "Admin":
+        return jsonify(
+            {
+                "success": False,
+                "message": "Only admins can delete users"
+            }
+        ), 403
+
+    current_admin = session.get("username")
+
+    # Prevent deleting own account
+    if current_admin == username:
+        return jsonify(
+            {
+                "success": False,
+                "message": "You cannot delete your own account"
+            }
+        ), 400
+
+    # Check if user to delete exists
+    user_to_delete = find_user_by_username(username)
+
+    if not user_to_delete:
+        return jsonify(
+            {
+                "success": False,
+                "message": "User not found"
+            }
+        ), 404
+
+    # Check if user is admin
+    is_admin = user_to_delete.get("role") == "Admin"
+
+    if is_admin:
+        # Count remaining admins
+        admin_count = count_admins()
+
+        if admin_count <= 1:
+            return jsonify(
+                {
+                    "success": False,
+                    "message": "Cannot delete the last remaining admin"
+                }
+            ), 400
+
+    # Delete the user
+    deleted_user = delete_user(username)
+
+    if not deleted_user:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Failed to delete user"
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "success": True,
+            "message": f"User '{username}' has been deleted successfully"
+        }
+    ), 200

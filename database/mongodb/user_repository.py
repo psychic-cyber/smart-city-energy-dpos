@@ -290,3 +290,24 @@ def has_user_voted(username):
         "has_voted",
         False
     )
+
+
+def delete_user(username):
+    """
+    Delete a user from the collection by username.
+
+    Args:
+        username (str): The username of the user to delete
+
+    Returns:
+        dict: The deleted user data if found, None otherwise
+    """
+    collection = get_users_collection()
+
+    result = collection.find_one_and_delete(
+        {
+            "username": username
+        }
+    )
+
+    return result
