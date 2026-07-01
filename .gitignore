@@ -11,3 +11,11 @@ blockchain/storage/blockchain_data.json
 *.py[cod]
 .pytest_cache/
 .coverage
+
+# Solidity / Hardhat
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
+contracts/.deps/
+contracts/.states/
+contracts/ignition/deployments/
