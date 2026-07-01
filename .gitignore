@@ -19,3 +19,12 @@ contracts/cache/
 contracts/.deps/
 contracts/.states/
 contracts/ignition/deployments/
+
+
+node_server/node_modules/
+node_server/.env
+
+
+contracts/remix.config.json
+contracts/scenario.json
+
