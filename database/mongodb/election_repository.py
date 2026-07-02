@@ -218,3 +218,24 @@ def get_election_by_id(election_id):
         election["ended_at"] = election.get("end_time")
 
     return election
+
+
+def get_user_vote(voter):
+    """Get the current election vote for a user"""
+    
+    election = get_current_election()
+    
+    if not election:
+        return None
+    
+    vote = get_vote_history_collection().find_one(
+        {
+            "election_id": election["election_id"],
+            "voter_username": voter
+        },
+        {
+            "_id": 0
+        }
+    )
+    
+    return vote

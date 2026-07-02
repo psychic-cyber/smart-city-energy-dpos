@@ -15,8 +15,7 @@ from app.controllers.user_controller import (
 from database.mongodb.user_repository import (
     get_user_by_username,
     update_energy_balance,
-    update_revenue,
-    get_all_users
+    update_revenue
 )
 
 from database.mongodb.user_transaction_repository import (
@@ -53,9 +52,12 @@ from database.mongodb.energy_record_repository import (
     save_energy_record
 )
 
-from app.services.dpos_service import (
-    cast_delegate_vote
+from database.mongodb.election_repository import (
+    has_user_voted,
+    get_user_vote,
+    get_current_election
 )
+
 
 user_bp = Blueprint(
     "users",
@@ -500,76 +502,45 @@ def submit_energy():
         }
     )
 
-@user_bp.route(
-    "/api/delegates"
-)
-def delegates():
-
-    users = get_all_users()
-
-    delegates = []
-
-    for user in users:
-
-        if user["role"] in [
-            "Hospital",
-            "University",
-            "SolarFarm"
-        ]:
-
-            delegates.append(
-                {
-                    "username":
-                        user["username"],
-
-                    "role":
-                        user["role"],
-
-                    "votes":
-                        user.get(
-                            "votes",
-                            0
-                        )
-                }
-            )
-
-    return jsonify(
-        delegates
-    )
-
 
 @user_bp.route(
-    "/api/vote",
-    methods=["POST"]
+    "/api/user/vote-status",
+    methods=["GET"]
 )
-def vote():
-
-    voter = session.get("username")
-
-    if not voter:
-
+def get_vote_status():
+    """Get the current user's vote status in the active election"""
+    
+    username = session.get("username")
+    
+    if not username:
         return jsonify(
             {
-                "success": False,
-                "message": "Login Required"
+                "has_voted": False
             }
-        )
+        ), 200
+    
+    if not has_user_voted(username):
+        return jsonify(
+            {
+                "has_voted": False
+            }
+        ), 200
+    
+    vote = get_user_vote(username)
+    
+    if vote:
+        return jsonify(
+            {
+                "has_voted": True,
+                "voted_for": vote.get("delegate_username"),
+                "election_id": vote.get("election_id"),
+                "timestamp": vote.get("timestamp")
+            }
+        ), 200
+    else:
+        return jsonify(
+            {
+                "has_voted": False
+            }
+        ), 200
 
-    data = request.get_json()
-
-    delegate = data["delegate"]
-
-    success, message, validator = cast_delegate_vote(
-        voter,
-        delegate
-    )
-
-    return jsonify(
-        {
-            "success": success,
-            "message": message,
-            "active_validator":
-                validator["username"]
-                if validator else None
-        }
-    )

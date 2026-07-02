@@ -1,28 +1,177 @@
 let growthChart = null;
 let distributionChart = null;
 
+// =====================
+// TOAST NOTIFICATION SYSTEM
+// =====================
+
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('dposToastContainer');
+  const toast = document.createElement('div');
+  toast.className = `dpos-toast dpos-toast--${type}`;
+  
+  const icons = {
+    success: 'bi-check-circle-fill',
+    error: 'bi-exclamation-circle-fill',
+    info: 'bi-info-circle-fill',
+    warning: 'bi-exclamation-triangle-fill'
+  };
+  
+  toast.innerHTML = `
+    <div class="dpos-toast__icon">
+      <i class="bi ${icons[type]}"></i>
+    </div>
+    <span>${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  if (duration > 0) {
+    setTimeout(() => {
+      toast.style.animation = 'dposToastSlideOut 0.24s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+      setTimeout(() => toast.remove(), 240);
+    }, duration);
+  }
+  
+  return toast;
+}
+
+// =====================
+// DPoS MODAL FUNCTIONS
+// =====================
+
+function openStartElectionModal() {
+  const overlay = document.getElementById('startElectionModalOverlay');
+  overlay.classList.add('active');
+  
+  // Populate modal data
+  fetch('/api/dpos/status')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('startModalElectionNum').innerText = data.current_election || '-';
+      document.getElementById('startModalCurrentValidator').innerText = data.current_validator || 'None';
+    })
+    .catch(err => console.error('Failed to load modal data:', err));
+}
+
+function closeStartElectionModal() {
+  const overlay = document.getElementById('startElectionModalOverlay');
+  overlay.classList.remove('active');
+}
+
+function openFinishElectionModal() {
+  const overlay = document.getElementById('finishElectionModalOverlay');
+  overlay.classList.add('active');
+  
+  // Populate modal data
+  fetch('/api/dpos/status')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('finishModalElectionNum').innerText = data.current_election || '-';
+      document.getElementById('finishModalTotalVotes').innerText = data.total_votes || 0;
+      document.getElementById('finishModalLeader').innerText = data.current_leader || 'None';
+      document.getElementById('finishModalLeaderVotes').innerText = data.leader_votes || 0;
+    })
+    .catch(err => console.error('Failed to load modal data:', err));
+}
+
+function closeFinishElectionModal() {
+  const overlay = document.getElementById('finishElectionModalOverlay');
+  overlay.classList.remove('active');
+}
+
+// Close modals on overlay click
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'startElectionModalOverlay') {
+    closeStartElectionModal();
+  }
+  if (e.target.id === 'finishElectionModalOverlay') {
+    closeFinishElectionModal();
+  }
+});
+
+// =====================
+// ELECTION WORKFLOW FUNCTIONS
+// =====================
+
+async function startNewElection() {
+  openStartElectionModal();
+}
+
+async function confirmStartNewElection() {
+  const button = document.getElementById('confirmStartElectionBtn');
+  button.disabled = true;
+  
+  try {
+    const resp = await fetch('/api/election/start', { method: 'POST' });
+    
+    if (resp.ok) {
+      showToast('✨ Election started successfully!', 'success');
+      closeStartElectionModal();
+      
+      // Update UI
+      document.getElementById('startElectionBtn').style.display = 'none';
+      document.getElementById('finishElectionBtn').style.display = 'inline-block';
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await loadBlockchain();
+    } else {
+      const error = await resp.text();
+      showToast(`❌ Failed to start election: ${error}`, 'error');
+      console.error('Unable to start election', error);
+    }
+  } catch (err) {
+    showToast('❌ Error starting election', 'error');
+    console.error('Error starting election', err);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function finishNewElection() {
+  openFinishElectionModal();
+}
+
+async function confirmFinishElection() {
+  const button = document.getElementById('confirmFinishElectionBtn');
+  button.disabled = true;
+  
+  try {
+    const resp = await fetch('/api/election/end', { method: 'POST' });
+    
+    if (resp.ok) {
+      showToast('🏆 Election finished! New validator elected.', 'success');
+      closeFinishElectionModal();
+      
+      // Update UI
+      document.getElementById('startElectionBtn').style.display = 'inline-block';
+      document.getElementById('finishElectionBtn').style.display = 'none';
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await loadBlockchain();
+    } else {
+      const error = await resp.text();
+      showToast(`❌ Failed to finish election: ${error}`, 'error');
+      console.error('Unable to finish election', error);
+    }
+  } catch (err) {
+    showToast('❌ Error finishing election', 'error');
+    console.error('Error finishing election', err);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// =====================
+// ELECTION CENTER UPDATE
+// =====================
+
 function formatElectionTime(value) {
   if (!value) {
     return "-";
   }
 
   return new Date(value).toLocaleString();
-}
-
-async function startNewElection() {
-  const button = document.getElementById("startElectionBtn");
-
-  button.disabled = true;
-
-  try {
-    await fetch("/api/election/start", {
-      method: "POST",
-    });
-
-    await loadBlockchain();
-  } finally {
-    button.disabled = false;
-  }
 }
 
 function updateElectionCenter(dposStatus) {
@@ -46,7 +195,16 @@ function updateElectionCenter(dposStatus) {
   document.getElementById("electionStarted").innerText = formatElectionTime(
     dposStatus.election_started,
   );
+  
+  // Update button visibility based on election state
+  const electionActive = dposStatus.election_state === 'Active' || dposStatus.election_state === 'active';
+  document.getElementById('startElectionBtn').style.display = electionActive ? 'none' : 'inline-block';
+  document.getElementById('finishElectionBtn').style.display = electionActive ? 'inline-block' : 'none';
 }
+
+// =====================
+// BLOCKCHAIN DATA LOADING
+// =====================
 
 async function loadBlockchain() {
   const blocks = await (await fetch("/api/blocks")).json();
@@ -266,10 +424,16 @@ async function loadBlockchain() {
   });
 }
 
+// =====================
+// INITIALIZATION & EVENT LISTENERS
+// =====================
+
 loadBlockchain();
 
-document
-  .getElementById("startElectionBtn")
-  .addEventListener("click", startNewElection);
+document.getElementById("startElectionBtn").addEventListener("click", startNewElection);
+document.getElementById("finishElectionBtn").addEventListener("click", finishNewElection);
+document.getElementById("confirmStartElectionBtn").addEventListener("click", confirmStartNewElection);
+document.getElementById("confirmFinishElectionBtn").addEventListener("click", confirmFinishElection);
 
+// Auto-refresh every 5 seconds
 setInterval(loadBlockchain, 5000);

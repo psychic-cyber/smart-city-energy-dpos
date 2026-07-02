@@ -61,9 +61,6 @@ def register_user(
 
     user_dict = user.to_dict()
 
-    user_dict["has_voted"] = False
-    user_dict["voted_for"] = None
-
     save_user(
         user_dict
     )

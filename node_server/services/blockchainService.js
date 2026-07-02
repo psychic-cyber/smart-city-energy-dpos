@@ -92,26 +92,25 @@ async function getMarketplaceOrders() {
 }
 
 async function createMarketplaceListing(seller, energyAmount, price) {
-  const normalizedSeller = ethers.getAddress(seller);
   if (!energyAmount || Number(energyAmount) <= 0) {
     throw new Error('Energy amount must be greater than zero');
   }
+
   if (!price || Number(price) <= 0) {
     throw new Error('Price must be greater than zero');
   }
 
   const marketplace = await getMarketplace();
-  const walletAddress = await wallet.getAddress();
-
-  if (normalizedSeller.toLowerCase() !== walletAddress.toLowerCase()) {
-    throw new Error('Seller must be the connected wallet');
-  }
 
   const token = await getToken();
   const decimals = await token.decimals();
   const pricePerUnit = ethers.parseUnits(price.toString(), Number(decimals));
 
-  const tx = await marketplace.createEnergyListing(ethers.toBigInt(energyAmount), pricePerUnit);
+  const tx = await marketplace.createEnergyListing(
+    ethers.toBigInt(energyAmount),
+    pricePerUnit
+  );
+
   const receipt = await tx.wait();
 
   return {
@@ -122,19 +121,16 @@ async function createMarketplaceListing(seller, energyAmount, price) {
 }
 
 async function buyMarketplaceListing(listingId, buyer) {
-  const normalizedBuyer = ethers.getAddress(buyer);
   if (!listingId || Number(listingId) <= 0) {
     throw new Error('ListingId must be greater than zero');
   }
 
   const marketplace = await getMarketplace();
-  const walletAddress = await wallet.getAddress();
 
-  if (normalizedBuyer.toLowerCase() !== walletAddress.toLowerCase()) {
-    throw new Error('Buyer must be the connected wallet');
-  }
+  const tx = await marketplace.buyEnergy(
+    ethers.toBigInt(listingId)
+  );
 
-  const tx = await marketplace.buyEnergy(ethers.toBigInt(listingId));
   const receipt = await tx.wait();
 
   return {

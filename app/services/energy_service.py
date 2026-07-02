@@ -4,6 +4,9 @@ from decimal import Decimal, InvalidOperation
 from blockchain.core.blockchain import Blockchain
 from blockchain.storage.storage_manager import save_blockchain
 from blockchain.utils.hash_utils import calculate_hash
+from app.services.blockchain_client import (
+    marketplace_sell,
+)
 from database.mongodb.blockchain_repository import save_block
 from database.mongodb.marketplace_repository import (
     complete_matched_requests,
@@ -107,6 +110,11 @@ def create_marketplace_listing(seller, energy_value, price_value):
         return False, "Insufficient Energy Balance", None
     if has_active_listing(seller):
         return False, "You already have an active listing", None
+
+    try:
+        marketplace_sell(seller, energy, price)
+    except Exception as error:
+        return False, f"Unable to create on-chain marketplace listing: {error}", None
 
     listing = create_listing(seller, energy, price)
     matched_count = match_requests_for_listing(seller, energy, price)

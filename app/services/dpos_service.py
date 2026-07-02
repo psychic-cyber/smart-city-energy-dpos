@@ -20,7 +20,9 @@ from database.mongodb.election_repository import (
     get_total_votes,
     has_user_voted,
     save_vote,
-    start_new_election
+    start_new_election,
+    close_current_election,
+    get_user_vote
 )
 
 from database.mongodb.user_repository import (
@@ -250,3 +252,31 @@ def begin_new_election():
     reset_delegate_votes()
 
     return get_dpos_status()
+
+
+def finish_current_election():
+    """Finish the current election and elect the winner"""
+    
+    leader = get_current_leader()
+    winner = None
+    
+    if leader and leader.get("votes", 0) > 0:
+        winner = leader["username"]
+    
+    total_votes = get_total_votes()
+    
+    # Close current election
+    close_current_election(winner, total_votes)
+    
+    # Elect the winner as validator
+    if winner:
+        elected = elect_active_validator()
+    else:
+        elected = None
+    
+    return {
+        "success": True,
+        "message": "Election finished successfully",
+        "winner": winner,
+        "status": get_dpos_status()
+    }

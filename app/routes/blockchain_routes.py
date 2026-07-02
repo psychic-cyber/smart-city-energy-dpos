@@ -2,7 +2,8 @@ from flask import (
     Blueprint,
     jsonify,
     session,
-    send_file
+    send_file,
+    request
 )
 
 from os.path import abspath
@@ -70,11 +71,28 @@ from database.mongodb.delegate_repository import (
     get_top_delegates
 )
 
+from database.mongodb.election_repository import (
+    has_user_voted
+)
+
 from app.services.dpos_service import (
     begin_new_election,
     cast_delegate_vote,
     get_dpos_status,
-    get_recent_validator_history
+    get_recent_validator_history,
+    finish_current_election
+)
+
+from app.services.blockchain_client import (
+    get_token_info,
+    get_token_balance,
+    transfer,
+    marketplace_orders,
+    marketplace_sell,
+    marketplace_buy,
+    get_validators,
+    get_delegate,
+    vote as vote_on_chain,
 )
 
 from database.mongodb.ai_alert_repository import (
@@ -474,6 +492,102 @@ def delegates():
     )
 
 
+def _find_validator_by_name(name):
+    if not name:
+        return None
+
+    validators = get_validators()
+
+    for validator in validators:
+        validator_name = validator.get("name")
+        if validator_name and validator_name.strip().lower() == name.strip().lower():
+            return validator
+
+    return None
+
+
+@blockchain_bp.route(
+    "/api/vote",
+    methods=["POST"]
+)
+def vote_delegate_route():
+
+    voter = session.get("username")
+
+    if not voter:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Login Required"
+            }
+        ), 401
+
+    data = request.get_json(silent=True) or {}
+    delegate_name = data.get("delegate")
+
+    if not delegate_name:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Delegate is required"
+            }
+        ), 400
+
+    if has_user_voted(voter):
+        return jsonify(
+            {
+                "success": False,
+                "message": "You have already voted in this election."
+            }
+        ), 400
+
+    validator = _find_validator_by_name(delegate_name)
+
+    if not validator:
+        return jsonify(
+            {
+                "success": False,
+                "message": "Delegate not found"
+            }
+        ), 404
+
+    try:
+        blockchain_vote = vote_on_chain(
+            validator.get("id")
+        )
+    except Exception as error:
+        return jsonify(
+            {
+                "success": False,
+                "message": str(error)
+            }
+        ), 400
+
+    success, message, active_validator = cast_delegate_vote(
+        voter,
+        delegate_name
+    )
+
+    if not success:
+        return jsonify(
+            {
+                "success": False,
+                "message": message
+            }
+        ), 400
+
+    response = {
+        "success": True,
+        "message": message,
+        "active_validator":
+            active_validator["username"]
+            if active_validator else None,
+        "blockchain_vote": blockchain_vote
+    }
+
+    return jsonify(response)
+
+
 @blockchain_bp.route(
     "/api/delegates/top"
 )
@@ -507,6 +621,17 @@ def start_election():
 
 
 @blockchain_bp.route(
+    "/api/election/end",
+    methods=["POST"]
+)
+def end_election():
+
+    return jsonify(
+        finish_current_election()
+    )
+
+
+@blockchain_bp.route(
     "/api/dpos/validator-history",
     methods=["GET"]
 )
@@ -526,45 +651,114 @@ def ai_alerts():
         get_all_ai_alerts()
     )
 
+
 @blockchain_bp.route(
-    "/api/delegates/vote/<username>",
+    "/api/blockchain/token/info",
+    methods=["GET"]
+)
+def token_info():
+    try:
+        return jsonify(get_token_info())
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
+
+
+@blockchain_bp.route(
+    "/api/blockchain/token/balance/<address>",
+    methods=["GET"]
+)
+def token_balance(address):
+    try:
+        return jsonify(get_token_balance(address))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
+
+
+@blockchain_bp.route(
+    "/api/blockchain/token/transfer",
     methods=["POST"]
 )
-def cast_vote(username):
+def token_transfer():
+    payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(transfer(payload.get("to"), payload.get("amount")))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
 
-    voter = session.get(
-        "username"
-    )
 
-    if not voter:
+@blockchain_bp.route(
+    "/api/blockchain/marketplace/orders",
+    methods=["GET"]
+)
+def blockchain_marketplace_orders():
+    try:
+        return jsonify(marketplace_orders())
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
-        return jsonify(
-            {
-                "success": False,
-                "message": "Login Required"
-            }
-        )
 
-    success, message, validator = cast_delegate_vote(
-        voter,
-        username
-    )
+@blockchain_bp.route(
+    "/api/blockchain/marketplace/sell",
+    methods=["POST"]
+)
+def blockchain_marketplace_sell():
+    payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(marketplace_sell(
+            payload.get("seller"),
+            payload.get("energyAmount"),
+            payload.get("price"),
+        ))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
 
-    if not success:
 
-        return jsonify(
-            {
-                "success": False,
-                "message": message
-            }
-        )
+@blockchain_bp.route(
+    "/api/blockchain/marketplace/buy",
+    methods=["POST"]
+)
+def blockchain_marketplace_buy():
+    payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(marketplace_buy(
+            payload.get("listingId"),
+            payload.get("buyer"),
+        ))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
 
-    return jsonify(
-        {
-            "success": True,
-            "message": message,
-            "active_validator":
-                validator["username"]
-                if validator else None
-        }
-    )
+
+@blockchain_bp.route(
+    "/api/blockchain/voting/validators",
+    methods=["GET"]
+)
+def blockchain_voting_validators():
+    try:
+        return jsonify(get_validators())
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
+
+
+@blockchain_bp.route(
+    "/api/blockchain/voting/delegates/<address>",
+    methods=["GET"]
+)
+def blockchain_voting_delegate_info(address):
+    try:
+        return jsonify(get_delegate(address))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
+
+
+@blockchain_bp.route(
+    "/api/blockchain/voting/vote",
+    methods=["POST"]
+)
+def blockchain_voting_vote():
+    payload = request.get_json(silent=True) or {}
+    try:
+        return jsonify(vote(payload.get("delegate")))
+    except Exception as error:
+        return jsonify({"error": str(error)}), 400
+
+

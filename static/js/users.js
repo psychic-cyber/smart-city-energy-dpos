@@ -282,8 +282,12 @@ document.addEventListener("DOMContentLoaded", function() {
 loadUsers();
 
 async function voteDelegate(username) {
-  const response = await fetch(`/api/delegates/vote/${username}`, {
+  const response = await fetch("/api/vote", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ delegate: username }),
   });
 
   const result = await response.json();

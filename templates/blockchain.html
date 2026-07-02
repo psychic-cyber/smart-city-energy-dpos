@@ -203,7 +203,12 @@
                   </div>
 
                   <div class="text-center mt-3">
-                    <button id="startElectionBtn" class="btn marketplace-btn-primary" type="button">Start New Election</button>
+                    <button id="startElectionBtn" class="btn marketplace-btn-primary" type="button" style="margin-right: 0.5rem;">
+                      <i class="bi bi-lightning-charge"></i> Start Election
+                    </button>
+                    <button id="finishElectionBtn" class="btn marketplace-btn-secondary" type="button" style="display: none;">
+                      <i class="bi bi-trophy"></i> Finish Election
+                    </button>
                   </div>
                 </div>
               </div>
@@ -260,6 +265,105 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/blockchain.js"></script>
+
+    <!-- DPoS Election Modals -->
+    <div id="startElectionModalOverlay" class="dpos-modal-overlay">
+      <div class="dpos-modal">
+        <div class="dpos-modal__header">
+          <div class="dpos-modal__header-content">
+            <h2 class="dpos-modal__title"><i class="bi bi-lightning-charge-fill" style="margin-right: 0.5rem; color: #38bdf8;"></i> Start Election</h2>
+            <p class="dpos-modal__subtitle">Begin a new DPoS election cycle</p>
+          </div>
+          <button class="dpos-modal__close-btn" onclick="closeStartElectionModal()" type="button">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="dpos-modal__body">
+          <div class="dpos-modal__content">
+            <div style="color: #e2e8f0; line-height: 1.6; font-size: 0.95rem;">
+              Are you ready to start a new DPoS election? This will open voting for all participants to select the next validator.
+            </div>
+            <div class="dpos-modal__meta-grid">
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Current Election</span>
+                <span class="dpos-modal__meta-value" id="startModalElectionNum">-</span>
+              </div>
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Current Validator</span>
+                <span class="dpos-modal__meta-value dpos-modal__meta-value--cyan" id="startModalCurrentValidator">-</span>
+              </div>
+            </div>
+            <div class="dpos-modal__warning">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>Starting a new election will reset all current votes and begin the voting process.</span>
+            </div>
+          </div>
+        </div>
+        <div class="dpos-modal__footer">
+          <button class="dpos-modal__btn dpos-modal__btn--secondary" onclick="closeStartElectionModal()" type="button">
+            <i class="bi bi-x-circle"></i> Cancel
+          </button>
+          <button id="confirmStartElectionBtn" class="dpos-modal__btn dpos-modal__btn--primary" type="button">
+            <i class="bi bi-check-circle"></i> Start Election
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="finishElectionModalOverlay" class="dpos-modal-overlay">
+      <div class="dpos-modal">
+        <div class="dpos-modal__header">
+          <div class="dpos-modal__header-content">
+            <h2 class="dpos-modal__title"><i class="bi bi-trophy-fill" style="margin-right: 0.5rem; color: #22c55e;"></i> Finish Election</h2>
+            <p class="dpos-modal__subtitle">Conclude the voting and elect a validator</p>
+          </div>
+          <button class="dpos-modal__close-btn" onclick="closeFinishElectionModal()" type="button">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="dpos-modal__body">
+          <div class="dpos-modal__content">
+            <div style="color: #e2e8f0; line-height: 1.6; font-size: 0.95rem;">
+              Finishing this election will permanently elect the current winning delegate as the network validator.
+            </div>
+            <div class="dpos-modal__meta-grid">
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Election #</span>
+                <span class="dpos-modal__meta-value" id="finishModalElectionNum">-</span>
+              </div>
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Total Votes</span>
+                <span class="dpos-modal__meta-value" id="finishModalTotalVotes">0</span>
+              </div>
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Leader</span>
+                <span class="dpos-modal__meta-value dpos-modal__meta-value--green" id="finishModalLeader">-</span>
+              </div>
+              <div class="dpos-modal__meta-item">
+                <span class="dpos-modal__meta-label">Leader Votes</span>
+                <span class="dpos-modal__meta-value dpos-modal__meta-value--cyan" id="finishModalLeaderVotes">0</span>
+              </div>
+            </div>
+            <div class="dpos-modal__warning">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>This action is permanent. The elected validator will control block validation for the next cycle.</span>
+            </div>
+          </div>
+        </div>
+        <div class="dpos-modal__footer">
+          <button class="dpos-modal__btn dpos-modal__btn--secondary" onclick="closeFinishElectionModal()" type="button">
+            <i class="bi bi-x-circle"></i> Cancel
+          </button>
+          <button id="confirmFinishElectionBtn" class="dpos-modal__btn dpos-modal__btn--danger" type="button">
+            <i class="bi bi-check-circle"></i> Finish Election
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="dposToastContainer" class="dpos-toast-container"></div>
   </body>
 </html>
