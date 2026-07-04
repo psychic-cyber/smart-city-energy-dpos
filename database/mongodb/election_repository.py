@@ -32,7 +32,7 @@ def create_first_election():
 
     election = {
         "election_id": 1,
-        "status": "Active",
+        "status": "Closed",
         "started_at": str(datetime.now()),
         "ended_at": None,
         "winner": None,
@@ -108,6 +108,7 @@ def start_new_election(
     current = get_current_election()
 
     if current:
+
         if total_votes is None:
             total_votes = get_total_votes()
 
@@ -115,9 +116,13 @@ def start_new_election(
             winner,
             total_votes
         )
-        next_id = current["election_id"] + 1
-    else:
-        next_id = 1
+
+    last = get_last_election()
+
+    next_id = 1
+
+    if last:
+        next_id = last["election_id"] + 1
 
     return create_next_election(next_id)
 
@@ -127,7 +132,7 @@ def save_vote(voter, delegate):
     election = get_current_election()
 
     if not election:
-        election = create_first_election()
+        return
 
     vote = {
         "election_id": election["election_id"],
@@ -146,7 +151,7 @@ def has_user_voted(voter):
     election = get_current_election()
 
     if not election:
-        election = create_first_election()
+        return False
 
     return (
         get_vote_history_collection().count_documents(
@@ -239,3 +244,11 @@ def get_user_vote(voter):
     )
     
     return vote
+
+def get_last_election():
+
+    return get_election_collection().find_one(
+        {},
+        {"_id": 0},
+        sort=[("election_id", -1)]
+    )

@@ -29,71 +29,34 @@ from database.mongodb.user_repository import (
     count_users
 )
 
+def cast_delegate_vote(voter_username, delegate_username):
 
-def elect_active_validator():
+    current = get_current_election()
 
-    delegates = get_top_delegates(1)
-
-    if not delegates:
-        return None
-
-    elected = delegates[0]
-
-    if elected.get("votes", 0) <= 0:
-        return None
-
-    previous = get_active_validator()
-    election_time = str(
-        datetime.now()
-    )
-
-    activate_validator(
-        elected["username"],
-        election_time
-    )
-
-    if (
-        not previous
-        or previous.get("username")
-        != elected["username"]
-    ):
-        save_validator_change(
-            previous.get("username")
-            if previous else None,
-            elected["username"],
-            previous.get("votes", 0)
-            if previous else 0,
-            elected.get("votes", 0),
-            election_time
+    if not current:
+        return (
+            False,
+            "No active election.",
+            None
         )
 
-    elected["is_active"] = True
-    elected["elected_at"] = election_time
-
-    return elected
-
-
-def cast_delegate_vote(
-    voter_username,
-    delegate_username
-):
-
-    create_first_election()
+    if current.get("status") != "Active":
+        return (
+            False,
+            "Election is not active.",
+            None
+        )
 
     if has_user_voted(voter_username):
-
         return (
             False,
             "You have already voted in this election.",
             None
         )
 
-    result = vote_delegate(
-        delegate_username
-    )
+    result = vote_delegate(delegate_username)
 
     if result.matched_count == 0:
-
         return (
             False,
             "Delegate not found",
@@ -105,89 +68,74 @@ def cast_delegate_vote(
         delegate_username
     )
 
-    elected = elect_active_validator()
-
     return (
         True,
         "Vote Cast Successfully",
-        elected
+        None
     )
-
-
-def get_current_validator(fallback="SYSTEM"):
-
-    active = ensure_highest_validator()
-
-    return (
-        active["username"]
-        if active
-        else fallback
-    )
-
 
 def get_dpos_status():
 
     delegates = get_all_delegates()
-    active = get_active_validator()
-    current = get_current_election() or {}
-    total_votes = get_total_votes()
-    total_users = count_users()
+
+    active_validator = get_active_validator()
+
+    current_election = get_current_election()
+
     leader = get_current_leader()
+
+    total_votes = get_total_votes()
+
+    total_users = count_users()
+
+    participation = 0
 
     if total_users > 0:
         participation = round(
             (total_votes / total_users) * 100,
             2
         )
-    else:
-        participation = 0.0
-
-    if not delegates:
-        election_status = "No Delegates"
-    elif not active:
-        election_status = "Awaiting Election"
-    else:
-        election_status = "Validator Elected"
-
-    started_at = current.get(
-        "started_at",
-        current.get("start_time")
-    )
-    ended_at = current.get(
-        "ended_at",
-        current.get("end_time")
-    )
 
     return {
+
         "current_validator":
-            active.get("username")
-            if active else None,
+            active_validator["username"]
+            if active_validator else None,
 
         "current_validator_votes":
-            active.get("votes", 0)
-            if active else 0,
+            active_validator.get("votes", 0)
+            if active_validator else 0,
 
         "total_delegate_votes":
             get_total_delegate_votes(),
 
         "last_election_time":
-            active.get("elected_at")
-            if active else None,
-
-        "election_status":
-            election_status,
+            active_validator.get("elected_at")
+            if active_validator else None,
 
         "current_election":
-            current.get("election_id"),
+            current_election["election_id"]
+            if current_election else None,
 
         "election_state":
-            current.get("status"),
+            current_election["status"]
+            if current_election else "Inactive",
 
         "election_started":
-            started_at,
+            current_election.get("started_at")
+            if current_election else None,
 
         "election_ended":
-            ended_at,
+            current_election.get("ended_at")
+            if current_election else None,
+
+        "current_leader":
+            leader["username"]
+            if leader else None,
+
+        "leader_votes":
+            leader.get("votes", 0)
+            if leader else 0,
 
         "total_votes":
             total_votes,
@@ -195,10 +143,12 @@ def get_dpos_status():
         "participation_percentage":
             participation,
 
-        "current_leader":
-            leader.get("username")
-            if leader and leader.get("votes", 0) > 0
-            else None
+        "election_status":
+            (
+                "Election Running"
+                if current_election
+                else "Ready To Start"
+            )
     }
 
 
@@ -208,75 +158,79 @@ def get_recent_validator_history(limit=10):
         limit
     )
 
-
-def ensure_highest_validator():
-
-    delegates = get_top_delegates(1)
-
-    if not delegates:
-        return None
-
-    highest = delegates[0]
-
-    if highest.get("votes", 0) <= 0:
-        return None
-
-    active = get_active_validator()
-
-    if (
-        not active
-        or count_active_validators() != 1
-        or active.get("username")
-        != highest["username"]
-    ):
-        return elect_active_validator()
-
-    return active
-
-
 def begin_new_election():
 
-    leader = get_current_leader()
-    winner = None
+    current = get_current_election()
 
-    if leader and leader.get("votes", 0) > 0:
-        winner = leader["username"]
-
-    total_votes = get_total_votes()
-
-    start_new_election(
-        winner,
-        total_votes
-    )
+    if current:
+        return {
+            "success": False,
+            "message": "An election is already active."
+        }
 
     reset_delegate_votes()
 
-    return get_dpos_status()
+    start_new_election()
 
-
-def finish_current_election():
-    """Finish the current election and elect the winner"""
-    
-    leader = get_current_leader()
-    winner = None
-    
-    if leader and leader.get("votes", 0) > 0:
-        winner = leader["username"]
-    
-    total_votes = get_total_votes()
-    
-    # Close current election
-    close_current_election(winner, total_votes)
-    
-    # Elect the winner as validator
-    if winner:
-        elected = elect_active_validator()
-    else:
-        elected = None
-    
     return {
         "success": True,
-        "message": "Election finished successfully",
-        "winner": winner,
+        "message": "Election started successfully.",
         "status": get_dpos_status()
     }
+
+def finish_current_election():
+
+    current = get_current_election()
+
+    if not current:
+        return {
+            "success": False,
+            "message": "No active election."
+        }
+
+    previous_validator = get_active_validator()
+
+    leader = get_current_leader()
+
+    winner = None
+    winner_votes = 0
+
+    if leader and leader.get("votes", 0) > 0:
+
+        winner = leader["username"]
+        winner_votes = leader["votes"]
+
+        activate_validator(
+            winner,
+            str(datetime.now())
+        )
+
+        save_validator_change(
+            previous_validator["username"] if previous_validator else None,
+            winner,
+            previous_validator.get("votes", 0) if previous_validator else 0,
+            winner_votes,
+            str(datetime.now())
+        )
+
+    close_current_election(
+        winner,
+        get_total_votes()
+    )
+
+    return {
+        "success": True,
+        "winner": winner,
+        "winner_votes": winner_votes,
+        "message": "Election finished successfully.",
+        "status": get_dpos_status()
+    }
+
+def get_current_validator(fallback="SYSTEM"):
+
+    active = get_active_validator()
+
+    if active:
+        return active["username"]
+
+    return fallback

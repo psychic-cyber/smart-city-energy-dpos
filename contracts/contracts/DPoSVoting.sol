@@ -75,9 +75,6 @@ contract DPoSVoting is Ownable, Pausable {
      * @param delegateId The delegate identifier.
      */
     function voteDelegate(uint256 delegateId) external whenNotPaused delegateExists(delegateId) {
-        if (hasVoted[msg.sender]) revert AlreadyVoted(msg.sender);
-
-        hasVoted[msg.sender] = true;
         delegates[delegateId].votes += 1;
         emit DelegateVoted(delegateId, msg.sender, block.timestamp);
     }

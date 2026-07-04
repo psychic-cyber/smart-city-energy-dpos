@@ -36,7 +36,7 @@ async function main() {
   console.log("Voting:", votingAddress);
 
 
-  const [owner] = await ethers.getSigners();
+  const [owner, hospital, solar, university] = await ethers.getSigners();
 
 
   console.log("Minting Tokens...");
@@ -66,11 +66,25 @@ async function main() {
   ).wait();
 
 
-  console.log("Register Delegate...");
+  console.log("Register Delegates...");
+
   await (
-    await voting.registerDelegate("Main Validator")
+      await voting
+          .connect(hospital)
+          .registerDelegate("SmartCity-Hospital01")
   ).wait();
 
+  await (
+      await voting
+          .connect(solar)
+          .registerDelegate("SmartCity-SolarFarm01")
+  ).wait();
+
+  await (
+      await voting
+          .connect(university)
+          .registerDelegate("SmartCity-University01")
+  ).wait();
 
   console.log("Initialization Complete.");
 

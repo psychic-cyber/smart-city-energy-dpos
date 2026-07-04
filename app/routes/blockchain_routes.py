@@ -620,15 +620,52 @@ def start_election():
     )
 
 
+# @blockchain_bp.route(
+#     "/api/election/end",
+#     methods=["POST"]
+# )
+# def end_election():
+
+#     print("=" * 60)
+#     print("END ELECTION API CALLED")
+#     print("=" * 60)
+
+#     result = finish_current_election()
+
+#     print(result)
+
+#     return jsonify(result)
+
+
 @blockchain_bp.route(
     "/api/election/end",
     methods=["POST"]
 )
 def end_election():
 
-    return jsonify(
-        finish_current_election()
-    )
+    print("=" * 60)
+    print("END ELECTION ROUTE HIT")
+
+    try:
+
+        result = finish_current_election()
+
+        print("SERVICE RETURNED:")
+        print(result)
+
+        return jsonify(result)
+
+    except Exception as e:
+
+        import traceback
+
+        print("EXCEPTION:")
+        traceback.print_exc()
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
 
 
 @blockchain_bp.route(
