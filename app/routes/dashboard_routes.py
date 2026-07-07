@@ -41,6 +41,10 @@ from blockchain.storage.storage_manager import (
     save_blockchain
 )
 
+from app.services.ai_service import (
+    run_full_analysis
+)
+
 dashboard_bp = Blueprint(
     "dashboard",
     __name__
@@ -147,6 +151,82 @@ def pending_readings():
         get_pending_records()
     )
 
+def evaluate_energy_anomaly(
+    current_balance,
+    generated,
+    consumed,
+    previous_consumed
+):
+
+    alerts = []
+
+    severity = "LOW"
+
+    new_balance = (
+        current_balance
+        + generated
+        - consumed
+    )
+
+    if new_balance < 0:
+
+        alerts.append(
+            "Negative Energy Balance"
+        )
+
+        severity = "CRITICAL"
+
+    if consumed > generated * 5:
+
+        alerts.append(
+            "Consumption exceeds generation"
+        )
+
+        if severity != "CRITICAL":
+            severity = "HIGH"
+
+    if generated > consumed * 10:
+
+        alerts.append(
+            "Abnormally High Generation"
+        )
+
+        if severity == "LOW":
+            severity = "MEDIUM"
+
+    if previous_consumed > 0:
+
+        increase = (
+            consumed
+            /
+            previous_consumed
+        )
+
+        if increase >= 3:
+
+            alerts.append(
+                "Sudden Consumption Spike"
+            )
+
+            if severity == "LOW":
+                severity = "MEDIUM"
+
+    return {
+
+        "is_anomaly":
+            len(alerts) > 0,
+
+        "severity":
+            severity,
+
+        "reason":
+            ", ".join(alerts),
+
+        "new_balance":
+            new_balance
+
+    }
+
 @dashboard_bp.route(
     "/api/approve-reading",
     methods=["POST"]
@@ -195,33 +275,30 @@ def approve_reading():
         record["energy_consumed"]
     )
 
-    is_anomaly = False
-
-    reason = None
-
-    if consumed > generated * 5:
-
-        is_anomaly = True
-
-        reason = (
-            "Abnormally High Consumption"
+    current_balance = float(
+        user.get(
+            "energy_balance",
+            0
         )
+    )
 
-    elif generated > consumed * 10:
-
-        is_anomaly = True
-
-        reason = (
-            "Abnormally High Generation"
+    analysis = evaluate_energy_anomaly(
+        current_balance=current_balance,
+        generated=generated,
+        consumed=consumed,
+        previous_consumed=float(
+            user.get(
+                "energy_consumed",
+                0
+            )
         )
+    )
 
-    elif consumed > 2000:
+    is_anomaly = analysis["is_anomaly"]
 
-        is_anomaly = True
+    reason = analysis["reason"]
 
-        reason = (
-            "Critical Energy Consumption"
-        )
+    severity = analysis["severity"]
 
     current_generated = float(
         user.get(
@@ -247,10 +324,7 @@ def approve_reading():
         + consumed
     )
 
-    new_balance = (
-        new_generated
-        - new_consumed
-    )
+    new_balance = analysis["new_balance"]
 
     update_energy_stats(
         username,
@@ -263,39 +337,54 @@ def approve_reading():
         username
     )
 
+    try:
+
+        run_full_analysis()
+
+    except Exception as error:
+
+        print(
+            "AI Analysis Error:",
+            error
+        )
+
     if is_anomaly:
 
         save_ai_alert(
             {
-                "username":
-                    username,
+                "username": username,
 
-                "generated":
-                    generated,
+                "generated": generated,
 
-                "consumed":
-                    consumed,
+                "consumed": consumed,
 
-                "reason":
-                    reason,
+                "reason": reason,
 
-                "risk_level":
-                    "HIGH",
+                "severity": severity,
 
-                "timestamp":
-                    str(
-                        datetime.now()
-                    )
+                "risk_level": severity,
+
+                "confidence": 95,
+
+                "timestamp": str(
+                    datetime.now()
+                )
             }
         )
 
     blockchain = Blockchain()
 
-    transaction_type = (
-        "AI_ALERT"
-        if is_anomaly == 1
-        else "ENERGY_READING_APPROVED"
-    )
+    if is_anomaly:
+
+        transaction_type = (
+            f"AI_ALERT_{severity}"
+        )
+
+    else:
+
+        transaction_type = (
+            "ENERGY_READING_APPROVED"
+        )
 
     blockchain.add_block(
         {
