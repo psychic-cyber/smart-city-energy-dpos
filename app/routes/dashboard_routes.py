@@ -326,28 +326,6 @@ def approve_reading():
 
     new_balance = analysis["new_balance"]
 
-    update_energy_stats(
-        username,
-        new_generated,
-        new_consumed,
-        new_balance
-    )
-
-    approve_record(
-        username
-    )
-
-    try:
-
-        run_full_analysis()
-
-    except Exception as error:
-
-        print(
-            "AI Analysis Error:",
-            error
-        )
-
     if is_anomaly:
 
         save_ai_alert(
@@ -372,36 +350,63 @@ def approve_reading():
             }
         )
 
-    blockchain = Blockchain()
-
     if is_anomaly:
 
-        transaction_type = (
-            f"AI_ALERT_{severity}"
+        blockchain = Blockchain()
+
+        blockchain.add_block(
+            {
+                "type": f"AI_ALERT_{severity}",
+                "username": username,
+                "generated": generated,
+                "consumed": consumed,
+                "reason": reason,
+                "anomaly": True
+            }
         )
 
-    else:
+        save_block(blockchain.get_latest_block())
+        save_chain(blockchain.chain)
+        save_blockchain(blockchain.chain)
 
-        transaction_type = (
-            "ENERGY_READING_APPROVED"
+        return jsonify(
+            {
+                "success": False,
+                "message": f"Reading rejected by AI ({reason})"
+            }
         )
+    
+    update_energy_stats(
+        username,
+        new_generated,
+        new_consumed,
+        new_balance
+    )
+
+    approve_record(
+        username
+    )
+
+    try:
+
+        run_full_analysis()
+
+    except Exception as error:
+
+        print(
+            "AI Analysis Error:",
+            error
+        )
+
+    blockchain = Blockchain()
 
     blockchain.add_block(
         {
-            "type":
-                transaction_type,
-
-            "username":
-                username,
-
-            "generated":
-                generated,
-
-            "consumed":
-                consumed,
-
-            "anomaly":
-                bool(is_anomaly)
+            "type": "ENERGY_READING_APPROVED",
+            "username": username,
+            "generated": generated,
+            "consumed": consumed,
+            "anomaly": False
         }
     )
 

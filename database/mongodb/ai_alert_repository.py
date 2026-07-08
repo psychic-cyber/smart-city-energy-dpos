@@ -131,3 +131,11 @@ def get_alerts_by_severity(severity, limit=20):
         alert["risk_level"] = normalized
 
     return alerts
+
+def find_existing_alert(username, reason):
+    return get_ai_alert_collection().find_one(
+        {
+            "username": username,
+            "reason": reason,
+        }
+    )

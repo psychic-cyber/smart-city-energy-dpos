@@ -1,33 +1,39 @@
 import os
 from datetime import datetime
-
 import joblib
 import pandas as pd
 
 from ai.ai_engine import generate_ai_insight
+
 from database.mongodb.ai_alert_repository import (
     count_ai_alerts,
     count_alerts_by_severity,
     count_critical_alerts,
     get_latest_ai_alert,
     save_ai_alert,
+    find_existing_alert,
 )
+
 from database.mongodb.ai_history_repository import (
     count_predictions,
     get_ai_history,
     get_history_statistics,
     save_ai_history,
 )
+
 from database.mongodb.energy_record_repository import (
     get_approved_records,
 )
+
 from database.mongodb.marketplace_repository import (
     get_marketplace_summary,
     get_marketplace_transactions,
 )
+
 from database.mongodb.user_repository import (
     get_all_users,
 )
+
 from database.mongodb.user_transaction_repository import (
     get_all_user_transactions,
 )
@@ -689,28 +695,44 @@ def _create_alerts_from_analysis(anomalies, risk_level, prediction):
 
     for anomaly in anomalies:
         severity = "CRITICAL" if anomaly["status"] == "Critical" else "HIGH"
-        alert = save_ai_alert({
-            "username": anomaly["affected_user"],
-            "generated": anomaly["energy_generated"],
-            "consumed": anomaly["energy_consumed"],
-            "reason": anomaly["reason"],
-            "severity": severity,
-            "confidence": anomaly["confidence"],
-            "timestamp": anomaly["timestamp"],
-        })
-        created.append(alert)
+        existing = find_existing_alert(
+            anomaly["affected_user"],
+            anomaly["reason"]
+        )
+
+        if not existing:
+
+            alert = save_ai_alert({
+                "username": anomaly["affected_user"],
+                "generated": anomaly["energy_generated"],
+                "consumed": anomaly["energy_consumed"],
+                "reason": anomaly["reason"],
+                "severity": severity,
+                "confidence": anomaly["confidence"],
+                "timestamp": anomaly["timestamp"],
+            })
+
+            created.append(alert)
 
     if _ml_engine()["should_create_ai_alert"](risk_level) and not anomalies:
-        alert = save_ai_alert({
-            "username": "SYSTEM",
-            "generated": 0,
-            "consumed": prediction["current_consumption"],
-            "reason": _ml_engine()["generate_recommendation"](risk_level),
-            "severity": risk_level,
-            "confidence": prediction["confidence"],
-            "timestamp": str(datetime.now()),
-        })
-        created.append(alert)
+        existing = find_existing_alert(
+            "SYSTEM",
+            _ml_engine()["generate_recommendation"](risk_level)
+        )
+
+        if not existing:
+
+            alert = save_ai_alert({
+                "username": "SYSTEM",
+                "generated": 0,
+                "consumed": prediction["current_consumption"],
+                "reason": _ml_engine()["generate_recommendation"](risk_level),
+                "severity": risk_level,
+                "confidence": prediction["confidence"],
+                "timestamp": str(datetime.now()),
+            })
+
+            created.append(alert)
 
     return created
 

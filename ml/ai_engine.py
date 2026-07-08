@@ -67,19 +67,34 @@ def generate_recommendation(level):
     recommendations = {
 
         "LOW":
-            "System operating normally",
+            (
+                "System operating normally. "
+                "Continue monitoring energy usage and maintain current generation levels."
+            ),
 
         "MEDIUM":
-            "Monitor energy usage trends",
+            (
+                "Energy demand is increasing. "
+                "Monitor usage trends and shift non-essential loads to off-peak hours."
+            ),
 
         "HIGH":
-            "Reduce peak-hour consumption",
+            (
+                "High energy consumption detected. "
+                "Reduce peak-hour usage, increase renewable generation, and consider purchasing energy from the marketplace."
+            ),
 
         "CRITICAL":
-            "Immediate investigation required"
+            (
+                "Critical grid condition detected. "
+                "Immediate investigation required. Isolate abnormal entities, review AI alerts, and stabilize the energy network."
+            )
     }
 
-    return recommendations[level]
+    return recommendations.get(
+        level,
+        recommendations["LOW"]
+    )
 
 def should_create_ai_alert(level):
 
