@@ -1,7 +1,6 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-
   console.log("Deploying SmartEnergyToken...");
 
   const Token = await ethers.getContractFactory("SmartEnergyToken");
@@ -10,7 +9,6 @@ async function main() {
 
   const tokenAddress = await token.getAddress();
   console.log("Token:", tokenAddress);
-
 
   console.log("Deploying Marketplace...");
 
@@ -21,10 +19,8 @@ async function main() {
   const marketplaceAddress = await marketplace.getAddress();
   console.log("Marketplace:", marketplaceAddress);
 
-
   console.log("Register Marketplace...");
   await (await token.setMarketplace(marketplaceAddress)).wait();
-
 
   console.log("Deploying DPoSVoting...");
 
@@ -35,56 +31,27 @@ async function main() {
   const votingAddress = await voting.getAddress();
   console.log("Voting:", votingAddress);
 
-
   const [owner, hospital, solar, university] = await ethers.getSigners();
-
 
   console.log("Minting Tokens...");
   await (
     await token.mint(owner.address, ethers.parseUnits("100000", 18))
   ).wait();
 
-
   console.log("Register Producer...");
-  await (
-    await marketplace.registerEnergyProducer()
-  ).wait();
-
+  await (await marketplace.registerEnergyProducer()).wait();
 
   console.log("Register Consumer...");
-  await (
-    await marketplace.registerEnergyConsumer()
-  ).wait();
-
+  await (await marketplace.registerEnergyConsumer()).wait();
 
   console.log("Approve Marketplace...");
   await (
-    await token.approve(
-      marketplaceAddress,
-      ethers.parseUnits("100000", 18)
-    )
+    await token.approve(marketplaceAddress, ethers.parseUnits("100000", 18))
   ).wait();
 
+  console.log("Register Delegate...");
 
-  console.log("Register Delegates...");
-
-  await (
-      await voting
-          .connect(hospital)
-          .registerDelegate("SmartCity-Hospital01")
-  ).wait();
-
-  await (
-      await voting
-          .connect(solar)
-          .registerDelegate("SmartCity-SolarFarm01")
-  ).wait();
-
-  await (
-      await voting
-          .connect(university)
-          .registerDelegate("SmartCity-University01")
-  ).wait();
+  await (await voting.registerDelegate("SmartCity-Hospital01")).wait();
 
   console.log("Initialization Complete.");
 
@@ -93,7 +60,6 @@ async function main() {
   console.log("MARKETPLACE_ADDRESS=" + marketplaceAddress);
   console.log("DPOS_ADDRESS=" + votingAddress);
   console.log("================================");
-
 }
 
 main().catch((error) => {
