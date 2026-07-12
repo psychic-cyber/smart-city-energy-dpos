@@ -6,7 +6,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const {
   RPC_URL,
-  PRIVATE_KEY,
+  PRIVATE_KEY_OWNER,
   TOKEN_ADDRESS,
   MARKETPLACE_ADDRESS,
   DPOS_ADDRESS,
@@ -42,11 +42,11 @@ function getProvider() {
 }
 
 function getWallet() {
-  if (!PRIVATE_KEY) {
-    throw new Error("Missing PRIVATE_KEY in .env");
+  if (!PRIVATE_KEY_OWNER) {
+    throw new Error("Missing PRIVATE_KEY_OWNER in .env");
   }
 
-  return new ethers.Wallet(PRIVATE_KEY, provider);
+  return new ethers.Wallet(PRIVATE_KEY_OWNER, provider);
 }
 
 const provider = getProvider();

@@ -31,35 +31,15 @@ async function main() {
   const votingAddress = await voting.getAddress();
   console.log("Voting:", votingAddress);
 
-  const [owner, hospital, solar, university] = await ethers.getSigners();
-
-  console.log("Minting Tokens...");
-  await (
-    await token.mint(owner.address, ethers.parseUnits("100000", 18))
-  ).wait();
-
-  console.log("Register Producer...");
-  await (await marketplace.registerEnergyProducer()).wait();
-
-  console.log("Register Consumer...");
-  await (await marketplace.registerEnergyConsumer()).wait();
-
-  console.log("Approve Marketplace...");
-  await (
-    await token.approve(marketplaceAddress, ethers.parseUnits("100000", 18))
-  ).wait();
-
-  console.log("Register Delegate...");
-
-  await (await voting.registerDelegate("SmartCity-Hospital01")).wait();
-
-  console.log("Initialization Complete.");
-
   console.log("================================");
   console.log("TOKEN_ADDRESS=" + tokenAddress);
   console.log("MARKETPLACE_ADDRESS=" + marketplaceAddress);
   console.log("DPOS_ADDRESS=" + votingAddress);
   console.log("================================");
+
+  console.log("Contracts deployed successfully.");
+  console.log("Now run:");
+  console.log("npx hardhat run scripts/initialize.js --network amoy");
 }
 
 main().catch((error) => {
