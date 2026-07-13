@@ -190,28 +190,52 @@ def finish_current_election():
 
     previous_validator = get_active_validator()
 
-    leader = get_current_leader()
+    # Top 2 delegates nikalo
+    leaders = get_top_delegates(2)
 
-    winner = None
-    winner_votes = 0
+    if not leaders:
+        return {
+            "success": False,
+            "message": "No delegates found."
+        }
 
-    if leader and leader.get("votes", 0) > 0:
+    # Agar kisi ko vote hi nahi mila
+    if leaders[0]["votes"] == 0:
+        return {
+            "success": False,
+            "message": "No votes have been cast."
+        }
 
-        winner = leader["username"]
-        winner_votes = leader["votes"]
+    # ----------------------------
+    # TIE CHECK
+    # ----------------------------
+    if (
+        len(leaders) > 1 and
+        leaders[0]["votes"] == leaders[1]["votes"]
+    ):
+        return {
+            "success": False,
+            "message": "Election resulted in a tie. Continue voting until a clear winner is selected."
+        }
 
-        activate_validator(
-            winner,
-            str(datetime.now())
-        )
+    # ----------------------------
+    # WINNER
+    # ----------------------------
+    winner = leaders[0]["username"]
+    winner_votes = leaders[0]["votes"]
 
-        save_validator_change(
-            previous_validator["username"] if previous_validator else None,
-            winner,
-            previous_validator.get("votes", 0) if previous_validator else 0,
-            winner_votes,
-            str(datetime.now())
-        )
+    activate_validator(
+        winner,
+        str(datetime.now())
+    )
+
+    save_validator_change(
+        previous_validator["username"] if previous_validator else None,
+        winner,
+        previous_validator.get("votes", 0) if previous_validator else 0,
+        winner_votes,
+        str(datetime.now())
+    )
 
     close_current_election(
         winner,
