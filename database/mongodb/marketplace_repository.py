@@ -17,13 +17,17 @@ def get_marketplace_collection():
 def create_listing(
     seller,
     energy,
-    price
+    price,
+    blockchain_listing_id
 ):
 
     listing = {
 
         "seller":
             seller,
+
+        "blockchain_listing_id": 
+            blockchain_listing_id,
 
         "energy":
             energy,

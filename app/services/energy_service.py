@@ -6,6 +6,7 @@ from blockchain.storage.storage_manager import save_blockchain
 from blockchain.utils.hash_utils import calculate_hash
 from app.services.blockchain_client import (
     marketplace_sell,
+    marketplace_buy,
 )
 from database.mongodb.blockchain_repository import save_block
 from database.mongodb.marketplace_repository import (
@@ -112,11 +113,15 @@ def create_marketplace_listing(seller, energy_value, price_value):
         return False, "You already have an active listing", None
 
     try:
-        marketplace_sell(seller, energy, price)
+        blockchain_listing = marketplace_sell(
+            seller,
+            energy,
+            price
+        )
     except Exception as error:
         return False, f"Unable to create on-chain marketplace listing: {error}", None
 
-    listing = create_listing(seller, energy, price)
+    listing = create_listing(seller, energy, price, blockchain_listing["listingId"])
     matched_count = match_requests_for_listing(seller, energy, price)
     _record_blockchain_transaction({
         "type": "ENERGY_LISTED",
@@ -164,8 +169,25 @@ def purchase_energy(buyer, seller, quantity_value):
         return False, "Insufficient balance to complete this purchase", None
 
     updated_listing = purchase_listing(seller, quantity, buyer)
+
     if not updated_listing:
         return False, "The available energy changed. Please try again", None
+
+    try:
+        marketplace_buy(
+            updated_listing["blockchain_listing_id"],
+            buyer
+        )
+    except Exception as error:
+        restore_listing_energy(
+            updated_listing["_id"],
+            quantity
+        )
+        return (
+            False,
+            f"Blockchain purchase failed: {error}",
+            None
+        )
 
     original_energy = float(listing.get("original_energy", available))
     remaining = float(updated_listing["energy"])

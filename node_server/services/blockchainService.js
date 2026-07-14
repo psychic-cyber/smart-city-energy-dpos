@@ -1,7 +1,16 @@
-const { ethers } = require('ethers');
-const { provider, wallet, getToken, getMarketplace, getVoting } = require('../config/provider');
+const { ethers } = require("ethers");
 
-const listingStatusNames = ['Open', 'Purchased', 'Completed', 'Cancelled'];
+const {
+  provider,
+  getWallet,
+  getToken,
+  getMarketplace,
+  getVoting,
+} = require("../config/provider");
+
+const { getUserWallet } = require("./userWalletService");
+
+const listingStatusNames = ["Open", "Purchased", "Completed", "Cancelled"];
 
 async function getTokenContract() {
   return getToken();
@@ -46,20 +55,31 @@ async function getTokenBalance(address) {
   };
 }
 
-async function transferToken(to, amount) {
-  const recipient = ethers.getAddress(to);
-  if (!amount || amount.toString().trim().length === 0) {
-    throw new Error('Amount is required');
+async function transferToken(fromUsername, to, amount) {
+  if (!fromUsername) {
+    throw new Error("Sender username is required");
   }
 
-  const token = await getToken();
+  const recipient = ethers.getAddress(to);
+
+  if (!amount || Number(amount) <= 0) {
+    throw new Error("Amount is required");
+  }
+
+  const user = await getUserWallet(fromUsername);
+
+  const token = getToken(user.privateKey);
+
   const decimals = await token.decimals();
-  const amountParsed = ethers.parseUnits(amount.toString(), Number(decimals));
-  const tx = await token.transfer(recipient, amountParsed);
+
+  const parsedAmount = ethers.parseUnits(amount.toString(), Number(decimals));
+
+  const tx = await token.transfer(recipient, parsedAmount);
+
   const receipt = await tx.wait();
 
   return {
-    transactionHash: receipt.transactionHash,
+    transactionHash: receipt.hash,
     blockNumber: receipt.blockNumber,
     gasUsed: receipt.gasUsed.toString(),
   };
@@ -68,8 +88,10 @@ async function transferToken(to, amount) {
 async function getMarketplaceOrders() {
   const marketplace = await getMarketplace();
   const filter = marketplace.filters.EnergyListingCreated();
-  const events = await marketplace.queryFilter(filter, 0, 'latest');
-  const sortedEvents = events.sort((a, b) => Number(a.args.listingId) - Number(b.args.listingId));
+  const events = await marketplace.queryFilter(filter, 0, "latest");
+  const sortedEvents = events.sort(
+    (a, b) => Number(a.args.listingId) - Number(b.args.listingId),
+  );
 
   const orders = [];
 
@@ -84,7 +106,8 @@ async function getMarketplaceOrders() {
       quantity: listing.quantity.toString(),
       pricePerUnit: listing.pricePerUnit.toString(),
       createdAt: listing.createdAt.toString(),
-      status: listingStatusNames[Number(listing.status)] || listing.status.toString(),
+      status:
+        listingStatusNames[Number(listing.status)] || listing.status.toString(),
     });
   }
 
@@ -92,49 +115,76 @@ async function getMarketplaceOrders() {
 }
 
 async function createMarketplaceListing(seller, energyAmount, price) {
+  if (!seller) {
+    throw new Error("Seller username is required");
+  }
+
   if (!energyAmount || Number(energyAmount) <= 0) {
-    throw new Error('Energy amount must be greater than zero');
+    throw new Error("Energy amount must be greater than zero");
   }
 
   if (!price || Number(price) <= 0) {
-    throw new Error('Price must be greater than zero');
+    throw new Error("Price must be greater than zero");
   }
 
-  const marketplace = await getMarketplace();
+  const user = await getUserWallet(seller);
 
-  const token = await getToken();
+  const marketplace = getMarketplace(user.privateKey);
+
+  const token = getToken(user.privateKey);
+
   const decimals = await token.decimals();
+
   const pricePerUnit = ethers.parseUnits(price.toString(), Number(decimals));
 
   const tx = await marketplace.createEnergyListing(
     ethers.toBigInt(energyAmount),
-    pricePerUnit
+    pricePerUnit,
   );
 
   const receipt = await tx.wait();
 
+  const event = receipt.logs
+    .map((log) => {
+      try {
+        return marketplace.interface.parseLog(log);
+      } catch {
+        return null;
+      }
+    })
+    .find((e) => e && e.name === "EnergyListingCreated");
+
+  if (!event) {
+    throw new Error("EnergyListingCreated event not found");
+  }
+
   return {
-    transactionHash: receipt.transactionHash,
+    listingId: Number(event.args.listingId),
+    transactionHash: receipt.hash,
     blockNumber: receipt.blockNumber,
     gasUsed: receipt.gasUsed.toString(),
   };
 }
 
 async function buyMarketplaceListing(listingId, buyer) {
-  if (!listingId || Number(listingId) <= 0) {
-    throw new Error('ListingId must be greater than zero');
+  if (!buyer) {
+    throw new Error("Buyer username is required");
   }
 
-  const marketplace = await getMarketplace();
+  if (!listingId || Number(listingId) <= 0) {
+    throw new Error("ListingId must be greater than zero");
+  }
 
-  const tx = await marketplace.buyEnergy(
-    ethers.toBigInt(listingId)
-  );
+  const user = await getUserWallet(buyer);
+
+  const marketplace = getMarketplace(user.privateKey);
+
+  const tx = await marketplace.buyEnergy(ethers.toBigInt(listingId));
 
   const receipt = await tx.wait();
 
   return {
-    transactionHash: receipt.transactionHash,
+    transactionHash: receipt.hash,
     blockNumber: receipt.blockNumber,
     gasUsed: receipt.gasUsed.toString(),
   };
@@ -164,7 +214,7 @@ async function getValidators() {
 
 async function getDelegateByAddress(address) {
   if (!ethers.isAddress(address)) {
-    throw new Error('Invalid address');
+    throw new Error("Invalid address");
   }
 
   const voting = await getVoting();
@@ -186,20 +236,28 @@ async function getDelegateByAddress(address) {
     }
   }
 
-  throw new Error('Delegate not found');
+  throw new Error("Delegate not found");
 }
 
-async function voteForDelegate(delegateId) {
-  if (!delegateId || Number(delegateId) <= 0) {
-    throw new Error('Delegate id must be greater than zero');
+async function voteForDelegate(voter, delegateId) {
+  if (!voter) {
+    throw new Error("Voter username is required");
   }
 
-  const voting = await getVoting();
+  if (!delegateId || Number(delegateId) <= 0) {
+    throw new Error("Delegate id must be greater than zero");
+  }
+
+  const user = await getUserWallet(voter);
+
+  const voting = getVoting(user.privateKey);
+
   const tx = await voting.voteDelegate(ethers.toBigInt(delegateId));
+
   const receipt = await tx.wait();
 
   return {
-    transactionHash: receipt.transactionHash,
+    transactionHash: receipt.hash,
     blockNumber: receipt.blockNumber,
     gasUsed: receipt.gasUsed.toString(),
   };
@@ -208,7 +266,8 @@ async function voteForDelegate(delegateId) {
 async function healthCheck() {
   try {
     const network = await provider.getNetwork();
-    const walletAddress = await wallet.getAddress();
+    const ownerWallet = getWallet();
+    const walletAddress = await ownerWallet.getAddress();
     const token = getToken();
     const marketplace = getMarketplace();
     const voting = getVoting();
@@ -218,7 +277,9 @@ async function healthCheck() {
       network: network.name || `chainId:${network.chainId}`,
       wallet: ethers.getAddress(walletAddress),
       tokenAddress: ethers.getAddress(token.target || token.address),
-      marketplaceAddress: ethers.getAddress(marketplace.target || marketplace.address),
+      marketplaceAddress: ethers.getAddress(
+        marketplace.target || marketplace.address,
+      ),
       votingAddress: ethers.getAddress(voting.target || voting.address),
     };
   } catch (error) {

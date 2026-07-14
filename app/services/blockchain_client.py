@@ -50,13 +50,35 @@ def get_token_balance(address: str):
     return _request("GET", f"/token/balance/{address}")
 
 
-def transfer(to: str, amount):
-    if not to or amount is None:
-        raise BlockchainClientError("Recipient and amount are required")
+def transfer(
+    from_username,
+    to: str,
+    amount
+):
+
+    if not from_username:
+        raise BlockchainClientError(
+            "Sender username is required"
+        )
+
+    if not to:
+        raise BlockchainClientError(
+            "Recipient is required"
+        )
+
+    if amount is None:
+        raise BlockchainClientError(
+            "Amount is required"
+        )
+
     return _request(
         "POST",
         "/token/transfer",
-        json={"to": to, "amount": amount},
+        json={
+            "fromUsername": from_username,
+            "to": to,
+            "amount": amount,
+        },
     )
 
 
@@ -64,13 +86,12 @@ def marketplace_orders():
     return _request("GET", "/marketplace/orders")
 
 
-def marketplace_sell(seller: str, energy_amount, price):
-    if seller is None:
-        raise BlockchainClientError("Seller is required")
-    if energy_amount is None:
-        raise BlockchainClientError("Energy amount is required")
-    if price is None:
-        raise BlockchainClientError("Price is required")
+def marketplace_sell(
+    seller,
+    energy_amount,
+    price
+):
+
     return _request(
         "POST",
         "/marketplace/sell",
@@ -82,15 +103,18 @@ def marketplace_sell(seller: str, energy_amount, price):
     )
 
 
-def marketplace_buy(listing_id, buyer: str):
-    if listing_id is None:
-        raise BlockchainClientError("Listing id is required")
-    if not buyer:
-        raise BlockchainClientError("Buyer is required")
+def marketplace_buy(
+    listing_id,
+    buyer
+):
+
     return _request(
         "POST",
         "/marketplace/buy",
-        json={"listingId": listing_id, "buyer": buyer},
+        json={
+            "listingId": listing_id,
+            "buyer": buyer,
+        },
     )
 
 
@@ -104,13 +128,18 @@ def get_delegate(address: str):
     return _request("GET", f"/voting/delegates/{address}")
 
 
-def vote(delegate_id):
-    if delegate_id is None:
-        raise BlockchainClientError("Delegate id is required")
+def vote(
+    voter,
+    delegate_id
+):
+
     return _request(
         "POST",
         "/voting/vote",
-        json={"delegate": delegate_id},
+        json={
+            "voter": voter,
+            "delegate": delegate_id,
+        },
     )
 
 

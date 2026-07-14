@@ -5,13 +5,11 @@ async function health(req, res) {
     const result = await blockchainService.healthCheck();
     return res.status(result.success ? 200 : 500).json(result);
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Health check failed",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Health check failed",
+      error: error.message,
+    });
   }
 }
 
@@ -22,13 +20,11 @@ async function tokenInfo(req, res) {
       .status(200)
       .json({ success: true, message: "Token info retrieved", data });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Unable to retrieve token info",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Unable to retrieve token info",
+      error: error.message,
+    });
   }
 }
 
@@ -40,31 +36,31 @@ async function tokenBalance(req, res) {
       .status(200)
       .json({ success: true, message: "Token balance retrieved", data });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to retrieve token balance",
-        error: error.message,
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Unable to retrieve token balance",
+      error: error.message,
+    });
   }
 }
 
 async function tokenTransfer(req, res) {
   try {
-    const { to, amount } = req.body;
-    const data = await blockchainService.transferToken(to, amount);
+    const { fromUsername, to, amount } = req.body;
+    const data = await blockchainService.transferToken(
+      fromUsername,
+      to,
+      amount,
+    );
     return res
       .status(200)
       .json({ success: true, message: "Token transfer submitted", data });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to transfer tokens",
-        error: error.message,
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Unable to transfer tokens",
+      error: error.message,
+    });
   }
 }
 
@@ -75,13 +71,11 @@ async function marketplaceOrders(req, res) {
       .status(200)
       .json({ success: true, message: "Marketplace orders retrieved", data });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Unable to retrieve marketplace orders",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Unable to retrieve marketplace orders",
+      error: error.message,
+    });
   }
 }
 
@@ -97,34 +91,50 @@ async function marketplaceSell(req, res) {
       .status(200)
       .json({ success: true, message: "Marketplace listing created", data });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to create marketplace listing",
-        error: error.message,
-      });
+    console.log("========== MARKETPLACE SELL ERROR ==========");
+    console.error(error);
+    console.error(error.reason);
+    console.error(error.shortMessage);
+    console.error(error.info);
+    console.error(error.stack);
+    console.log("============================================");
+
+    return res.status(400).json({
+      success: false,
+      message: "Unable to create marketplace listing",
+      error: error.shortMessage || error.reason || error.message,
+    });
   }
 }
 
 async function marketplaceBuy(req, res) {
   try {
     const { listingId, buyer } = req.body;
+
     const data = await blockchainService.buyMarketplaceListing(
       listingId,
       buyer,
     );
-    return res
-      .status(200)
-      .json({ success: true, message: "Marketplace purchase submitted", data });
+
+    return res.status(200).json({
+      success: true,
+      message: "Marketplace purchase submitted",
+      data,
+    });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to purchase marketplace listing",
-        error: error.message,
-      });
+    console.log("========== MARKETPLACE BUY ERROR ==========");
+    console.error(error);
+    console.error("reason:", error.reason);
+    console.error("short:", error.shortMessage);
+    console.error("info:", error.info);
+    console.error(error.stack);
+    console.log("===========================================");
+
+    return res.status(400).json({
+      success: false,
+      message: "Unable to purchase marketplace listing",
+      error: error.shortMessage || error.reason || error.message,
+    });
   }
 }
 
@@ -167,31 +177,27 @@ async function votingDelegateInfo(req, res) {
       .status(200)
       .json({ success: true, message: "Delegate info retrieved", data });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to retrieve delegate info",
-        error: error.message,
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Unable to retrieve delegate info",
+      error: error.message,
+    });
   }
 }
 
 async function votingVote(req, res) {
   try {
-    const { delegate } = req.body;
-    const data = await blockchainService.voteForDelegate(delegate);
+    const { voter, delegate } = req.body;
+    const data = await blockchainService.voteForDelegate(voter, delegate);
     return res
       .status(200)
       .json({ success: true, message: "Vote submitted", data });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Unable to submit vote",
-        error: error.message,
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Unable to submit vote",
+      error: error.message,
+    });
   }
 }
 
