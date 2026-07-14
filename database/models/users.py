@@ -4,19 +4,25 @@ from datetime import datetime
 class User:
 
     def __init__(
-        self,
-        username,
-        email,
-        password,
-        role="user",
-        energy_balance=0
-    ):
+    self,
+    username,
+    email,
+    password,
+    role="user",
+    energy_balance=0,
+    wallet_address="",
+    private_key=""
+):
 
         self.username = username
         self.email = email
         self.password = password
         self.role = role
         self.energy_balance = energy_balance
+
+        self.wallet_address = wallet_address
+        self.private_key = private_key
+
         self.created_at = str(
             datetime.utcnow()
         )
@@ -38,6 +44,12 @@ class User:
 
             "energy_balance":
                 self.energy_balance,
+
+            "wallet_address":
+                self.wallet_address,
+
+            "private_key":
+                self.private_key,
 
             "created_at":
                 self.created_at,

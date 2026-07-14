@@ -3,6 +3,8 @@ from werkzeug.security import (
     check_password_hash
 )
 
+from app.utils.wallet_generator import create_wallet
+
 from database.models.users import User
 
 from database.mongodb.user_repository import (
@@ -51,12 +53,16 @@ def register_user(
         )
     )
 
+    wallet = create_wallet()
+
     user = User(
         username=username,
         email=email,
         password=hashed_password,
         role=role,
-        energy_balance=0
+        energy_balance=0,
+        wallet_address=wallet["address"],
+        private_key=wallet["private_key"]
     )
 
     user_dict = user.to_dict()

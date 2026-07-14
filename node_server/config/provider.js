@@ -41,18 +41,22 @@ function getProvider() {
   return new ethers.JsonRpcProvider(RPC_URL);
 }
 
-function getWallet() {
-  if (!PRIVATE_KEY_OWNER) {
-    throw new Error("Missing PRIVATE_KEY_OWNER in .env");
+function getWallet(privateKey = PRIVATE_KEY_OWNER) {
+
+  if (!privateKey) {
+    throw new Error("Private key is required");
   }
 
-  return new ethers.Wallet(PRIVATE_KEY_OWNER, provider);
+  return new ethers.Wallet(
+    privateKey,
+    provider
+  );
 }
 
 const provider = getProvider();
-const wallet = getWallet();
 
-function getToken() {
+function getToken(privateKey = PRIVATE_KEY_OWNER) {
+
   if (!TOKEN_ADDRESS) {
     throw new Error("Missing TOKEN_ADDRESS in .env");
   }
@@ -60,11 +64,12 @@ function getToken() {
   return new ethers.Contract(
     TOKEN_ADDRESS,
     loadAbi("SmartEnergyToken"),
-    wallet,
+    getWallet(privateKey),
   );
 }
 
-function getMarketplace() {
+function getMarketplace(privateKey = PRIVATE_KEY_OWNER) {
+
   if (!MARKETPLACE_ADDRESS) {
     throw new Error("Missing MARKETPLACE_ADDRESS in .env");
   }
@@ -72,21 +77,26 @@ function getMarketplace() {
   return new ethers.Contract(
     MARKETPLACE_ADDRESS,
     loadAbi("EnergyMarketplace"),
-    wallet,
+    getWallet(privateKey),
   );
 }
 
-function getVoting() {
+function getVoting(privateKey = PRIVATE_KEY_OWNER) {
+
   if (!DPOS_ADDRESS) {
     throw new Error("Missing DPOS_ADDRESS in .env");
   }
 
-  return new ethers.Contract(DPOS_ADDRESS, loadAbi("DPoSVoting"), wallet);
+  return new ethers.Contract(
+    DPOS_ADDRESS,
+    loadAbi("DPoSVoting"),
+    getWallet(privateKey),
+  );
 }
 
 module.exports = {
   provider,
-  wallet,
+  getWallet,
   getToken,
   getMarketplace,
   getVoting,
