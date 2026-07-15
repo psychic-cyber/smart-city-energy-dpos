@@ -13,6 +13,9 @@ from database.mongodb.user_repository import (
     find_user_by_username
 )
 
+from app.services.blockchain_client import (
+    initialize_user
+)
 
 def register_user(
     username,
@@ -70,6 +73,18 @@ def register_user(
     save_user(
         user_dict
     )
+
+    try:
+
+        initialize_user(
+            username
+        )
+
+    except Exception as error:
+
+        print(
+            error
+        )
 
     return (
         True,

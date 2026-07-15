@@ -58,6 +58,8 @@ from database.mongodb.election_repository import (
     get_current_election
 )
 
+from app.services.blockchain_client import initialize_user
+
 
 user_bp = Blueprint(
     "users",
@@ -90,9 +92,14 @@ def register():
 
         if result[0]:
 
-            return redirect(
-                "/login"
-            )
+            try:
+                initialize_user(
+                    request.form["username"]
+                )
+            except Exception as e:
+                print(e)
+
+            return redirect("/login")
 
     return render_template(
         "register.html"

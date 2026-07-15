@@ -18,7 +18,7 @@ def _url(path: str) -> str:
 
 def _request(method: str, path: str, **kwargs):
     try:
-        response = requests.request(method, _url(path), timeout=10, **kwargs)
+        response = requests.request(method, _url(path), timeout=60, **kwargs)
     except requests.RequestException as error:
         raise BlockchainClientError(
             f"Unable to reach Node blockchain backend: {error}"
@@ -114,6 +114,20 @@ def marketplace_buy(
         json={
             "listingId": listing_id,
             "buyer": buyer,
+        },
+    )
+
+def initialize_user(username):
+    if not username:
+        raise BlockchainClientError(
+            "Username is required"
+        )
+
+    return _request(
+        "POST",
+        "/users/initialize",
+        json={
+            "username": username,
         },
     )
 

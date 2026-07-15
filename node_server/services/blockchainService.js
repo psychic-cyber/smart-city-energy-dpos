@@ -12,6 +12,73 @@ const { getUserWallet } = require("./userWalletService");
 
 const listingStatusNames = ["Open", "Purchased", "Completed", "Cancelled"];
 
+async function ensureConsumer(user) {
+  const marketplace = getMarketplace(user.privateKey);
+
+  const registered = await marketplace.consumers(user.wallet);
+
+  if (!registered) {
+    const tx = await marketplace.registerEnergyConsumer();
+    await tx.wait();
+  }
+}
+
+async function ensureProducer(user) {
+  const marketplace = getMarketplace(user.privateKey);
+
+  const registered = await marketplace.producers(user.wallet);
+
+  if (!registered) {
+    const tx = await marketplace.registerEnergyProducer();
+    await tx.wait();
+  }
+}
+
+async function ensureAllowance(user) {
+  const token = getToken(user.privateKey);
+  const marketplace = getMarketplace();
+
+  const allowance = await token.allowance(user.wallet, marketplace.target);
+
+  if (allowance == 0n) {
+    const tx = await token.approve(marketplace.target, ethers.MaxUint256);
+
+    await tx.wait();
+  }
+}
+
+async function ensureGas(user) {
+  const balance = await provider.getBalance(user.wallet);
+
+  if (balance < ethers.parseEther("0.10")) {
+    const owner = getWallet();
+
+    const tx = await owner.sendTransaction({
+      to: user.wallet,
+      value: ethers.parseEther("0.10"),
+    });
+
+    await tx.wait();
+  }
+}
+
+async function ensureBalance(user) {
+  const token = getToken();
+
+  const balance = await token.balanceOf(user.wallet);
+
+  if (balance == 0n) {
+    const ownerToken = getToken(getWallet().privateKey);
+
+    const tx = await ownerToken.mint(
+      user.wallet,
+      ethers.parseUnits("20000", 18),
+    );
+
+    await tx.wait();
+  }
+}
+
 async function getTokenContract() {
   return getToken();
 }
@@ -129,6 +196,14 @@ async function createMarketplaceListing(seller, energyAmount, price) {
 
   const user = await getUserWallet(seller);
 
+  await ensureGas(user);
+
+  await ensureBalance(user);
+
+  await ensureAllowance(user);
+
+  await ensureProducer(user);
+
   const marketplace = getMarketplace(user.privateKey);
 
   const token = getToken(user.privateKey);
@@ -176,6 +251,14 @@ async function buyMarketplaceListing(listingId, buyer) {
   }
 
   const user = await getUserWallet(buyer);
+
+  await ensureGas(user);
+
+  await ensureBalance(user);
+
+  await ensureAllowance(user);
+
+  await ensureConsumer(user);
 
   const marketplace = getMarketplace(user.privateKey);
 
@@ -295,6 +378,71 @@ async function healthCheck() {
   }
 }
 
+async function initializeUser(username) {
+  if (!username) {
+    throw new Error("Username is required");
+  }
+
+  const user = await getUserWallet(username);
+
+  const owner = getWallet();
+
+  const ownerBalance = await provider.getBalance(user.wallet);
+
+  if (ownerBalance < ethers.parseEther("0.02")) {
+    const tx = await owner.sendTransaction({
+      to: user.wallet,
+      value: ethers.parseEther("0.02"),
+    });
+
+    await tx.wait();
+  }
+
+  const ownerToken = getToken();
+
+  const balance = await ownerToken.balanceOf(user.wallet);
+
+  if (balance == 0n) {
+    await (
+      await ownerToken.mint(user.wallet, ethers.parseUnits("20000", 18))
+    ).wait();
+  }
+
+  const userToken = getToken(user.privateKey);
+
+  const allowance = await userToken.allowance(
+    user.wallet,
+    process.env.MARKETPLACE_ADDRESS,
+  );
+
+  if (allowance == 0n) {
+    await (
+      await userToken.approve(
+        process.env.MARKETPLACE_ADDRESS,
+        ethers.MaxUint256,
+      )
+    ).wait();
+  }
+
+  const marketplace = getMarketplace(user.privateKey);
+
+  const consumer = await marketplace.consumers(user.wallet);
+
+  if (!consumer) {
+    await (await marketplace.registerEnergyConsumer()).wait();
+  }
+
+  const producer = await marketplace.producers(user.wallet);
+
+  if (!producer) {
+    await (await marketplace.registerEnergyProducer()).wait();
+  }
+
+  return {
+    success: true,
+  };
+}
+
 module.exports = {
   getToken: getTokenContract,
   getMarketplace: getMarketplaceContract,
@@ -305,6 +453,7 @@ module.exports = {
   getMarketplaceOrders,
   createMarketplaceListing,
   buyMarketplaceListing,
+  initializeUser,
   getValidators,
   getDelegateByAddress,
   voteForDelegate,

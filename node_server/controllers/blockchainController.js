@@ -13,6 +13,26 @@ async function health(req, res) {
   }
 }
 
+async function initialize(req, res) {
+  try {
+    const { username } = req.body;
+
+    const data = await blockchainService.initializeUser(username);
+
+    return res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
 async function tokenInfo(req, res) {
   try {
     const data = await blockchainService.getTokenInfo();
@@ -203,6 +223,7 @@ async function votingVote(req, res) {
 
 module.exports = {
   health,
+  initialize,
   tokenInfo,
   tokenBalance,
   tokenTransfer,
