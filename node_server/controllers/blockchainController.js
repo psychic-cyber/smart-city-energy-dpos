@@ -232,5 +232,5 @@ module.exports = {
   marketplaceBuy,
   votingValidators,
   votingDelegateInfo,
-  votingVote,
+  votingVote
 };
