@@ -553,6 +553,7 @@ def vote_delegate_route():
 
     try:
         blockchain_vote = vote_on_chain(
+            voter,
             validator.get("id")
         )
     except Exception as error:

@@ -117,9 +117,28 @@ loadDelegates();
 loadDposStatus();
 
 async function createListing() {
-  const energy = document.getElementById("listingEnergy").value;
+  const energy = Number(document.getElementById("listingEnergy").value);
+const price = Number(document.getElementById("listingPrice").value);
 
-  const price = document.getElementById("listingPrice").value;
+if (!Number.isInteger(energy) || energy <= 0) {
+    showToast("Energy must be greater than zero.", "error");
+    return;
+}
+
+if (price <= 0) {
+    showToast("Price must be greater than zero.", "error");
+    return;
+}
+
+if (energy > 100000) {
+    showToast("Energy value is too large.", "error");
+    return;
+}
+
+if (price > 10000) {
+    showToast("Price value is too large.", "error");
+    return;
+}
 
   const response = await fetch("/api/create-listing", {
     method: "POST",
@@ -139,10 +158,26 @@ async function createListing() {
   showToast(result.message, result.success ? 'success' : 'error');
 }
 
-async function submitEnergyReading() {
-  const generated = document.getElementById("generatedEnergy").value;
 
-  const consumed = document.getElementById("consumedEnergy").value;
+
+async function submitEnergyReading() {
+  const generated = Number(document.getElementById("generatedEnergy").value);
+const consumed = Number(document.getElementById("consumedEnergy").value);
+
+if (!Number.isInteger(generated) || generated <= 0) {
+    showToast("Generated energy must be greater than zero.", "error");
+    return;
+}
+
+if (!Number.isInteger(consumed) || consumed <= 0) {
+    showToast("Consumed energy must be greater than zero.", "error");
+    return;
+}
+
+if (generated > 100000 || consumed > 100000) {
+    showToast("Energy value is too large.", "error");
+    return;
+}
 
   const response = await fetch("/api/submit-energy", {
     method: "POST",

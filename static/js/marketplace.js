@@ -243,7 +243,8 @@ function updateBuyModalTotals() {
   const total = error ? 0 : quantity * buyModalState.price;
 
   document.getElementById("modalQuantityError").textContent = error;
-  document.getElementById("modalTotalCost").textContent = `Rs ${formatNumber(total)}`;
+  document.getElementById("modalTotalCost").textContent =
+    `Rs ${formatNumber(total)}`;
   document.getElementById("confirmPurchaseBtn").disabled = Boolean(error);
   input.classList.toggle("is-invalid", Boolean(error));
 }
@@ -293,7 +294,8 @@ async function confirmPurchase() {
   const quantity = Number(document.getElementById("modalQuantity").value);
 
   button.disabled = true;
-  button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Purchasing…';
+  button.innerHTML =
+    '<span class="spinner-border spinner-border-sm me-2"></span>Purchasing…';
 
   try {
     const response = await fetch("/api/buy-energy", {
@@ -364,94 +366,141 @@ function renderRequests(requests) {
     .join("");
 }
 
-document.getElementById("createListingForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
+document
+  .getElementById("createListingForm")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  const energy = document.getElementById("listingEnergy").value;
-  const price = document.getElementById("listingPrice").value;
-  const button = document.getElementById("createListingBtn");
+    const energy = document.getElementById("listingEnergy").value;
+    const price = document.getElementById("listingPrice").value;
+    const button = document.getElementById("createListingBtn");
 
-  if (!Number.isInteger(Number(energy)) || Number(energy) < 1) {
-    showToast("Energy must be a whole number of at least 1 kWh.", "danger");
-    return;
-  }
-  if (Number(price) <= 0) {
-    showToast("Price must be greater than zero.", "danger");
-    return;
-  }
-
-  button.disabled = true;
-
-  try {
-    const response = await fetch("/api/create-listing", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ energy: Number(energy), price: Number(price) }),
-    });
-    const result = await response.json();
-
-    showToast(result.message, result.success ? "success" : "danger");
-
-    if (result.success) {
-      event.target.reset();
-      await refreshMarketplaceData();
+    if (!Number.isInteger(Number(energy)) || Number(energy) < 1) {
+      showToast("Energy must be a whole number of at least 1 kWh.", "danger");
+      return;
     }
-  } catch (error) {
-    showToast("Listing could not be created. Please try again.", "danger");
-  } finally {
-    button.disabled = false;
-  }
-});
-
-document.getElementById("energyRequestForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const energy = document.getElementById("requestedEnergy").value;
-  const maximumPrice = document.getElementById("maximumPrice").value;
-
-  if (!Number.isInteger(Number(energy)) || Number(energy) < 1) {
-    showToast("Requested energy must be a whole number of at least 1 kWh.", "danger");
-    return;
-  }
-  if (maximumPrice !== "" && Number(maximumPrice) <= 0) {
-    showToast("Maximum price must be greater than zero.", "danger");
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/marketplace/requests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requested_energy: Number(energy),
-        maximum_price_per_kwh: maximumPrice === "" ? null : Number(maximumPrice),
-        message: document.getElementById("requestMessage").value,
-      }),
-    });
-    const result = await response.json();
-
-    showToast(result.message, result.success ? "success" : "danger");
-
-    if (result.success) {
-      event.target.reset();
-      await refreshMarketplaceData();
+    if (Number(price) <= 0) {
+      showToast("Price must be greater than zero.", "danger");
+      return;
     }
-  } catch (error) {
-    showToast("Request could not be submitted. Please try again.", "danger");
-  }
-});
 
-document.getElementById("refreshMarketplaceBtn").addEventListener("click", refreshMarketplaceData);
-document.getElementById("modalQuantity").addEventListener("input", updateBuyModalTotals);
-document.getElementById("modalQuantityDecrease").addEventListener("click", () => {
-  changeModalQuantity(-1);
-});
-document.getElementById("modalQuantityIncrease").addEventListener("click", () => {
-  changeModalQuantity(1);
-});
-document.getElementById("confirmPurchaseBtn").addEventListener("click", confirmPurchase);
+    if (Number(energy) > 100000) {
+      showToast("Energy value is too large.", "danger");
+      return;
+    }
+
+    if (Number(price) > 10000) {
+      showToast("Price value is too large.", "danger");
+      return;
+    }
+
+    button.disabled = true;
+
+    try {
+      const response = await fetch("/api/create-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ energy: Number(energy), price: Number(price) }),
+      });
+      const result = await response.json();
+
+      showToast(result.message, result.success ? "success" : "danger");
+
+      if (result.success) {
+        event.target.reset();
+        await refreshMarketplaceData();
+      }
+    } catch (error) {
+      showToast("Listing could not be created. Please try again.", "danger");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+document
+  .getElementById("energyRequestForm")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const energy = document.getElementById("requestedEnergy").value;
+    const maximumPrice = document.getElementById("maximumPrice").value;
+
+    const message = document.getElementById("requestMessage").value.trim();
+
+    if (message.length > 300) {
+      showToast("Message is too long.", "danger");
+      return;
+    }
+
+    if (!Number.isInteger(Number(energy)) || Number(energy) < 1) {
+      showToast(
+        "Requested energy must be a whole number of at least 1 kWh.",
+        "danger",
+      );
+      return;
+    }
+    if (maximumPrice !== "" && Number(maximumPrice) <= 0) {
+      showToast("Maximum price must be greater than zero.", "danger");
+      return;
+    }
+
+    if (Number(energy) > 100000) {
+      showToast("Requested energy is too large.", "danger");
+      return;
+    }
+
+    if (maximumPrice !== "" && Number(maximumPrice) > 10000) {
+      showToast("Maximum price is too large.", "danger");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/marketplace/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requested_energy: Number(energy),
+          maximum_price_per_kwh:
+            maximumPrice === "" ? null : Number(maximumPrice),
+          message: message,
+        }),
+      });
+      const result = await response.json();
+
+      showToast(result.message, result.success ? "success" : "danger");
+
+      if (result.success) {
+        event.target.reset();
+        await refreshMarketplaceData();
+      }
+    } catch (error) {
+      showToast("Request could not be submitted. Please try again.", "danger");
+    }
+  });
+
+document
+  .getElementById("refreshMarketplaceBtn")
+  .addEventListener("click", refreshMarketplaceData);
+document
+  .getElementById("modalQuantity")
+  .addEventListener("input", updateBuyModalTotals);
+document
+  .getElementById("modalQuantityDecrease")
+  .addEventListener("click", () => {
+    changeModalQuantity(-1);
+  });
+document
+  .getElementById("modalQuantityIncrease")
+  .addEventListener("click", () => {
+    changeModalQuantity(1);
+  });
+document
+  .getElementById("confirmPurchaseBtn")
+  .addEventListener("click", confirmPurchase);
 
 document.addEventListener("DOMContentLoaded", () => {
-  buyEnergyModal = new bootstrap.Modal(document.getElementById("buyEnergyModal"));
+  buyEnergyModal = new bootstrap.Modal(
+    document.getElementById("buyEnergyModal"),
+  );
   refreshMarketplaceData();
 });

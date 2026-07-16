@@ -43,7 +43,10 @@
               <i class="bi bi-person-circle"></i>
             </div>
             <h1 class="marketplace-hero__title">Welcome, {{ username }}</h1>
-            <p class="marketplace-hero__subtitle">Personal energy management, marketplace access, and DPoS participation.</p>
+            <p class="marketplace-hero__subtitle">
+              Personal energy management, marketplace access, and DPoS
+              participation.
+            </p>
           </header>
 
           <section class="marketplace-section">
@@ -51,19 +54,25 @@
               <div class="col-lg-3 col-sm-6">
                 <div class="marketplace-stat-card">
                   <p class="marketplace-stat-card__label">Energy Balance</p>
-                  <p class="marketplace-stat-card__value" id="energyBalance">0</p>
+                  <p class="marketplace-stat-card__value" id="energyBalance">
+                    0
+                  </p>
                 </div>
               </div>
               <div class="col-lg-3 col-sm-6">
                 <div class="marketplace-stat-card">
                   <p class="marketplace-stat-card__label">Energy Generated</p>
-                  <p class="marketplace-stat-card__value" id="energyGenerated">0</p>
+                  <p class="marketplace-stat-card__value" id="energyGenerated">
+                    0
+                  </p>
                 </div>
               </div>
               <div class="col-lg-3 col-sm-6">
                 <div class="marketplace-stat-card">
                   <p class="marketplace-stat-card__label">Energy Consumed</p>
-                  <p class="marketplace-stat-card__value" id="energyConsumed">0</p>
+                  <p class="marketplace-stat-card__value" id="energyConsumed">
+                    0
+                  </p>
                 </div>
               </div>
               <div class="col-lg-3 col-sm-6">
@@ -77,18 +86,47 @@
 
           <section class="marketplace-section">
             <div class="marketplace-panel">
-              <h2 class="marketplace-panel__title"><i class="bi bi-cloud-upload"></i> Submit Energy Reading</h2>
+              <h2 class="marketplace-panel__title">
+                <i class="bi bi-cloud-upload"></i> Submit Energy Reading
+              </h2>
               <div class="marketplace-form-row">
                 <div class="marketplace-form-field">
-                  <label class="form-label" for="generatedEnergy">Energy Generated</label>
-                  <input type="number" id="generatedEnergy" class="form-control marketplace-input" placeholder="Energy Generated" />
+                  <label class="form-label" for="generatedEnergy"
+                    >Energy Generated</label
+                  >
+                  <input
+                    type="number"
+                    id="generatedEnergy"
+                    class="form-control marketplace-input"
+                    placeholder="Energy Generated"
+                    min="1"
+                    max="100000"
+                    step="1"
+                    required
+                  />
                 </div>
                 <div class="marketplace-form-field">
-                  <label class="form-label" for="consumedEnergy">Energy Consumed</label>
-                  <input type="number" id="consumedEnergy" class="form-control marketplace-input" placeholder="Energy Consumed" />
+                  <label class="form-label" for="consumedEnergy"
+                    >Energy Consumed</label
+                  >
+                  <input
+                    type="number"
+                    id="consumedEnergy"
+                    class="form-control marketplace-input"
+                    placeholder="Energy Consumed"
+                    min="1"
+                    max="100000"
+                    step="1"
+                    required
+                  />
                 </div>
                 <div class="marketplace-form-action">
-                  <button class="btn marketplace-btn-primary w-100" onclick="submitEnergyReading()">Submit Reading</button>
+                  <button
+                    class="btn marketplace-btn-primary w-100"
+                    onclick="submitEnergyReading()"
+                  >
+                    Submit Reading
+                  </button>
                 </div>
               </div>
             </div>
@@ -96,30 +134,69 @@
 
           <section class="marketplace-section">
             <div class="marketplace-panel">
-              <h2 class="marketplace-panel__title"><i class="bi bi-check2-square"></i> DPoS Delegate Voting</h2>
-              <p class="marketplace-panel__subtitle">Vote for the delegate who will validate blockchain transactions.</p>
+              <h2 class="marketplace-panel__title">
+                <i class="bi bi-check2-square"></i> DPoS Delegate Voting
+              </h2>
+              <p class="marketplace-panel__subtitle">
+                Vote for the delegate who will validate blockchain transactions.
+              </p>
               <div id="delegateVotingList"></div>
             </div>
           </section>
 
           <section class="marketplace-section">
             <div class="marketplace-panel">
-              <h2 class="marketplace-panel__title"><i class="bi bi-shop-window"></i> Energy Marketplace</h2>
-              <p class="marketplace-panel__subtitle">List energy, trade with peers, or access the marketplace instantly.</p>
+              <h2 class="marketplace-panel__title">
+                <i class="bi bi-shop-window"></i> Energy Marketplace
+              </h2>
+              <p class="marketplace-panel__subtitle">
+                List energy, trade with peers, or access the marketplace
+                instantly.
+              </p>
               <div class="row g-3 mt-3">
                 <div class="col-md-4">
-                  <input type="number" id="listingEnergy" class="form-control marketplace-input" placeholder="Energy (kWh)" />
+                  <input
+                    type="number"
+                    id="listingEnergy"
+                    class="form-control marketplace-input"
+                    placeholder="Energy (kWh)"
+                    min="1"
+                    max="100000"
+                    step="1"
+                    required
+                  />
                 </div>
                 <div class="col-md-4">
-                  <input type="number" id="listingPrice" class="form-control marketplace-input" placeholder="Price Per kWh" />
+                  <input
+                    type="number"
+                    id="listingPrice"
+                    class="form-control marketplace-input"
+                    placeholder="Price Per kWh"
+                    min="0.01"
+                    max="10000"
+                    step="0.01"
+                    required
+                  />
                 </div>
                 <div class="col-md-4">
-                  <button class="btn marketplace-btn-primary w-100" onclick="createListing()">Create Listing</button>
+                  <button
+                    class="btn marketplace-btn-primary w-100"
+                    onclick="createListing()"
+                  >
+                    Create Listing
+                  </button>
                 </div>
               </div>
               <div class="mt-3 d-flex flex-wrap gap-2">
-                <a href="/marketplace" class="btn marketplace-btn-secondary">Open Marketplace</a>
-                <button class="btn marketplace-btn-primary" onclick="sellEnergy()">Sell 50 kWh</button>
+                <a href="/marketplace" class="btn marketplace-btn-secondary"
+                  >Open Marketplace</a
+                >
+                <button
+                  class="btn marketplace-btn-primary"
+                  onclick="sellEnergy()"
+                >
+                  Sell 50 kWh
+                </button>
               </div>
             </div>
           </section>

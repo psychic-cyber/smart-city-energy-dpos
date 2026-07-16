@@ -70,21 +70,12 @@ def register_user(
 
     user_dict = user.to_dict()
 
-    save_user(
-        user_dict
-    )
+    save_user(user_dict)
 
     try:
-
-        initialize_user(
-            username
-        )
-
-    except Exception as error:
-
-        print(
-            error
-        )
+        initialize_user(username)
+    except Exception as e:
+        print(e)
 
     return (
         True,

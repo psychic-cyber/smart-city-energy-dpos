@@ -24,10 +24,10 @@
 
         <form method="POST">
           <div class="mb-3">
-            <input type="email" name="email" class="form-control" placeholder="Email Address" required />
+            <input type="email" name="email" class="form-control" placeholder="Email Address" required maxlength="100"/>
           </div>
           <div class="mb-3 password-input-wrapper">
-            <input type="password" name="password" class="form-control password-input" placeholder="Password" required />
+            <input type="password" name="password" class="form-control password-input" placeholder="Password" required minlength="5" maxlength="100"/>
             <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(event)">
               <i class="bi bi-eye-slash"></i>
             </button>

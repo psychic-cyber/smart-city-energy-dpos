@@ -438,6 +438,25 @@ async function initializeUser(username) {
     await (await marketplace.registerEnergyProducer()).wait();
   }
 
+  const { getDatabase } = require("../config/mongo");
+
+  const db = await getDatabase();
+
+  await db.collection("users").updateOne(
+    {
+      username: username,
+    },
+    {
+      $set: {
+        energy_balance: 0,
+        total_revenue: 0,
+        energy_generated: 0,
+        energy_consumed: 0,
+        total_spending: 0,
+      },
+    },
+  );
+
   return {
     success: true,
   };
