@@ -24,7 +24,10 @@ contract EnergyMarketplace is Ownable, Pausable, ReentrancyGuard {
         uint256 id;
         address seller;
         address buyer;
-        uint256 quantity;
+
+        uint256 originalQuantity;
+        uint256 remainingQuantity;
+
         uint256 pricePerUnit;
         uint256 createdAt;
         ListingStatus status;
@@ -55,7 +58,7 @@ contract EnergyMarketplace is Ownable, Pausable, ReentrancyGuard {
     event EnergyProducerRegistered(address indexed producer);
     event EnergyConsumerRegistered(address indexed consumer);
     event EnergyListingCreated(uint256 indexed listingId, address indexed seller, uint256 quantity, uint256 pricePerUnit, uint256 timestamp);
-    event EnergyListingPurchased(uint256 indexed listingId, address indexed buyer, uint256 totalPrice, uint256 timestamp);
+    event EnergyListingPurchased(uint256 indexed listingId, address indexed buyer, uint256 quantity, uint256 remainingQuantity, uint256 totalPrice, uint256 timestamp);
     event EnergyListingCancelled(uint256 indexed listingId, uint256 timestamp);
     event EnergyListingCompleted(uint256 indexed listingId, uint256 timestamp);
 
@@ -126,7 +129,10 @@ contract EnergyMarketplace is Ownable, Pausable, ReentrancyGuard {
             id: listingId,
             seller: msg.sender,
             buyer: address(0),
-            quantity: quantity,
+
+            originalQuantity: quantity,
+            remainingQuantity: quantity,
+
             pricePerUnit: pricePerUnit,
             createdAt: block.timestamp,
             status: ListingStatus.Open
@@ -140,17 +146,62 @@ contract EnergyMarketplace is Ownable, Pausable, ReentrancyGuard {
      * @notice Buy an active energy listing with the caller's approved tokens.
      * @param listingId The listing to purchase.
      */
-    function buyEnergy(uint256 listingId) external onlyConsumer whenNotPaused nonReentrant listingExists(listingId) onlyOpenListing(listingId) {
+    function buyEnergy(
+        uint256 listingId,
+        uint256 quantity
+    )
+        external
+        onlyConsumer
+        whenNotPaused
+        nonReentrant
+        listingExists(listingId)
+        onlyOpenListing(listingId)
+    {
         Listing storage listing = listings[listingId];
-        if (listing.seller == msg.sender) revert CannotBuyOwnListing(listing.seller);
 
-        uint256 totalPrice = listing.quantity * listing.pricePerUnit;
-        bool success = token.marketplaceTransferFrom(msg.sender, listing.seller, totalPrice);
-        if (!success) revert TransferFailed(listingId, msg.sender, listing.seller);
+        if (listing.seller == msg.sender)
+            revert CannotBuyOwnListing(listing.seller);
+
+        if (quantity == 0)
+            revert InvalidQuantity(quantity);
+
+        if (quantity > listing.remainingQuantity)
+            revert InvalidQuantity(quantity);
+
+        uint256 totalPrice =
+            quantity *
+            listing.pricePerUnit;
+
+        bool success =
+            token.marketplaceTransferFrom(
+                msg.sender,
+                listing.seller,
+                totalPrice
+            );
+
+        if (!success)
+            revert TransferFailed(
+                listingId,
+                msg.sender,
+                listing.seller
+            );
 
         listing.buyer = msg.sender;
-        listing.status = ListingStatus.Purchased;
-        emit EnergyListingPurchased(listingId, msg.sender, totalPrice, block.timestamp);
+
+        listing.remainingQuantity -= quantity;
+
+        if (listing.remainingQuantity == 0) {
+            listing.status = ListingStatus.Purchased;
+        }
+
+        emit EnergyListingPurchased(
+            listingId,
+            msg.sender,
+            quantity,
+            listing.remainingQuantity,
+            totalPrice,
+            block.timestamp
+        );
     }
 
     /**

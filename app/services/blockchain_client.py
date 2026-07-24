@@ -105,8 +105,14 @@ def marketplace_sell(
 
 def marketplace_buy(
     listing_id,
-    buyer
+    buyer,
+    quantity
 ):
+
+    if quantity is None:
+        raise BlockchainClientError(
+            "Quantity is required"
+        )
 
     return _request(
         "POST",
@@ -114,6 +120,7 @@ def marketplace_buy(
         json={
             "listingId": listing_id,
             "buyer": buyer,
+            "quantity": quantity,
         },
     )
 

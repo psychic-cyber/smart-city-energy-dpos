@@ -129,11 +129,12 @@ async function marketplaceSell(req, res) {
 
 async function marketplaceBuy(req, res) {
   try {
-    const { listingId, buyer } = req.body;
+    const { listingId, buyer, quantity } = req.body;
 
     const data = await blockchainService.buyMarketplaceListing(
       listingId,
       buyer,
+      quantity,
     );
 
     return res.status(200).json({

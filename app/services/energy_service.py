@@ -176,7 +176,8 @@ def purchase_energy(buyer, seller, quantity_value):
     try:
         marketplace_buy(
             updated_listing["blockchain_listing_id"],
-            buyer
+            buyer,
+            quantity
         )
     except Exception as error:
         restore_listing_energy(

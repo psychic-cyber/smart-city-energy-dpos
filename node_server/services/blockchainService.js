@@ -170,7 +170,8 @@ async function getMarketplaceOrders() {
       id: listing.id.toString(),
       seller: ethers.getAddress(listing.seller),
       buyer: ethers.getAddress(listing.buyer),
-      quantity: listing.quantity.toString(),
+      quantity: listing.originalQuantity.toString(),
+      remainingQuantity: listing.remainingQuantity.toString(),
       pricePerUnit: listing.pricePerUnit.toString(),
       createdAt: listing.createdAt.toString(),
       status:
@@ -241,13 +242,17 @@ async function createMarketplaceListing(seller, energyAmount, price) {
   };
 }
 
-async function buyMarketplaceListing(listingId, buyer) {
+async function buyMarketplaceListing(listingId, buyer, quantity) {
   if (!buyer) {
     throw new Error("Buyer username is required");
   }
 
   if (!listingId || Number(listingId) <= 0) {
     throw new Error("ListingId must be greater than zero");
+  }
+
+  if (!quantity || Number(quantity) <= 0) {
+    throw new Error("Quantity must be greater than zero");
   }
 
   const user = await getUserWallet(buyer);
@@ -262,7 +267,10 @@ async function buyMarketplaceListing(listingId, buyer) {
 
   const marketplace = getMarketplace(user.privateKey);
 
-  const tx = await marketplace.buyEnergy(ethers.toBigInt(listingId));
+  const tx = await marketplace.buyEnergy(
+    ethers.toBigInt(listingId),
+    ethers.toBigInt(quantity)
+  );
 
   const receipt = await tx.wait();
 

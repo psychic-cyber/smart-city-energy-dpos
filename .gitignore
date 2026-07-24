@@ -28,3 +28,4 @@ node_server/.env
 contracts/remix.config.json
 contracts/scenario.json
 
+SmartGridBackup.zip
