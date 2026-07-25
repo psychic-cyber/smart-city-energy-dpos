@@ -59,6 +59,7 @@ from database.mongodb.election_repository import (
 )
 
 from app.services.blockchain_client import initialize_user
+from flask import flash
 
 
 user_bp = Blueprint(
@@ -119,33 +120,25 @@ def login():
             request.form["password"]
         )
 
-        if user:
+        if not user:
+            return jsonify({
+                "success": False,
+                "message": "Invalid email or password."
+            }), 401
 
-            session["user_id"] = str(
-                user["_id"]
-            )
+        session["user_id"] = str(user["_id"])
+        session["username"] = user["username"]
+        session["role"] = user["role"]
 
-            session["username"] = user[
-                "username"
-            ]
+        return jsonify({
+            "success": True,
+            "redirect":
+                "/admin-dashboard"
+                if user["role"] == "Admin"
+                else "/user-dashboard"
+        })
 
-            session["role"] = user[
-                "role"
-            ]
-
-            if user["role"] == "Admin":
-
-                return redirect(
-                    "/admin-dashboard"
-                )
-
-            return redirect(
-                "/user-dashboard"
-            )
-
-    return render_template(
-        "login.html"
-    )
+    return render_template("login.html")
 
 
 @user_bp.route(

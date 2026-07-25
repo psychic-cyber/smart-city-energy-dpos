@@ -20,15 +20,36 @@
       <div class="auth-card">
         <div class="auth-logo">⚡</div>
         <h2>SmartGrid Login</h2>
-        <p class="auth-subtitle">Secure access to enterprise energy intelligence.</p>
+        <p class="auth-subtitle">
+          Secure access to enterprise energy intelligence.
+        </p>
 
-        <form method="POST">
+        <form id="loginForm">
           <div class="mb-3">
-            <input type="email" name="email" class="form-control" placeholder="Email Address" required maxlength="100"/>
+            <input
+              type="email"
+              name="email"
+              class="form-control"
+              placeholder="Email Address"
+              required
+              maxlength="100"
+            />
           </div>
           <div class="mb-3 password-input-wrapper">
-            <input type="password" name="password" class="form-control password-input" placeholder="Password" required minlength="5" maxlength="100"/>
-            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(event)">
+            <input
+              type="password"
+              name="password"
+              class="form-control password-input"
+              placeholder="Password"
+              required
+              minlength="5"
+              maxlength="100"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              onclick="togglePasswordVisibility(event)"
+            >
               <i class="bi bi-eye-slash"></i>
             </button>
           </div>
@@ -42,22 +63,6 @@
       </div>
     </div>
 
-    <script>
-      function togglePasswordVisibility(event) {
-        event.preventDefault();
-        const passwordInput = event.target.closest('.password-toggle-btn').parentElement.querySelector('.password-input');
-        const icon = event.target.closest('.password-toggle-btn').querySelector('i');
-
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          icon.classList.remove('bi-eye-slash');
-          icon.classList.add('bi-eye');
-        } else {
-          passwordInput.type = 'password';
-          icon.classList.remove('bi-eye');
-          icon.classList.add('bi-eye-slash');
-        }
-      }
-    </script>
+    <script src="/static/js/login.js"></script>
   </body>
 </html>

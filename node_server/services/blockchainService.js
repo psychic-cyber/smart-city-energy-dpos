@@ -281,18 +281,52 @@ async function buyMarketplaceListing(listingId, buyer, quantity) {
   };
 }
 
+// async function getValidators() {
+//   const voting = await getVoting();
+//   const totalValidators = await voting.delegateCount();
+//   const validatorCount = Number(totalValidators);
+//   const validators = [];
+
+//   for (let i = 1; i <= validatorCount; i += 1) {
+//     const delegate = await voting.getDelegate(i);
+//     const normalizedAccount = ethers.getAddress(delegate.account.toLowerCase());
+//     validators.push({
+//       id: delegate.id.toString(),
+//       account: normalizedAccount,
+//       name: delegate.name,
+//       votes: delegate.votes.toString(),
+//       registeredAt: delegate.registeredAt.toString(),
+//       active: delegate.active,
+//     });
+//   }
+
+//   return validators;
+// }
+
 async function getValidators() {
   const voting = await getVoting();
+
+  console.log("STEP 1");
+
   const totalValidators = await voting.delegateCount();
+
+  console.log("Delegate Count =", totalValidators.toString());
+
   const validatorCount = Number(totalValidators);
+
   const validators = [];
 
-  for (let i = 1; i <= validatorCount; i += 1) {
+  for (let i = 1; i <= validatorCount; i++) {
+
+    console.log("Reading delegate", i);
+
     const delegate = await voting.getDelegate(i);
-    const normalizedAccount = ethers.getAddress(delegate.account.toLowerCase());
+
+    console.log(delegate);
+
     validators.push({
       id: delegate.id.toString(),
-      account: normalizedAccount,
+      account: delegate.account,
       name: delegate.name,
       votes: delegate.votes.toString(),
       registeredAt: delegate.registeredAt.toString(),

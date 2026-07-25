@@ -133,6 +133,9 @@ def create_marketplace_listing(seller, energy_value, price_value):
     return True, "Listing Created Successfully", {
         "listing": listing,
         "matched_requests": matched_count,
+        "transactionHash": blockchain_listing.get("transactionHash"),
+        "blockNumber": blockchain_listing.get("blockNumber"),
+        "gasUsed": blockchain_listing.get("gasUsed"),
     }
 
 
@@ -174,7 +177,7 @@ def purchase_energy(buyer, seller, quantity_value):
         return False, "The available energy changed. Please try again", None
 
     try:
-        marketplace_buy(
+        blockchain_purchase = marketplace_buy(
             updated_listing["blockchain_listing_id"],
             buyer,
             quantity
@@ -250,6 +253,10 @@ def purchase_energy(buyer, seller, quantity_value):
         "total_amount": amount,
         "listing_status": updated_listing["status"],
         "block_hash": block.hash,
+
+        "transactionHash": blockchain_purchase.get("transactionHash"),
+        "blockNumber": blockchain_purchase.get("blockNumber"),
+        "gasUsed": blockchain_purchase.get("gasUsed"),
     }
 
 
