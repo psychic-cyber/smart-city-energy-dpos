@@ -1,3 +1,5 @@
+console.log("LOGIN JS LOADED");
+
 function showToast(message, type = "success") {
   let container = document.querySelector(".toast-container");
 
@@ -38,6 +40,14 @@ document
   .addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    const submitBtn = this.querySelector("button[type='submit']");
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+    <span class="spinner-border spinner-border-sm me-2"></span>
+    Signing In...
+`;
+
     const formData = new FormData(this);
 
     try {
@@ -53,13 +63,35 @@ document
 
         setTimeout(() => {
           window.location.href = result.redirect;
-        }, 1000);
+        }, 1500);
       } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Login";
+
         showToast(result.message, "error");
       }
     } catch (err) {
       console.error(err);
 
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = "Login";
+
       showToast("Unable to connect to server.", "error");
     }
   });
+
+function togglePasswordVisibility(event) {
+  const button = event.currentTarget;
+  const input = button.previousElementSibling;
+  const icon = button.querySelector("i");
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("bi-eye-slash");
+    icon.classList.add("bi-eye");
+  } else {
+    input.type = "password";
+    icon.classList.remove("bi-eye");
+    icon.classList.add("bi-eye-slash");
+  }
+}
