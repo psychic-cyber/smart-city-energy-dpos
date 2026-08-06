@@ -578,9 +578,9 @@ Developed as a **Master's Research Project**.
 
 # 👨‍💻 Author
 
-**Muhammad Osama**
+**Zaeem Ahmad**
 
-Software Engineer
+AI Research Engineer
 
 Blockchain Developer
 
