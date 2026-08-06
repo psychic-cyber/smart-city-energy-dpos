@@ -331,15 +331,25 @@ Database Layer
 ```text
 smartgrid/
 │
-├── app/
-├── contracts/
-├── static/
-├── templates/
-├── migrations/
-├── docs/
-├── tests/
+├── ai
+├── app
+├── blockchain
+├── blockchain_test.py
+├── contracts
+├── dashboard
+├── database
+├── docs
+├── ml
+├── node_server
+├── powerbi
+├── __pycache__
+├── README.md
 ├── requirements.txt
-└── README.md
+├── run.py
+├── static
+├── templates
+├── tests
+└── venv
 ```
 
 ---
