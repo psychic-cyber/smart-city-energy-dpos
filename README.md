@@ -305,20 +305,18 @@ Database Layer
 - Ethereum
 - Polygon Amoy Testnet
 - Smart Contracts
-- Web3.py
 
 ---
 
 ## Database
 
-- MySQL
+- MongoDB
 
 ---
 
 ## Development Tools
 
-- Remix IDE
-- Ganache
+- Polygon
 - MetaMask
 - Visual Studio Code
 - Git
@@ -426,13 +424,13 @@ smartgrid/
 Clone the repository
 
 ```bash
-git clone https://github.com/psychic-cyber/smartgrid-energy-trading.git
+git clone git@github.com:psychic-cyber/smart-city-energy-dpos.git
 ```
 
 Navigate to the project
 
 ```bash
-cd smartgrid-energy-trading
+cd smart-city-energy-dpos
 ```
 
 Create Virtual Environment
@@ -470,14 +468,6 @@ Create a `.env` file.
 ```env
 SECRET_KEY=your_secret_key
 
-MYSQL_HOST=localhost
-
-MYSQL_USER=root
-
-MYSQL_PASSWORD=your_password
-
-MYSQL_DATABASE=smartgrid
-
 RPC_URL=https://polygon-amoy.g.alchemy.com/v2/your_api_key
 
 PRIVATE_KEY=your_private_key
@@ -503,6 +493,12 @@ Deploy Smart Contract
 python deploy.py
 ```
 
+Initialize Smart Contract
+
+```bash
+python initialize.py
+```
+
 Deployment generates:
 
 - Contract Address
@@ -514,7 +510,7 @@ Deployment generates:
 # ▶ Running the Application
 
 ```bash
-python app.py
+python run.py
 ```
 
 Open
