@@ -584,7 +584,7 @@ Developed as a **Master's Research Project**.
 
 # 👨‍💻 Author
 
-**Ahmad**
+**Zaz**
 
 AI Research Engineer
 
